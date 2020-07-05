@@ -1,0 +1,11 @@
+# header
+:title Sequence Diagram Example
+:author John Smith
+:authorEmail john.smith@example.com
+:date
+
+# Client / Server Response
+Client -> Server: Request
+Server -> Service: Query
+Service -> Server: Data
+Server -> Client: Response
