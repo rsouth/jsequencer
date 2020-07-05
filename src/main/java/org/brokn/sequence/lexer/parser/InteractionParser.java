@@ -24,14 +24,14 @@ public class InteractionParser {
         try {
             String[] lines = input.split("\n");
             int interactionCount = 0;
-            for (int i = 0; i < lines.length; i++) {
+            for (String line : lines) {
                 // lines with -> are 'interactions'
-                if (lines[i].contains(INTERACTION_TOKEN)) {
-                    String[] split = lines[i].split(INTERACTION_TOKEN);
+                if (line.contains(INTERACTION_TOKEN)) {
+                    String[] split = line.split(INTERACTION_TOKEN);
                     String fromNode = split[0].trim();
                     String toNode = split[1].trim();
 
-                    String message = "";
+                    String message = null;
                     if (toNode.contains(":")) {
                         String[] split1 = toNode.split(":");
                         message = split1[1];
