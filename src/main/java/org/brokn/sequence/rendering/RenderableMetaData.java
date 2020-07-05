@@ -2,13 +2,12 @@ package org.brokn.sequence.rendering;
 
 import org.brokn.sequence.model.MetaData;
 
-import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 
 public class RenderableMetaData {
 
-    private static final int VERTICAL_GAP = 10;
+    private static final int VERTICAL_GAP = 20;
 
     private final MetaData model;
 
@@ -21,25 +20,17 @@ public class RenderableMetaData {
 
         //title
         if(this.model.getTitle() != null) {
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;
+            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;
         }
 
         // author
-        if(this.model.getAuthorName() != null) {
-            Font originalFont = g.getFont();
-            g.setFont(getTitleFont(g));
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorName()).height;
-            g.setFont(originalFont);
-        }
-
-        // author email
-        if(this.model.getAuthorEmail() != null) {
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorEmail()).height;
+        if(this.model.getAuthor() != null) {
+            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
         }
 
         // date
         if(this.model.isShowDate()) {
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, "date").height;
+            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), "date").height;
         }
 
         return totalHeight;
@@ -50,45 +41,33 @@ public class RenderableMetaData {
         // draw title
         if(this.model.getTitle() != null) {
             Font originalFont = g.getFont();
-            Font titleFont = new Font(originalFont.getName(), Font.BOLD, 20);
-            g.setFont(titleFont);
+            g.setFont(getTitleFont(g));
 
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;
-
+            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;
             g.drawString(this.model.getTitle(), 10, 10 + titleHeight);
-            g.setFont(originalFont);
 
+            g.setFont(originalFont);
         }
 
         // draw author name
-        if(this.model.getAuthorName() != null) {
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;// 0 if no title shown
-            g.drawString(this.model.getAuthorName(), 10, 10 + titleHeight*2 + VERTICAL_GAP *2);
-        }
-
-        // draw author email
-        if(this.model.getAuthorEmail() != null) {
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;// 0 if no title shown
-            int authorWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(), this.model.getAuthorName());
-            g.drawString("(" + this.model.getAuthorEmail() + ")", 15 + authorWidth, 10 + titleHeight*2 + VERTICAL_GAP *2);
+        if(this.model.getAuthor() != null) {
+            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;// 0 if no title shown
+            int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
+            int y = titleHeight + (this.model.getTitle() == null ? 10 : VERTICAL_GAP) + authorHeight;
+            g.drawString(this.model.getAuthor(), 10, y);
         }
 
         // draw current date (10th June 2020 so no regional ambiguity)
         // todo worth adding ability to format the date?
         if(this.model.isShowDate()) {
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;// 0 if no title shown
-            int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorName()).height;
-            int emailHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorEmail()).height;
-            int spacing = 0;
-            if(authorHeight > 0) {
-                spacing += VERTICAL_GAP;
-            }
-            if(emailHeight > 0) {
-                spacing += VERTICAL_GAP;
-            }
-            int priotHeight = titleHeight + authorHeight + emailHeight + spacing;
+            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;// 0 if no title shown
+            int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
+            int dateHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), "date").height;
 
-            g.drawString(LocalDate.now().toString(), 10, 10 + priotHeight);
+            int spacing = (this.model.getTitle() != null || this.model.getAuthor() != null ? VERTICAL_GAP : 0);
+            int y = titleHeight + authorHeight + dateHeight + spacing;
+
+            g.drawString(LocalDate.now().toString(), 10, y);
         }
     }
 

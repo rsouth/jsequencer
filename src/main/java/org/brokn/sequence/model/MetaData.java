@@ -4,16 +4,13 @@ public class MetaData {
 
     private final String title;
 
-    private final String authorName;
-
-    private final String authorEmail;
+    private final String author;
 
     private final boolean showDate;
 
-    public MetaData(String title, String authorName, String authorEmail, boolean showDate) {
+    public MetaData(String title, String author, boolean showDate) {
         this.title = title;
-        this.authorName = authorName;
-        this.authorEmail = authorEmail;
+        this.author = author;
         this.showDate = showDate;
     }
 
@@ -21,12 +18,8 @@ public class MetaData {
         return title;
     }
 
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public String getAuthorEmail() {
-        return authorEmail;
+    public String getAuthor() {
+        return author;
     }
 
     public boolean isShowDate() {
@@ -37,8 +30,7 @@ public class MetaData {
     public String toString() {
         return "MetaData{" +
                 "title='" + title + '\'' +
-                ", authorName='" + authorName + '\'' +
-                ", authorEmail='" + authorEmail + '\'' +
+                ", author='" + author + '\'' +
                 ", showDate=" + showDate +
                 '}';
     }
