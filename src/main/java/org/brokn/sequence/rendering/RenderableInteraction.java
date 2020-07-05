@@ -2,7 +2,6 @@ package org.brokn.sequence.rendering;
 
 import org.brokn.sequence.model.Interaction;
 
-import javax.swing.*;
 import java.awt.*;
 
 import static org.brokn.sequence.rendering.Canvas.VERTICAL_GAP;
