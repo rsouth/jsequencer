@@ -25,7 +25,7 @@ public class RenderableInteraction {
         int toColumn = LayoutUtils.getLaneXPosition(this.interaction.getToLane());
         int fromX = fromColumn + (RenderableLane.LANE_WIDTH / 2);
         int toX = toColumn + (RenderableLane.LANE_WIDTH / 2);
-        int y = verticalOffset + VERTICAL_GAP + ((VERTICAL_GAP / 2) + 30) + (this.interaction.getIndex() * VERTICAL_GAP);
+        int y = verticalOffset + (VERTICAL_GAP * 2) + (this.interaction.getIndex() * VERTICAL_GAP);
 
         // render line
         g.drawLine(fromX, y, toX, y);
