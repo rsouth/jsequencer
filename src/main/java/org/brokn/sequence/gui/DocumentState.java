@@ -1,7 +1,5 @@
 package org.brokn.sequence.gui;
 
-import org.brokn.sequence.lexer.parser.InteractionParser;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -17,13 +15,15 @@ public class DocumentState {
     private static final Logger log = Logger.getLogger(DocumentState.class.getName());
 
     private File file;
-    private String text;
+    private String initialText;
+    private String currentText = "";
 
-    public DocumentState(File file, String text) {
-        assert text != null;
+    public DocumentState(File file, String initialText) {
+        assert initialText != null;
 
         this.file = file;
-        this.text = text;
+        this.initialText = initialText;
+        this.currentText = initialText;
     }
 
     public DocumentState() {
@@ -42,18 +42,18 @@ public class DocumentState {
         }
     }
 
-    public boolean isDirty(String currentState) {
+    public boolean isDirty() {
         // if the file is found on the classpath (i.e. it's the example-file.seq) then it's never dirty
         if(isClasspathFile(this.file)) {
             return false;
         }
 
-        if(this.text == null && currentState != null) {
+        if(this.initialText == null && this.currentText != null) {
             return true;
         }
 
-        if(this.text != null && currentState != null) {
-            return !this.text.equals(currentState);
+        if(this.initialText != null && this.currentText != null) {
+            return !this.initialText.equals(this.currentText);
         }
 
         // todo improve the above logic...
@@ -68,7 +68,7 @@ public class DocumentState {
 
                 // update document state
                 this.file = file;
-                this.text = text;
+                this.initialText = text;
             }
         } catch (FileNotFoundException e) {
             log.severe("Failed to save source to file");
@@ -96,4 +96,17 @@ public class DocumentState {
         }
     }
 
+    public String getCurrentText() {
+        return this.currentText;
+    }
+
+    public boolean updateText(String text) {
+        if(this.currentText.equals(text)) {
+            // no change
+            return false;
+        } else {
+            this.currentText = text;
+            return true;
+        }
+    }
 }

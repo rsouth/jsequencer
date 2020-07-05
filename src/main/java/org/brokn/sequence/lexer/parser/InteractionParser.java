@@ -46,7 +46,6 @@ public class InteractionParser {
 
         } catch (Exception ex) {
             log.warning("Exception while parsing interactions, exception: " + ex.getMessage());
-            return new ArrayList<>();
         }
 
         log.info("Found [" + interactions.size() + "] interactions " + interactions);
