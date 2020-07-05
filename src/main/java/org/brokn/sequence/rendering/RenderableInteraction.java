@@ -7,31 +7,31 @@ import java.awt.*;
 import static org.brokn.sequence.rendering.Canvas.VERTICAL_GAP;
 
 public class RenderableInteraction {
+
     private final Interaction interaction;
 
-    public RenderableInteraction(Interaction interaction) {
+    private final RenderableGraph renderableGraph;
+
+    public RenderableInteraction(RenderableGraph renderableGraph, Interaction interaction) {
+        this.renderableGraph = renderableGraph;
         this.interaction = interaction;
     }
 
-    public Interaction getInteraction() {
-        return interaction;
-    }
-
-    public void draw(Graphics g, RenderableGraph renderableGraph, int interactionCount) {
+    public void draw(Graphics g) {
         int verticalOffset = renderableGraph.getMetaDataHeight(g);
 
-        int fromColumn = LayoutUtils.columnXPosition(this.getInteraction().getFromLane());
-        int toColumn = LayoutUtils.columnXPosition(this.getInteraction().getToLane());
+        int fromColumn = LayoutUtils.columnXPosition(this.interaction.getFromLane());
+        int toColumn = LayoutUtils.columnXPosition(this.interaction.getToLane());
         int fromX = fromColumn + (RenderableLane.LANE_WIDTH / 2);
         int toX = toColumn + (RenderableLane.LANE_WIDTH / 2);
-        int y = verticalOffset + VERTICAL_GAP + ((VERTICAL_GAP / 2) + 30) + (interactionCount * VERTICAL_GAP);
+        int y = verticalOffset + VERTICAL_GAP + ((VERTICAL_GAP / 2) + 30) + (this.interaction.getIndex() * VERTICAL_GAP);
 
         boolean isRight = fromX < toX;
         int labelX = isRight ? fromX + 50 : fromX - 50;
         g.drawString(this.interaction.getMessage(), labelX, y);
         g.drawLine(fromX, y, toX, y);
 
-        new RenderableArrowhead().draw(g, interaction, toX, y);
+        new RenderableArrowhead().draw(g, this.interaction, toX, y);
     }
 
     static class RenderableArrowhead {

@@ -33,19 +33,16 @@ public class RenderableGraph {
         renderableMetaData.draw(g);
 
         // Draw Lanes
-        this.renderableLanes.forEach(renderableLane -> renderableLane.draw(g, this));
+        this.renderableLanes.forEach(renderableLane -> renderableLane.draw(g));
 
         // Draw Interactions
-        for (int i = 0; i < this.renderableInteractions.toArray().length; i++) {
-            RenderableInteraction renderableInteraction = this.renderableInteractions.get(i);
-            renderableInteraction.draw(g, this, i);
-        }
+        this.renderableInteractions.forEach(renderableInteraction -> renderableInteraction.draw(g));
     }
 
     private void initRenderables() {
         this.renderableMetaData = new RenderableMetaData(metaData);
-        this.lanes.forEach(lane -> renderableLanes.add(new RenderableLane(lane)));
-        this.interactions.forEach(interaction -> renderableInteractions.add(new RenderableInteraction(interaction)));
+        this.lanes.forEach(lane -> renderableLanes.add(new RenderableLane(this, lane)));
+        this.interactions.forEach(interaction -> renderableInteractions.add(new RenderableInteraction(this, interaction)));
     }
 
     protected int getMetaDataHeight(Graphics g) {
