@@ -267,7 +267,7 @@ public class SequenceDialog extends JFrame {
             this.buttonExampleFile = new JButton("Example File", new ImageIcon(exampleFileIconScaled));
             this.buttonExampleFile.setSize(buttonW, buttonH);
 
-            // Example file button
+            // Copy to Clipboard button
             BufferedImage copyToClipboardIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/copy-to-clipboard.png"));
             Image copyToClipboardIconScaled = copyToClipboardIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
             this.buttonCopyToClipboard = new JButton("Example File", new ImageIcon(copyToClipboardIconScaled));
