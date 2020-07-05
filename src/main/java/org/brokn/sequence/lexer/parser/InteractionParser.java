@@ -23,12 +23,11 @@ public class InteractionParser {
 
         try {
             String[] lines = input.split("\n");
-
-            for (String line : lines) {
-
+            int interactionCount = 0;
+            for (int i = 0; i < lines.length; i++) {
                 // lines with -> are 'interactions'
-                if (line.contains(INTERACTION_TOKEN)) {
-                    String[] split = line.split(INTERACTION_TOKEN);
+                if (lines[i].contains(INTERACTION_TOKEN)) {
+                    String[] split = lines[i].split(INTERACTION_TOKEN);
                     String fromNode = split[0].trim();
                     String toNode = split[1].trim();
 
@@ -39,8 +38,8 @@ public class InteractionParser {
                         toNode = split1[0];
                     }
 
-
-                    interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message));
+                    interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount));
+                    interactionCount++;
                 }
             }
 
