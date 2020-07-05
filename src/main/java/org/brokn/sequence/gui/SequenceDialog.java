@@ -20,10 +20,10 @@ public class SequenceDialog extends JFrame {
     private JButton buttonExport;
     private JTextArea textArea1;
     private JPanel canvasContainer;
-    private JTabbedPane tabbedPane1;
     private JButton buttonSave;
     private JButton buttonOpen;
-    private JSlider slider1;
+    private JSlider scaleSlider;
+    private JTabbedPane tabContainer;
 
     public SequenceDialog() {
         super("Sequencer");
@@ -53,7 +53,7 @@ public class SequenceDialog extends JFrame {
         });
         buttonOpen.addActionListener(e -> openFile());
 
-        slider1.addChangeListener(e -> ((Canvas) canvasContainer).updateScale(((JSlider) e.getSource()).getValue()));
+        scaleSlider.addChangeListener(e -> ((Canvas) canvasContainer).updateScale(((JSlider) e.getSource()).getValue()));
     }
 
     private void openFile() {
