@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.brokn.sequence.gui.SequenceDialog">
   <grid id="cbd77" binding="contentPane" custom-create="true" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="48" y="54" width="436" height="498"/>
+      <xy x="48" y="54" width="526" height="498"/>
     </constraints>
     <properties>
       <preferredSize width="1200" height="900"/>
@@ -52,6 +52,14 @@
                       <horizontalTextPosition value="0"/>
                       <preferredSize width="100" height="50"/>
                       <text value="Export .png"/>
+                      <verticalTextPosition value="3"/>
+                    </properties>
+                  </component>
+                  <component id="90d3e" class="javax.swing.JButton" binding="buttonCopyToClipboard" custom-create="true">
+                    <constraints/>
+                    <properties>
+                      <horizontalTextPosition value="0"/>
+                      <text value="To Clipboard"/>
                       <verticalTextPosition value="3"/>
                     </properties>
                   </component>
@@ -119,6 +127,31 @@
                       </grid>
                     </children>
                   </splitpane>
+                  <grid id="1470c" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <tabbedpane title="Untitled"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <vspacer id="24876">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                      </vspacer>
+                      <hspacer id="c7931">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                      </hspacer>
+                      <vspacer id="9e4ac">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                      </vspacer>
+                    </children>
+                  </grid>
                 </children>
               </tabbedpane>
             </children>
