@@ -11,12 +11,17 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+
+import static javax.swing.JOptionPane.*;
 
 public class SequenceDialog extends JFrame {
 
@@ -45,13 +50,14 @@ public class SequenceDialog extends JFrame {
 
     private DocumentState documentState = new DocumentState();
 
+    private final Lexer lexer = new Lexer();
+
     public SequenceDialog() {
         super("Sequencer");
         $$$setupUI$$$();
         setLocationByPlatform(true);
         setContentPane(contentPane);
         getRootPane().setDefaultButton(buttonExport);
-
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -60,24 +66,9 @@ public class SequenceDialog extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                if (dirtyFileCheck() != JOptionPane.CANCEL_OPTION) {
+                if (dirtyFileCheck() != CANCEL_OPTION) {
                     System.exit(0);
                 }
-            }
-        });
-
-        // listen for keystrokes to kick off updating the diagram
-        textArea1.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent event) {
-                super.keyTyped(event);
-
-                SwingUtilities.invokeLater(() -> {
-                    String allText = ((JTextArea) event.getSource()).getText();
-                    RenderableGraph model = new Lexer().parse(allText);
-                    ((Canvas) canvasContainer).updateModel(model);
-                });
-
             }
         });
 
@@ -89,37 +80,19 @@ public class SequenceDialog extends JFrame {
 
         // scale slider callback
         scaleSlider.addChangeListener(e -> ((Canvas) canvasContainer).updateScale(((JSlider) e.getSource()).getValue()));
-    }
 
-    private int dirtyFileCheck() {
-        if (this.documentState.isDirty(this.textArea1.getText())) {
-            int option = JOptionPane.showConfirmDialog(null,
-                    "Text has changed since last save, save it?", "Suuuure?",
-                    JOptionPane.YES_NO_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
-            switch (option) {
-                case JOptionPane.YES_OPTION:
-                    if (documentState.getFile() == null) {
-                        // open the save dialog
-                        onSave();
-                    } else {
-                        // just save again to the same file
-                        this.documentState.saveSourceFile(documentState.getFile(), this.textArea1.getText());
-                    }
-                    return option;
+        // listen for keystrokes to kick off updating the diagram
+        textArea1.addKeyListener(new KeyAdapter() {
 
-                case JOptionPane.NO_OPTION:
-                case JOptionPane.CANCEL_OPTION:
-                default:
-                    // don't save or quit the application
-                    // no-op
-                    return option;
-
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                if (documentState.updateText(textArea1.getText())) {
+                    triggerModelUpdate();
+                }
             }
-        } else {
-            // todo check if this is the right thing to do
-            return JOptionPane.NO_OPTION;
-        }
+
+        });
     }
 
     /**
@@ -148,7 +121,7 @@ public class SequenceDialog extends JFrame {
      * Show Open File dialog and if the user selects a file, replace the current document
      */
     private void openFile() {
-        if (dirtyFileCheck() == JOptionPane.CANCEL_OPTION) {
+        if (dirtyFileCheck() == CANCEL_OPTION) {
             return;
         }
 
@@ -158,7 +131,7 @@ public class SequenceDialog extends JFrame {
             try {
                 File file = openFileDialogResult.getFile();
                 log.info("Opening file [" + file + "] for reading");
-                updateDocument(file, new FileReader(file));
+                replaceDocument(file, new FileReader(file));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -166,18 +139,18 @@ public class SequenceDialog extends JFrame {
     }
 
     private void openExampleFile() {
-        if (dirtyFileCheck() == JOptionPane.CANCEL_OPTION) {
+        if (dirtyFileCheck() == CANCEL_OPTION) {
             return;
         }
 
         InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("example-file.seq");
         if (systemResourceAsStream != null) {
             InputStreamReader inputStreamReader = new InputStreamReader(systemResourceAsStream);
-            updateDocument(null, inputStreamReader);
+            replaceDocument(null, inputStreamReader);
         }
     }
 
-    private void updateDocument(File file, Reader inputReader) {
+    private void replaceDocument(File file, Reader inputReader) {
         java.util.List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(inputReader)) {
             String line;
@@ -195,18 +168,55 @@ public class SequenceDialog extends JFrame {
             e.printStackTrace();
         }
 
-        // update text area
-        this.textArea1.setText(String.join("\n", lines));
-        log.info("Updated document with contents of file [" + file + "]");
-
-        // trigger a refresh of the diagram
-        // todo must be a cleaner way to do this
-        for (KeyListener keyListener : this.textArea1.getKeyListeners()) {
-            keyListener.keyTyped(new KeyEvent(this.textArea1, 0, 1L, 0, 0, '0'));
-        }
-
         // update document state
-        this.documentState = new DocumentState(file, this.textArea1.getText());
+        this.documentState = new DocumentState(file, String.join("\n", lines));
+
+        SwingUtilities.invokeLater(() -> {
+            // update text area
+            this.textArea1.setText(documentState.getCurrentText());
+            log.info("Updated document with contents of file [" + file + "]");
+
+            // trigger a refresh of the diagram
+            triggerModelUpdate();
+        });
+    }
+
+    /**
+     * Check the state of the source vs the last time it was saved.
+     * If the state is dirty, ask the user if they want to save.
+     * If yes:
+     * and the file was previously saved, save.
+     * and the file was not previously saved, open a save file dialog.
+     *
+     * @return
+     */
+    private int dirtyFileCheck() {
+        if (this.documentState.isDirty()) {
+            int option = JOptionPane.showConfirmDialog(null, "Text has been changed, save it?", "Suuuure?", YES_NO_CANCEL_OPTION, QUESTION_MESSAGE);
+            if (option == YES_OPTION) {
+                if (documentState.getFile() == null) {
+                    // open the save dialog
+                    onSave();
+
+                } else {
+                    // just save again to the same file
+                    this.documentState.saveSourceFile(documentState.getFile(), this.textArea1.getText());
+                }
+            }
+            return option;
+        } else {
+            // todo check if this is the right thing to do
+            return NO_OPTION;
+        }
+    }
+
+    private void triggerModelUpdate() {
+        String text = documentState.getCurrentText();
+
+        SwingUtilities.invokeLater(() -> {
+            RenderableGraph model = lexer.parse(text);
+            ((Canvas) canvasContainer).updateModel(model);
+        });
     }
 
     private void createUIComponents() {

@@ -53,7 +53,6 @@ public class LaneParser {
 
         } catch (Exception ex) {
             log.warning("Exception while parsing lanes, exception: " + ex.getMessage());
-            return new ArrayList<>();
         }
 
         log.info("Found [" + lanes.size() + "] Lanes " + lanes);
