@@ -18,15 +18,18 @@ public class RenderableLane {
     }
 
     public void draw(Graphics g, RenderableGraph renderableGraph) {
+        int verticalOffset = renderableGraph.getMetaDataHeight(g);
+
         int x = LayoutUtils.columnXPosition(this.model);
-        g.drawRoundRect(x, Canvas.VERTICAL_GAP / 2, NODE_WIDTH, 30, 5, 5);
+        g.drawRoundRect(x, verticalOffset + (Canvas.VERTICAL_GAP / 2), NODE_WIDTH, 30, 5, 5);
         int textWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(g.getFont()), this.model.getName());
-        g.drawString(this.model.getName(), (x + NODE_WIDTH / 2) - (textWidth / 2), (Canvas.VERTICAL_GAP / 2) + 15);
+        g.drawString(this.model.getName(), (x + NODE_WIDTH / 2) - (textWidth / 2), verticalOffset + (Canvas.VERTICAL_GAP / 2) + 15);
 
         // draw vertical line
         // number of the last interaction for this node * verticalGap ??
-        int y2 = Canvas.VERTICAL_GAP + (Canvas.VERTICAL_GAP / 2) + 30 + (renderableGraph.interactions.size() * Canvas.VERTICAL_GAP);
-        g.drawLine((x + NODE_WIDTH / 2), (Canvas.VERTICAL_GAP / 2) + 30, (x + NODE_WIDTH / 2), y2);
+        int y1 = verticalOffset + (Canvas.VERTICAL_GAP / 2) + 30;
+        int y2 = verticalOffset + Canvas.VERTICAL_GAP + (Canvas.VERTICAL_GAP / 2) + 30 + (renderableGraph.interactions.size() * Canvas.VERTICAL_GAP);
+        g.drawLine((x + NODE_WIDTH / 2), y1, (x + NODE_WIDTH / 2), y2);
 
     }
 

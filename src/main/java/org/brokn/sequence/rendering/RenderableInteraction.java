@@ -17,15 +17,14 @@ public class RenderableInteraction {
         return interaction;
     }
 
-    public void draw(Graphics g, int interactionCount) {
+    public void draw(Graphics g, RenderableGraph renderableGraph, int interactionCount) {
+        int verticalOffset = renderableGraph.getMetaDataHeight(g);
 
         int fromColumn = LayoutUtils.columnXPosition(this.getInteraction().getFromLane());
         int toColumn = LayoutUtils.columnXPosition(this.getInteraction().getToLane());
         int fromX = fromColumn + (RenderableLane.NODE_WIDTH / 2);
         int toX = toColumn + (RenderableLane.NODE_WIDTH / 2);
-        int y = VERTICAL_GAP + ((VERTICAL_GAP / 2) + 30) + (interactionCount * VERTICAL_GAP);
-
-        // todo above isn't the side, it's the # of THIS interaction......
+        int y = verticalOffset + VERTICAL_GAP + ((VERTICAL_GAP / 2) + 30) + (interactionCount * VERTICAL_GAP);
 
         boolean isRight = fromX < toX;
         int labelX = isRight ? fromX + 50 : fromX - 50;

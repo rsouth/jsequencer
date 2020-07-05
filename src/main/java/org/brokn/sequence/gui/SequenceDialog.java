@@ -6,8 +6,6 @@ import org.brokn.sequence.rendering.RenderableGraph;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -17,7 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 
-public class SequenceDialog extends JDialog {
+public class SequenceDialog extends JFrame {
     private JPanel contentPane;
     private JButton buttonExport;
     private JTextArea textArea1;
@@ -28,8 +26,9 @@ public class SequenceDialog extends JDialog {
     private JSlider slider1;
 
     public SequenceDialog() {
+        super("Sequencer");
+        setLocationByPlatform(true);
         setContentPane(contentPane);
-        setModal(true);
         getRootPane().setDefaultButton(buttonExport);
 
         buttonExport.addActionListener(e -> onExport());
@@ -137,7 +136,6 @@ public class SequenceDialog extends JDialog {
 
         // show the window.
         dialog.setVisible(true);
-        System.exit(0);
     }
 
     private void createUIComponents() {
