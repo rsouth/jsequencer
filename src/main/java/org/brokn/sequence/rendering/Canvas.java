@@ -2,8 +2,11 @@ package org.brokn.sequence.rendering;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.logging.Logger;
 
 public class Canvas extends JPanel {
+
+    private static final Logger log = Logger.getLogger(Canvas.class.getName());
 
     /**
      * Canvas / Layout Statics
@@ -52,7 +55,7 @@ public class Canvas extends JPanel {
 
     public void updateScale(int value) {
         this.scale = 1 + (value / 10.0);
-        System.out.println("Updated canvas scale to " + this.scale);
+        log.info("Updated canvas scale to " + this.scale);
 
         doLayout();
         paintComponent(getGraphics());

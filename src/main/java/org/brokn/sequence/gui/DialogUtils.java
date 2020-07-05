@@ -3,10 +3,13 @@ package org.brokn.sequence.gui;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
+import java.util.logging.Logger;
 
 import static javax.swing.JOptionPane.*;
 
 public class DialogUtils {
+
+    private static Logger log = Logger.getLogger(DialogUtils.class.getName());
 
     static class FileDialogResult {
 
@@ -36,7 +39,7 @@ public class DialogUtils {
 
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             if (fileChooser.getSelectedFile().exists()) {
-                System.out.println("User chose to save to filename " + fileChooser.getSelectedFile().getPath());
+                log.info("User chose to open file " + fileChooser.getSelectedFile().getPath());
                 return new FileDialogResult(true, fileChooser.getSelectedFile());
             } else {
                 return new FileDialogResult(false, null);
@@ -44,7 +47,7 @@ public class DialogUtils {
         }
 
         // todo refactor the logic in this method...
-        System.err.println("The logic in this method SUCKS. Theoretically we shouldn't reach this");
+        log.severe("The logic in this method SUCKS. Theoretically we shouldn't reach this");
         throw new IllegalStateException("Neither successfully not unsuccessfully saved, fix this logic!!!!!");
     }
 
@@ -60,15 +63,15 @@ public class DialogUtils {
                 int input = JOptionPane.showConfirmDialog(null, "File already exists, overwrite?", "BUUZZZZZ...", YES_NO_OPTION);
                 switch (input) {
                     case YES_OPTION:
-                        System.out.println("User chose to save to filename " + fileChooser.getSelectedFile().getPath());
+                        log.info("User chose to save to filename " + fileChooser.getSelectedFile().getPath());
                         return new FileDialogResult(true, fileChooser.getSelectedFile());
 
                     case NO_OPTION:
-                        System.out.println("User chose not to overwrite existing file " + fileChooser.getSelectedFile().getPath());
+                        log.info("User chose not to overwrite existing file " + fileChooser.getSelectedFile().getPath());
                         return new FileDialogResult(false, null);
 
                     default:
-                        System.err.println("wat.");
+                        log.severe("wat.");
                         return new FileDialogResult(false, null);
                 }
 
@@ -76,12 +79,12 @@ public class DialogUtils {
             } else {
 
                 if (fileChooser.getSelectedFile().getPath().endsWith(fileFilter.getExtensions()[0])) {
-                    System.out.println("User saving in new file " + fileChooser.getSelectedFile().getPath());
+                    log.info("User saving in new file " + fileChooser.getSelectedFile().getPath());
                     return new FileDialogResult(true, fileChooser.getSelectedFile());
 
                 } else {
                     File file = new File(fileChooser.getSelectedFile().getPath() + fileFilter.getExtensions()[0]);
-                    System.out.println("User saving in new file " + file.getPath());
+                    log.info("User saving in new file " + file.getPath());
                     return new FileDialogResult(true, file);
                 }
 
@@ -89,7 +92,7 @@ public class DialogUtils {
         }
 
         // todo refactor the logic in this method...
-        System.err.println("The logic in this method SUCKS. Theoretically we shouldn't reach this");
+        log.severe("The logic in this method SUCKS. Theoretically we shouldn't reach this");
         throw new IllegalStateException("Neither successfully not unsuccessfully saved, fix this logic!!!!!");
     }
 

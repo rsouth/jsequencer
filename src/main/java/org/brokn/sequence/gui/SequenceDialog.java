@@ -14,8 +14,24 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class SequenceDialog extends JFrame {
+
+    private static Logger log = Logger.getLogger(SequenceDialog.class.getName());
+
+    static {
+        try {
+            // initialise logging properties
+            InputStream stream = ClassLoader.getSystemResourceAsStream("logging.properties");
+            LogManager.getLogManager().readConfiguration(stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
     private JPanel contentPane;
     private JButton buttonExport;
     private JTextArea textArea1;
@@ -102,7 +118,7 @@ public class SequenceDialog extends JFrame {
                 out.print(currentSource);
             }
         } catch (FileNotFoundException e) {
-            System.err.println("Failed to save source to file");
+            log.severe("Failed to save source to file");
             e.printStackTrace();
         }
     }
@@ -118,24 +134,11 @@ public class SequenceDialog extends JFrame {
         this.canvasContainer.paintAll(cg);
         try {
             if (ImageIO.write(bImg, "png", selectedFile)) {
-                System.out.println("-- saved");
+                log.info("-- saved");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-        SequenceDialog dialog = new SequenceDialog();
-        dialog.pack();
-
-        // set initial focus to the text area
-        dialog.textArea1.requestFocusInWindow();
-
-        // show the window.
-        dialog.setVisible(true);
     }
 
     private void createUIComponents() {
@@ -167,6 +170,19 @@ public class SequenceDialog extends JFrame {
             e.printStackTrace();
         }
 
+    }
+
+    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+        SequenceDialog dialog = new SequenceDialog();
+        dialog.pack();
+
+        // set initial focus to the text area
+        dialog.textArea1.requestFocusInWindow();
+
+        // show the window.
+        dialog.setVisible(true);
     }
 
 }

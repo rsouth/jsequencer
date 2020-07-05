@@ -6,12 +6,15 @@ import org.brokn.sequence.model.Lane;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Parse interactions between Lanes.
  * An interaction is any message between a pair of Lanes.
  */
 public class InteractionParser {
+
+    private static final Logger log = Logger.getLogger(InteractionParser.class.getName());
 
     public List<Interaction> parse(List<Lane> lanes, String input) {
         List<Interaction> nodes = new ArrayList<>();
@@ -43,7 +46,7 @@ public class InteractionParser {
             return new ArrayList<>();
         }
 
-        System.out.println("found interactions " + nodes);
+        log.info("found interactions " + nodes);
         return nodes;
 
     }

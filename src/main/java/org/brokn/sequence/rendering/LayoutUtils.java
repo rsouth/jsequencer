@@ -5,17 +5,20 @@ import org.brokn.sequence.model.Lane;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
+import java.util.logging.Logger;
 
 public class LayoutUtils {
+
+    private static final Logger log = Logger.getLogger(LayoutUtils.class.getName());
 
     static int columnXPosition(Lane lane) {
         int multi = lane.getIndex();
         if (multi == 0) {
-            System.out.println("x for " + lane.getName() + " is 10");
+            log.info("x for " + lane.getName() + " is 10");
             return 10;
         } else {
             int x = (multi * RenderableLane.NODE_WIDTH) + (multi * RenderableLane.NODE_GAP);
-            System.out.println("x for " + lane.getName() + " is " + x);
+            log.info("x for " + lane.getName() + " is " + x);
             return 10 + x;
         }
     }
