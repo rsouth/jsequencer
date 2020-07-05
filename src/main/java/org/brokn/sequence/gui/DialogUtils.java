@@ -9,7 +9,7 @@ import static javax.swing.JOptionPane.*;
 
 public class DialogUtils {
 
-    private static Logger log = Logger.getLogger(DialogUtils.class.getName());
+    private static final Logger log = Logger.getLogger(DialogUtils.class.getName());
 
     static class FileDialogResult {
 
@@ -28,6 +28,15 @@ public class DialogUtils {
         public File getFile() {
             return file;
         }
+
+        @Override
+        public String toString() {
+            return "FileDialogResult{" +
+                    "okToProceed=" + okToProceed +
+                    ", file=" + file +
+                    '}';
+        }
+
     }
 
 
@@ -37,18 +46,20 @@ public class DialogUtils {
         fileChooser.changeToParentDirectory();
         fileChooser.setMultiSelectionEnabled(false);
 
+        log.info("Showing Open File dialog");
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            if (fileChooser.getSelectedFile().exists()) {
-                log.info("User chose to open file " + fileChooser.getSelectedFile().getPath());
-                return new FileDialogResult(true, fileChooser.getSelectedFile());
+            File selectedFile = fileChooser.getSelectedFile();
+            if (selectedFile.exists() && selectedFile.getPath().endsWith(".seq")) {
+                log.info("User opening .seq file [" + selectedFile.getPath() + "]");
+                return new FileDialogResult(true, selectedFile);
             } else {
+                log.warning("User tried to open file [" + selectedFile + "] but it does not exist or is not a .seq file");
                 return new FileDialogResult(false, null);
             }
+        } else {
+            log.info("User cancelled file open action");
+            return new FileDialogResult(false, null);
         }
-
-        // todo refactor the logic in this method...
-        log.severe("The logic in this method SUCKS. Theoretically we shouldn't reach this");
-        throw new IllegalStateException("Neither successfully not unsuccessfully saved, fix this logic!!!!!");
     }
 
 
@@ -58,20 +69,18 @@ public class DialogUtils {
         fileChooser.changeToParentDirectory();
         fileChooser.setMultiSelectionEnabled(false);
 
+        log.info("Showing save file dialog with filter [" + fileFilter + "]");
         if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             if (fileChooser.getSelectedFile().exists()) {
                 int input = JOptionPane.showConfirmDialog(null, "File already exists, overwrite?", "BUUZZZZZ...", YES_NO_OPTION);
                 switch (input) {
                     case YES_OPTION:
-                        log.info("User chose to save to filename " + fileChooser.getSelectedFile().getPath());
+                        log.info("User chose to save to filename [" + fileChooser.getSelectedFile().getPath() + "]");
                         return new FileDialogResult(true, fileChooser.getSelectedFile());
 
                     case NO_OPTION:
-                        log.info("User chose not to overwrite existing file " + fileChooser.getSelectedFile().getPath());
-                        return new FileDialogResult(false, null);
-
                     default:
-                        log.severe("wat.");
+                        log.info("User chose not to overwrite existing file [" + fileChooser.getSelectedFile().getPath() + "]");
                         return new FileDialogResult(false, null);
                 }
 
@@ -89,11 +98,10 @@ public class DialogUtils {
                 }
 
             }
+        } else {
+            log.info("User cancelled file save action");
+            return new FileDialogResult(false, null);
         }
-
-        // todo refactor the logic in this method...
-        log.severe("The logic in this method SUCKS. Theoretically we shouldn't reach this");
-        throw new IllegalStateException("Neither successfully not unsuccessfully saved, fix this logic!!!!!");
     }
 
 }

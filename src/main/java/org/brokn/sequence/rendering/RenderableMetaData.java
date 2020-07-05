@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 public class RenderableMetaData {
 
-    int verticalGap = 10;
+    private static final int VERTICAL_GAP = 10;
 
     private final MetaData model;
 
@@ -22,7 +22,6 @@ public class RenderableMetaData {
         //title
         if(this.model.getTitle() != null) {
             totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;
-//            totalHeight += verticalGap;
         }
 
         // author
@@ -31,26 +30,19 @@ public class RenderableMetaData {
             g.setFont(getTitleFont(g));
             totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorName()).height;
             g.setFont(originalFont);
-//            totalHeight += verticalGap;
         }
 
         // author email
         if(this.model.getAuthorEmail() != null) {
             totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorEmail()).height;
-//            totalHeight += verticalGap;
         }
 
         // date
         if(this.model.isShowDate()) {
             totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, "date").height;
-//            totalHeight += verticalGap;
         }
 
         return totalHeight;
-    }
-
-    private Font getTitleFont(Graphics g) {
-        return new Font(g.getFont().getName(), Font.BOLD, 20);
     }
 
     public void draw(Graphics g) {
@@ -71,14 +63,14 @@ public class RenderableMetaData {
         // draw author name
         if(this.model.getAuthorName() != null) {
             int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;// 0 if no title shown
-            g.drawString(this.model.getAuthorName(), 10, 10 + titleHeight*2 + verticalGap*2);
+            g.drawString(this.model.getAuthorName(), 10, 10 + titleHeight*2 + VERTICAL_GAP *2);
         }
 
         // draw author email
         if(this.model.getAuthorEmail() != null) {
             int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;// 0 if no title shown
             int authorWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(), this.model.getAuthorName());
-            g.drawString("(" + this.model.getAuthorEmail() + ")", 15 + authorWidth, 10 + titleHeight*2 + verticalGap*2);
+            g.drawString("(" + this.model.getAuthorEmail() + ")", 15 + authorWidth, 10 + titleHeight*2 + VERTICAL_GAP *2);
         }
 
         // draw current date (10th June 2020 so no regional ambiguity)
@@ -89,14 +81,19 @@ public class RenderableMetaData {
             int emailHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorEmail()).height;
             int spacing = 0;
             if(authorHeight > 0) {
-                spacing += verticalGap;
+                spacing += VERTICAL_GAP;
             }
             if(emailHeight > 0) {
-                spacing += verticalGap;
+                spacing += VERTICAL_GAP;
             }
             int priotHeight = titleHeight + authorHeight + emailHeight + spacing;
 
             g.drawString(LocalDate.now().toString(), 10, 10 + priotHeight);
         }
     }
+
+    private Font getTitleFont(Graphics g) {
+        return new Font(g.getFont().getName(), Font.BOLD, 20);
+    }
+
 }

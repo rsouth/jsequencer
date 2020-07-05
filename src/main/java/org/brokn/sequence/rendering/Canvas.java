@@ -8,10 +8,6 @@ public class Canvas extends JPanel {
 
     private static final Logger log = Logger.getLogger(Canvas.class.getName());
 
-    /**
-     * Canvas / Layout Statics
-     */
-
     // Vertical gap between anything separated vertically (nodes/interactions/notes)
     public static final int VERTICAL_GAP = 50;
 
@@ -29,7 +25,6 @@ public class Canvas extends JPanel {
         doLayout();
         paintComponent(getGraphics());
     }
-
 
     @Override
     public void paintComponent(Graphics g) {
