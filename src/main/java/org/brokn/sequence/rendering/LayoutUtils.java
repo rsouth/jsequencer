@@ -10,7 +10,7 @@ public class LayoutUtils {
 
     public static final int MARGIN = 10;
 
-    static int columnXPosition(Lane lane) {
+    static int getLaneXPosition(Lane lane) {
         int multi = lane.getIndex();
         if (multi == 0) {
             return 10;

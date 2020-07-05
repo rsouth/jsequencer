@@ -20,8 +20,8 @@ public class RenderableInteraction {
     public void draw(Graphics g) {
         int verticalOffset = renderableGraph.getMetaDataHeight(g);
 
-        int fromColumn = LayoutUtils.columnXPosition(this.interaction.getFromLane());
-        int toColumn = LayoutUtils.columnXPosition(this.interaction.getToLane());
+        int fromColumn = LayoutUtils.getLaneXPosition(this.interaction.getFromLane());
+        int toColumn = LayoutUtils.getLaneXPosition(this.interaction.getToLane());
         int fromX = fromColumn + (RenderableLane.LANE_WIDTH / 2);
         int toX = toColumn + (RenderableLane.LANE_WIDTH / 2);
         int y = verticalOffset + VERTICAL_GAP + ((VERTICAL_GAP / 2) + 30) + (this.interaction.getIndex() * VERTICAL_GAP);
