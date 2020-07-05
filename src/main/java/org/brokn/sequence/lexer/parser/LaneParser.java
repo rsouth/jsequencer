@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Parse unique Lanes from the input text.
@@ -13,6 +14,8 @@ import java.util.Set;
  * A Lane is assigned an index based on the order they appear.
  */
 public class LaneParser {
+
+    private static final Logger log = Logger.getLogger(LaneParser.class.getName());
 
     public List<Lane> parse(final String input) {
         List<Lane> lanes = new ArrayList<>();
@@ -49,12 +52,12 @@ public class LaneParser {
             }
 
         } catch (Exception ex) {
+            log.warning("Exception while parsing lanes, exception: " + ex.getMessage());
             return new ArrayList<>();
         }
 
-        System.out.println("found lanes " + lanes);
+        log.info("Found [" + lanes.size() + "] Lanes " + lanes);
         return lanes;
-
     }
 
 }

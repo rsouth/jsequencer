@@ -11,11 +11,9 @@ public class LayoutUtils {
     static int columnXPosition(Lane lane) {
         int multi = lane.getIndex();
         if (multi == 0) {
-            System.out.println("x for " + lane.getName() + " is 10");
             return 10;
         } else {
             int x = (multi * RenderableLane.NODE_WIDTH) + (multi * RenderableLane.NODE_GAP);
-            System.out.println("x for " + lane.getName() + " is " + x);
             return 10 + x;
         }
     }

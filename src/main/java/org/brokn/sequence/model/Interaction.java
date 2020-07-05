@@ -1,8 +1,6 @@
 package org.brokn.sequence.model;
 
 public class Interaction {
-//    private String fromNode;
-//    private String toNode;
 
     private final Lane fromLane;
     private final Lane toLane;

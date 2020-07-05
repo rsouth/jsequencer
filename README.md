@@ -6,3 +6,5 @@ simple sequence diagrams
 See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar.
 
 [notes.txt](https://github.com/rsouth/sequencer/blob/develop/notes.txt) contains attributions.
+
+<img src="http://g.recordit.co/Ol7pXDzJRt.gif" width="800">
