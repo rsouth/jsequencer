@@ -8,25 +8,32 @@ import java.awt.font.GlyphVector;
 
 public class LayoutUtils {
 
+    public static final int MARGIN = 10;
+
     static int columnXPosition(Lane lane) {
         int multi = lane.getIndex();
         if (multi == 0) {
             return 10;
         } else {
-            int x = (multi * RenderableLane.NODE_WIDTH) + (multi * RenderableLane.NODE_GAP);
+            int x = (multi * RenderableLane.LANE_WIDTH) + (multi * RenderableLane.LANE_GAP);
             return 10 + x;
         }
     }
 
-    static Rectangle getStringBounds(Graphics2D g2, String str) {
+    static Rectangle getStringBounds(Graphics2D g2, Font font, String str) {
         if(str == null) {
             // null string will have 0 height
             return new Rectangle(0, 0, 0, 0);
         }
 
+        Font originalFont = g2.getFont();
+        g2.setFont(font);
         FontRenderContext frc = g2.getFontRenderContext();
         GlyphVector gv = g2.getFont().createGlyphVector(frc, str);
-        return gv.getPixelBounds(null, 0, 0);
+        Rectangle pixelBounds = gv.getPixelBounds(null, 0, 0);
+
+        g2.setFont(originalFont);
+        return pixelBounds;
     }
 
 }

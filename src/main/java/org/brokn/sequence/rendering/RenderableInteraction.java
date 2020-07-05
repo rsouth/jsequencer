@@ -22,8 +22,8 @@ public class RenderableInteraction {
 
         int fromColumn = LayoutUtils.columnXPosition(this.getInteraction().getFromLane());
         int toColumn = LayoutUtils.columnXPosition(this.getInteraction().getToLane());
-        int fromX = fromColumn + (RenderableLane.NODE_WIDTH / 2);
-        int toX = toColumn + (RenderableLane.NODE_WIDTH / 2);
+        int fromX = fromColumn + (RenderableLane.LANE_WIDTH / 2);
+        int toX = toColumn + (RenderableLane.LANE_WIDTH / 2);
         int y = verticalOffset + VERTICAL_GAP + ((VERTICAL_GAP / 2) + 30) + (interactionCount * VERTICAL_GAP);
 
         boolean isRight = fromX < toX;
