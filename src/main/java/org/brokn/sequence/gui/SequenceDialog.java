@@ -28,6 +28,7 @@ public class SequenceDialog extends JDialog {
     private JSlider slider1;
 
     public SequenceDialog() {
+        setLocationByPlatform(true);
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonExport);
