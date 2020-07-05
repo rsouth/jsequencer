@@ -6,7 +6,7 @@ import org.brokn.sequence.model.MetaData;
  * MetaData Grammar:
  * :title My Title Here
  * :author Author Name Here
- * :authorEmail author@email.here
+ * :authorEmail Author's email address
  * :date
  *
  */
