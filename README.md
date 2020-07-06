@@ -1,3 +1,5 @@
+![](https://github.com/rsouth/sequencer/workflows/Java%20CI%20with%20Maven/badge.svg?branch=develop) ![](https://github.com/rsouth/sequencer/workflows/Maven%20Package/badge.svg)
+
 # sequencer
 simple sequence diagrams
 
