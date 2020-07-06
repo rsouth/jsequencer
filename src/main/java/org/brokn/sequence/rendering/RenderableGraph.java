@@ -7,7 +7,6 @@ import org.brokn.sequence.model.MetaData;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class RenderableGraph {
 
