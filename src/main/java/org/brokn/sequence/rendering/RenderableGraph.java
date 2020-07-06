@@ -30,6 +30,7 @@ public class RenderableGraph {
 
     public void draw(Graphics g) {
         this.setRenderingHints(g);
+        this.setTheme(g, this.metaData);
 
         // Draw MetaData
         renderableMetaData.draw(g);
@@ -39,6 +40,14 @@ public class RenderableGraph {
 
         // Draw Interactions
         this.renderableInteractions.forEach(renderableInteraction -> renderableInteraction.draw(g));
+    }
+
+    private void setTheme(Graphics g, MetaData metaData) {
+        if (metaData.getFontSize() > 0) {
+            g.setFont(g.getFont().deriveFont(metaData.getFontSize()));
+        } else {
+            g.setFont(g.getFont().deriveFont(14f));
+        }
     }
 
     public Dimension computeDiagramSize(Graphics g, boolean drawBorder) {
