@@ -36,4 +36,11 @@ public class LayoutUtils {
         return pixelBounds;
     }
 
+    static void drawStringWithFont(Graphics g, Font font, int x, int y, String text) {
+        Font originalFont = g.getFont();
+        g.setFont(font);
+        g.drawString(text, x, y);
+        g.setFont(originalFont);
+    }
+
 }
