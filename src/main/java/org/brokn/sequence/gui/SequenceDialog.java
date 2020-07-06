@@ -368,10 +368,14 @@ public class SequenceDialog extends JFrame {
         panel2.add(tabContainer, BorderLayout.CENTER);
         splitPane = new JSplitPane();
         tabContainer.addTab("Untitled", splitPane);
-        splitPane.setRightComponent(canvasContainer);
+        final JScrollPane scrollPane1 = new JScrollPane();
+        splitPane.setRightComponent(scrollPane1);
+        scrollPane1.setViewportView(canvasContainer);
+        final JScrollPane scrollPane2 = new JScrollPane();
+        splitPane.setLeftComponent(scrollPane2);
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        splitPane.setLeftComponent(panel3);
+        scrollPane2.setViewportView(panel3);
         textArea1 = new JTextArea();
         textArea1.setFocusCycleRoot(true);
         Font textArea1Font = this.$$$getFont$$$("Courier New", Font.PLAIN, 12, textArea1.getFont());
