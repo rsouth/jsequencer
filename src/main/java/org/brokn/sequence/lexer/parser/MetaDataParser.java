@@ -19,12 +19,14 @@ public class MetaDataParser {
     private static final String TITLE_TOKEN = ":title ";
     private static final String AUTHOR_TOKEN = ":author ";
     private static final String DATE_TOKEN = ":date";
+    private static final String FONT_SIZE_TOKEN = ":fontsize";
 
     public MetaData parse(String input) {
         // parse title
         String title = null;
         String author = null;
         boolean showDate = false;
+        float fontSize = -1;
         for (String line : input.split("\n")) {
             if (line.trim().startsWith(TITLE_TOKEN)) {
                 try {
@@ -44,10 +46,21 @@ public class MetaDataParser {
 
             } else if (line.trim().equals(DATE_TOKEN)) {
                 showDate = true;
+
+            } else if(line.trim().startsWith(FONT_SIZE_TOKEN)) {
+                try {
+                    String fontSizeString = line.trim().replace(FONT_SIZE_TOKEN, "").trim();
+                    fontSize = Float.parseFloat(fontSizeString);
+
+                } catch (NumberFormatException | NullPointerException ex) {
+                    fontSize = -1;
+                    log.warning("Font token specified but font size is not parseable");
+                }
+
             }
         }
 
-        MetaData metaData = new MetaData(title, author, showDate);
+        MetaData metaData = new MetaData(title, author, showDate, fontSize);
         log.info("Parsed " + metaData);
         return metaData;
     }
