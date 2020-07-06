@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 public class DocumentState {
@@ -61,19 +63,17 @@ public class DocumentState {
     }
 
     public void saveSourceFile(File file, String text) {
-        try {
-            try (PrintWriter out = new PrintWriter(file)) {
-                log.info("Opened file [" + file + "] for writing");
-                out.print(text);
-
-                // update document state
-                this.file = file;
-                this.initialText = text;
-            }
-        } catch (FileNotFoundException e) {
-            log.severe("Failed to save source to file");
+        try (PrintWriter out = new PrintWriter(file,"UTF-8")) {
+            log.info("Opened file [" + file + "] for writing");
+            out.print(text);
+            out.flush();
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // update document state
+        this.file = file;
+        this.initialText = text;
     }
 
     /**

@@ -15,6 +15,8 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -142,11 +144,12 @@ public class SequenceDialog extends JFrame {
         FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("SEQ Files", "seq");
         DialogUtils.FileDialogResult openFileDialogResult = DialogUtils.openOpenFileDialog(fileFilter);
         if (openFileDialogResult.isOkToProceed()) {
-            try {
-                File file = openFileDialogResult.getFile();
+            File file = openFileDialogResult.getFile();
+            try (FileReader fileReader = new FileReader(file)) {
                 log.info("Opening file [" + file + "] for reading");
-                replaceDocument(file, new FileReader(file));
-            } catch (FileNotFoundException e) {
+                replaceDocument(file, fileReader);
+            } catch (IOException e) {
+                log.severe("Exception occurred while opening file [" + file + "]");
                 e.printStackTrace();
             }
         }
@@ -159,8 +162,12 @@ public class SequenceDialog extends JFrame {
 
         InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("example-file.seq");
         if (systemResourceAsStream != null) {
-            InputStreamReader inputStreamReader = new InputStreamReader(systemResourceAsStream);
-            replaceDocument(null, inputStreamReader);
+            try (InputStreamReader inputStreamReader = new InputStreamReader(systemResourceAsStream)) {
+                replaceDocument(null, inputStreamReader);
+            } catch (IOException e) {
+                log.severe("Exception occurred while opening example file");
+                e.printStackTrace();
+            }
         }
     }
 
