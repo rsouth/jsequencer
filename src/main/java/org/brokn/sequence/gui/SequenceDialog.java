@@ -49,6 +49,7 @@ public class SequenceDialog extends JFrame {
     private JTabbedPane tabContainer;
     private JButton buttonExampleFile;
     private JButton buttonCopyToClipboard;
+    private JSplitPane splitPane;
 
     private DocumentState documentState = new DocumentState();
 
@@ -71,6 +72,17 @@ public class SequenceDialog extends JFrame {
                 if (dirtyFileCheck() != CANCEL_OPTION) {
                     System.exit(0);
                 }
+            }
+
+            @Override
+            public void windowOpened(WindowEvent e) {
+                super.windowOpened(e);
+                SwingUtilities.invokeLater(() -> {
+                    int splitPaneWidth = splitPane.getWidth();
+                    double dividerLocation = (splitPaneWidth / 4.) / 1000;
+                    log.info("JSplitPane width [" + splitPaneWidth + "], setting divider location to [" + dividerLocation + "]");
+                    splitPane.setDividerLocation(dividerLocation);
+                });
             }
         });
 
@@ -281,10 +293,6 @@ public class SequenceDialog extends JFrame {
             this.buttonCopyToClipboard = new JButton("Example File", new ImageIcon(copyToClipboardIconScaled));
             this.buttonCopyToClipboard.setSize(buttonW, buttonH);
 
-            SwingUtilities.invokeLater(() -> {
-
-            });
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -358,12 +366,12 @@ public class SequenceDialog extends JFrame {
         toolBar1.add(buttonExampleFile);
         tabContainer = new JTabbedPane();
         panel2.add(tabContainer, BorderLayout.CENTER);
-        final JSplitPane splitPane1 = new JSplitPane();
-        tabContainer.addTab("Untitled", splitPane1);
-        splitPane1.setRightComponent(canvasContainer);
+        splitPane = new JSplitPane();
+        tabContainer.addTab("Untitled", splitPane);
+        splitPane.setRightComponent(canvasContainer);
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        splitPane1.setLeftComponent(panel3);
+        splitPane.setLeftComponent(panel3);
         textArea1 = new JTextArea();
         textArea1.setFocusCycleRoot(true);
         Font textArea1Font = this.$$$getFont$$$("Courier New", Font.PLAIN, 12, textArea1.getFont());

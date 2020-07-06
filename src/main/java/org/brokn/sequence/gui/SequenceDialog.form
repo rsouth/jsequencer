@@ -89,7 +89,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <splitpane id="e92c2">
+                  <splitpane id="e92c2" binding="splitPane">
                     <constraints>
                       <tabbedpane title="Untitled"/>
                     </constraints>
