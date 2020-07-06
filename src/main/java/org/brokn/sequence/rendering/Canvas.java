@@ -40,6 +40,7 @@ public class Canvas extends JPanel {
 
             // render the diagram
             this.renderableGraph.draw(g);
+            setPreferredSize(this.renderableGraph.computeDiagramSize(g, false));
 
         }
     }

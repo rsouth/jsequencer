@@ -136,7 +136,10 @@ public class SequenceDialog extends JFrame {
      * Handle 'copy to clipboard' button click
      */
     private void onCopyToClipboard() {
-        BufferedImage bImg = new BufferedImage(canvasContainer.getWidth(), canvasContainer.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Dimension clip = canvasContainer.getPreferredSize();
+        log.info("Copy to clipboard, dims: " + clip);
+
+        BufferedImage bImg = new BufferedImage(clip.width, clip.height, BufferedImage.TYPE_INT_RGB);
         Graphics2D cg = bImg.createGraphics();
         canvasContainer.paintAll(cg);
 

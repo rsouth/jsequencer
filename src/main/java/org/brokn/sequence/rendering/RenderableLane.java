@@ -37,18 +37,17 @@ public class RenderableLane {
         Font titleFont = getSizeAdjustedFont(g, this.lane.getName());
         int textWidth = computeStringWidth(g.getFontMetrics(titleFont), this.lane.getName());
         int textXPosition = (laneXPosition + LANE_WIDTH / 2) - (textWidth / 2);
-        int textYPosition = headerOffset + (Canvas.VERTICAL_GAP / 2) + LANE_BOX_PADDING;
+        int textYPosition = headerOffset + LANE_BOX_PADDING;
         drawStringWithFont(g, titleFont, textXPosition, textYPosition, this.lane.getName());
 
         // draw box
         int boxWidth = Math.min(textWidth, LANE_WIDTH) + (LANE_BOX_PADDING * 2);
         int boxXPosition = laneXPosition + (LANE_WIDTH / 2) - (Math.min(textWidth, LANE_WIDTH) / 2) - LANE_BOX_PADDING;
-        int boxYPosition = headerOffset + (Canvas.VERTICAL_GAP / 2);
-        g.drawRoundRect(boxXPosition, boxYPosition, boxWidth, LANE_BOX_HEIGHT, 10, 10);
+        g.drawRoundRect(boxXPosition, headerOffset, boxWidth, LANE_BOX_HEIGHT, 10, 10);
 
         // draw vertical line
-        int y1 = headerOffset + (Canvas.VERTICAL_GAP / 2) + LANE_BOX_HEIGHT;
-        int y2 = headerOffset + Canvas.VERTICAL_GAP + (Canvas.VERTICAL_GAP / 2) + LANE_BOX_HEIGHT + (renderableGraph.interactions.size() * Canvas.VERTICAL_GAP);
+        int y1 = headerOffset + LANE_BOX_HEIGHT;
+        int y2 = headerOffset + (renderableGraph.interactions.size() * Canvas.VERTICAL_GAP) + getVerticalLinePadding();
         g.drawLine((laneXPosition + LANE_WIDTH / 2), y1, (laneXPosition + LANE_WIDTH / 2), y2);
 
     }
@@ -69,6 +68,10 @@ public class RenderableLane {
             }
         }
         return originalFont;
+    }
+
+    public static int getVerticalLinePadding() {
+        return Canvas.VERTICAL_GAP + LANE_BOX_HEIGHT;
     }
 
 }

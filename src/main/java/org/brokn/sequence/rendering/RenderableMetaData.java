@@ -30,11 +30,15 @@ public class RenderableMetaData {
         // author
         if(this.model.getAuthor() != null) {
             totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
+            totalHeight += VERTICAL_GAP;
         }
 
         // date
         if(this.model.isShowDate()) {
             totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), "date").height;
+            if(this.model.getTitle() != null || this.model.getAuthor() != null) {
+                totalHeight += VERTICAL_GAP;
+            }
         }
 
         return totalHeight;

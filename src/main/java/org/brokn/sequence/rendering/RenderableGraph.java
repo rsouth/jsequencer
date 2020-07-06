@@ -41,6 +41,22 @@ public class RenderableGraph {
         this.renderableInteractions.forEach(renderableInteraction -> renderableInteraction.draw(g));
     }
 
+    public Dimension computeDiagramSize(Graphics g, boolean drawBorder) {
+        int height = renderableMetaData.calculateHeaderHeight(g);
+        height += RenderableLane.getVerticalLinePadding();
+        height += (this.interactions.size() * Canvas.VERTICAL_GAP);
+        height += 50;
+
+        int width = RenderableLane.LANE_WIDTH * renderableLanes.size() + (RenderableLane.LANE_GAP * renderableLanes.size());
+
+        Dimension diagramDimensions = new Dimension(width, height);
+        if(drawBorder) {
+            g.drawRect(0, 0, diagramDimensions.width, diagramDimensions.height);
+        }
+
+        return diagramDimensions;
+    }
+
     private void setRenderingHints(Graphics g) {
         Graphics2D g2d = (Graphics2D)g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

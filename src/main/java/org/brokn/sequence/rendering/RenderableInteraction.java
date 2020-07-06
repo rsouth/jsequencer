@@ -29,7 +29,7 @@ public class RenderableInteraction {
         int toLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getToLane());
         int interactionFromXPosition = fromLaneXPosition + (RenderableLane.LANE_WIDTH / 2);
         int interactionToXPosition = toLaneXPosition + (RenderableLane.LANE_WIDTH / 2);
-        int interactionYPosition = verticalOffset + (VERTICAL_GAP * 2) + (this.interaction.getIndex() * VERTICAL_GAP);
+        int interactionYPosition = verticalOffset + VERTICAL_GAP + (this.interaction.getIndex() * VERTICAL_GAP);
 
         // render line
         g.drawLine(interactionFromXPosition, interactionYPosition, interactionToXPosition, interactionYPosition);
