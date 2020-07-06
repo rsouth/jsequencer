@@ -12,11 +12,12 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -48,6 +49,7 @@ public class SequenceDialog extends JFrame {
     private JTabbedPane tabContainer;
     private JButton buttonExampleFile;
     private JButton buttonCopyToClipboard;
+    private JSplitPane splitPane;
 
     private DocumentState documentState = new DocumentState();
 
@@ -70,6 +72,17 @@ public class SequenceDialog extends JFrame {
                 if (dirtyFileCheck() != CANCEL_OPTION) {
                     System.exit(0);
                 }
+            }
+
+            @Override
+            public void windowOpened(WindowEvent e) {
+                super.windowOpened(e);
+                SwingUtilities.invokeLater(() -> {
+                    int splitPaneWidth = splitPane.getWidth();
+                    double dividerLocation = (splitPaneWidth / 4.) / 1000;
+                    log.info("JSplitPane width [" + splitPaneWidth + "], setting divider location to [" + dividerLocation + "]");
+                    splitPane.setDividerLocation(dividerLocation);
+                });
             }
         });
 
@@ -244,7 +257,7 @@ public class SequenceDialog extends JFrame {
         this.contentPane = new JPanel();
 
         this.canvasContainer = new Canvas();
-        this.canvasContainer.setBorder(BorderFactory.createDashedBorder(Color.BLUE));
+        this.canvasContainer.setBackground(Color.WHITE);
 
         try {
             int buttonW = 100, buttonH = 60;
@@ -353,26 +366,17 @@ public class SequenceDialog extends JFrame {
         toolBar1.add(buttonExampleFile);
         tabContainer = new JTabbedPane();
         panel2.add(tabContainer, BorderLayout.CENTER);
-        final JSplitPane splitPane1 = new JSplitPane();
-        tabContainer.addTab("Untitled", splitPane1);
-        splitPane1.setRightComponent(canvasContainer);
+        splitPane = new JSplitPane();
+        tabContainer.addTab("Untitled", splitPane);
+        splitPane.setRightComponent(canvasContainer);
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        splitPane1.setLeftComponent(panel3);
+        splitPane.setLeftComponent(panel3);
         textArea1 = new JTextArea();
         textArea1.setFocusCycleRoot(true);
         Font textArea1Font = this.$$$getFont$$$("Courier New", Font.PLAIN, 12, textArea1.getFont());
         if (textArea1Font != null) textArea1.setFont(textArea1Font);
         panel3.add(textArea1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
-        final JPanel panel4 = new JPanel();
-        panel4.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-        tabContainer.addTab("Untitled", panel4);
-        final Spacer spacer2 = new Spacer();
-        panel4.add(spacer2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final Spacer spacer3 = new Spacer();
-        panel4.add(spacer3, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final Spacer spacer4 = new Spacer();
-        panel4.add(spacer4, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     }
 
     /**

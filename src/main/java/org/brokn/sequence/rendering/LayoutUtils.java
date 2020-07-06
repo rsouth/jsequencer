@@ -8,8 +8,6 @@ import java.awt.font.GlyphVector;
 
 public class LayoutUtils {
 
-    public static final int MARGIN = 10;
-
     static int getLaneXPosition(Lane lane) {
         int multi = lane.getIndex();
         if (multi == 0) {
@@ -34,6 +32,13 @@ public class LayoutUtils {
 
         g2.setFont(originalFont);
         return pixelBounds;
+    }
+
+    static void drawStringWithFont(Graphics g, Font font, int x, int y, String text) {
+        Font originalFont = g.getFont();
+        g.setFont(font);
+        g.drawString(text, x, y);
+        g.setFont(originalFont);
     }
 
 }
