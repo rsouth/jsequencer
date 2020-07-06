@@ -5,9 +5,13 @@ import org.brokn.sequence.model.MetaData;
 import java.awt.*;
 import java.time.LocalDate;
 
+import static org.brokn.sequence.rendering.LayoutUtils.drawStringWithFont;
+
 public class RenderableMetaData {
 
     private static final int VERTICAL_GAP = 20;
+
+    private static final int DOCUMENT_MARGIN = 10;
 
     private final MetaData model;
 
@@ -40,21 +44,17 @@ public class RenderableMetaData {
 
         // draw title
         if(this.model.getTitle() != null) {
-            Font originalFont = g.getFont();
-            g.setFont(getTitleFont(g));
-
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;
-            g.drawString(this.model.getTitle(), 10, 10 + titleHeight);
-
-            g.setFont(originalFont);
+            Font titleFont = getTitleFont(g);
+            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, titleFont, this.model.getTitle()).height;
+            drawStringWithFont(g, titleFont, DOCUMENT_MARGIN, DOCUMENT_MARGIN + titleHeight, this.model.getTitle());
         }
 
         // draw author name
         if(this.model.getAuthor() != null) {
             int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;// 0 if no title shown
             int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
-            int y = titleHeight + (this.model.getTitle() == null ? 10 : VERTICAL_GAP) + authorHeight;
-            g.drawString(this.model.getAuthor(), 10, y);
+            int y = titleHeight + (this.model.getTitle() == null ? DOCUMENT_MARGIN : VERTICAL_GAP) + authorHeight;
+            g.drawString(this.model.getAuthor(), DOCUMENT_MARGIN, y);
         }
 
         // draw current date (10th June 2020 so no regional ambiguity)
@@ -67,12 +67,12 @@ public class RenderableMetaData {
             int spacing = (this.model.getTitle() != null || this.model.getAuthor() != null ? VERTICAL_GAP : 0);
             int y = titleHeight + authorHeight + dateHeight + spacing;
 
-            g.drawString(LocalDate.now().toString(), 10, y);
+            g.drawString(LocalDate.now().toString(), DOCUMENT_MARGIN, y);
         }
     }
 
     private Font getTitleFont(Graphics g) {
-        return new Font(g.getFont().getName(), Font.BOLD, 20);
+        return g.getFont().deriveFont(Font.BOLD, 20);
     }
 
 }

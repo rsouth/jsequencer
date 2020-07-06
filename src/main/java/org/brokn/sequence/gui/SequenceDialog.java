@@ -245,7 +245,7 @@ public class SequenceDialog extends JFrame {
         this.contentPane = new JPanel();
 
         this.canvasContainer = new Canvas();
-        this.canvasContainer.setBorder(BorderFactory.createDashedBorder(Color.BLUE));
+        this.canvasContainer.setBackground(Color.WHITE);
 
         try {
             int buttonW = 100, buttonH = 60;
@@ -280,6 +280,10 @@ public class SequenceDialog extends JFrame {
             Image copyToClipboardIconScaled = copyToClipboardIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
             this.buttonCopyToClipboard = new JButton("Example File", new ImageIcon(copyToClipboardIconScaled));
             this.buttonCopyToClipboard.setSize(buttonW, buttonH);
+
+            SwingUtilities.invokeLater(() -> {
+
+            });
 
         } catch (IOException e) {
             e.printStackTrace();
