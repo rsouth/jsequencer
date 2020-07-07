@@ -9,13 +9,13 @@
 ## Simple to get started
 
 #### Describe your sequence
-`Client -> Server`
+`Client -> Server: Request`
 
-`Server -> Service`
+`Server -> Service: Query`
 
-`Service -> Server`
+`Service -> Server: Data`
 
-`Server -> Client`
+`Server -> Client: Response`
 
 #### Your diagram is created
 
