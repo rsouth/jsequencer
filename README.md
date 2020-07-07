@@ -1,9 +1,10 @@
-![](https://github.com/rsouth/sequencer/workflows/Java%20CI%20with%20Maven/badge.svg?branch=develop) ![](https://github.com/rsouth/sequencer/workflows/Maven%20Package/badge.svg)
-
-# sequencer
-simple sequence diagrams
-
-> Sequencer creates easy sequence diagrams so that developers can share ideas.
+<div align="center" style="display: flex; flex-direction: column;">
+  <h3>sequencer is a simple diagramming tool to make it easy for developers to share ideas</h3>
+  <p>
+      <img src="https://github.com/rsouth/sequencer/workflows/Java%20CI%20with%20Maven/badge.svg?branch=develop">
+      <img src="https://github.com/rsouth/sequencer/workflows/Maven%20Package/badge.svg">
+  </p>
+</div>
 
 See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar.
 
