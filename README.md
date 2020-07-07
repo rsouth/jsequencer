@@ -36,9 +36,9 @@ See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar
   </p>
 </div>
 
-#### Credits / Attributions
+## Credits / Attributions
 
-**Icons:**
+#### Icons
 
 Export and Save icons made by [Becris](https://www.flaticon.com/authors/becris) from [www.flaticon.com](https://www.flaticon.com/).
 
@@ -48,6 +48,10 @@ Info and Example File icon made by [freepik](https://www.flaticon.com/authors/fr
  
 Copy to Clipboard icon made by [pixel-perfect](https://www.flaticon.com/authors/pixel-perfect) from [www.flaticon.com](https://www.flaticon.com/).
 
-#### License
+#### Inspiration
+
+https://www.websequencediagrams.com/ is a website offering text-based sequence diagrams with a commercial offering.
+
+## License
 
 This project is licensed under the terms of the GNU General Public License v3.0.
