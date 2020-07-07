@@ -20,6 +20,7 @@ package org.brokn.sequence.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.brokn.sequence.configuration.SequencerConfiguration;
 import org.brokn.sequence.lexer.Lexer;
 import org.brokn.sequence.rendering.Canvas;
 import org.brokn.sequence.rendering.RenderableGraph;
@@ -29,10 +30,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -40,6 +38,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import static javax.swing.JOptionPane.*;
+import static org.brokn.sequence.configuration.SequencerConfiguration.*;
 
 public class SequenceDialog extends JFrame {
 
@@ -70,6 +69,8 @@ public class SequenceDialog extends JFrame {
 
     private DocumentState documentState = new DocumentState();
 
+    private final SequencerConfiguration config = new SequencerConfiguration();
+
     private final Lexer lexer = new Lexer();
 
     public SequenceDialog() {
@@ -82,25 +83,63 @@ public class SequenceDialog extends JFrame {
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
+        // Load in app configuration
+        this.config.loadConfigurations();
+
         // Close action
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
+                super.windowClosing(windowEvent);
+
                 if (dirtyFileCheck() != CANCEL_OPTION) {
+                    log.info("Settings: " + SequenceDialog.this.config.getAll().toString());
                     System.exit(0);
+                }
+            }
+        });
+        
+
+        // Listen to window resize / move events to save position
+        addComponentListener(new ComponentListener() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (e.getComponent().isShowing()) {
+                    int width = e.getComponent().getBounds().width;
+                    SequenceDialog.this.config.setProperty(KEY_WINDOW_WIDTH, width);
+                    int height = e.getComponent().getBounds().height;
+                    SequenceDialog.this.config.setProperty(KEY_WINDOW_HEIGHT, height);
+                    System.out.println("Window W: " + width + ", H: " + height);
                 }
             }
 
             @Override
-            public void windowOpened(WindowEvent e) {
-                super.windowOpened(e);
-                SwingUtilities.invokeLater(() -> {
-                    int splitPaneWidth = splitPane.getWidth();
-                    double dividerLocation = (splitPaneWidth / 4.) / 1000;
-                    log.info("JSplitPane width [" + splitPaneWidth + "], setting divider location to [" + dividerLocation + "]");
-                    splitPane.setDividerLocation(dividerLocation);
-                });
+            public void componentMoved(ComponentEvent e) {
+                if (e.getComponent().isShowing()) {
+                    double x = e.getComponent().getLocationOnScreen().getX();
+                    SequenceDialog.this.config.setProperty(KEY_WINDOW_X, x);
+                    double y = e.getComponent().getLocationOnScreen().getY();
+                    SequenceDialog.this.config.setProperty(KEY_WINDOW_Y, y);
+                    System.out.println("Window X:" + x + ", Y:" + y + "");
+                }
             }
+
+            @Override
+            public void componentShown(ComponentEvent e) {
+                processWindowConfiguration();
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+
+            }
+
+        });
+
+        // listen to splitter resize event to save position
+        splitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, pce -> {
+            int loc = (int) pce.getNewValue();
+            SequenceDialog.this.config.setProperty(KEY_DIVIDER_LOCATION, loc);
         });
 
         // button callbacks
@@ -226,6 +265,8 @@ public class SequenceDialog extends JFrame {
         this.documentState = new DocumentState(file, String.join("\n", lines));
 
         SwingUtilities.invokeLater(() -> {
+            this.tabContainer.setTitleAt(0, file == null ? "Untitled" : file.getName());
+
             // update text area
             this.textArea1.setText(documentState.getCurrentText());
             log.info("Updated document with contents of file [" + file + "]");
@@ -270,6 +311,45 @@ public class SequenceDialog extends JFrame {
         SwingUtilities.invokeLater(() -> {
             RenderableGraph model = lexer.parse(text);
             ((Canvas) canvasContainer).updateModel(model);
+        });
+    }
+
+    private void processWindowConfiguration() {
+        SwingUtilities.invokeLater(() -> {
+            // access configuration properties
+            if (this.config.containsKey(KEY_WINDOW_X) && config.containsKey(KEY_WINDOW_Y)) {
+                int x = Math.round(config.getFloat(KEY_WINDOW_X));
+                int y = Math.round(config.getFloat(KEY_WINDOW_Y));
+                SequenceDialog.this.setLocation(x, y);
+
+                System.out.println("Set Window location to [" + x + ", " + y + "]");
+            }
+
+            if (this.config.containsKey(KEY_WINDOW_WIDTH) && config.containsKey(KEY_WINDOW_HEIGHT)) {
+                int windowWidth = config.getInt(KEY_WINDOW_WIDTH);
+                int windowHeight = config.getInt(KEY_WINDOW_HEIGHT);
+                SequenceDialog.this.setSize(windowWidth, windowHeight); // .setPreferredSize(new Dimension(windowWidth, windowHeight));
+                System.out.println("Set Window size to [" + windowWidth + ", " + windowHeight + "]");
+            }
+        });
+
+        boolean hasDividerLocation = this.config.containsKey(KEY_DIVIDER_LOCATION);
+        if (hasDividerLocation) {
+            int loc = this.config.getInt(KEY_DIVIDER_LOCATION);
+            SwingUtilities.invokeLater(() -> {
+                splitPane.setDividerLocation(loc);
+            });
+        } else {
+            setDefaultDividerLocation();
+        }
+    }
+
+    private void setDefaultDividerLocation() {
+        SwingUtilities.invokeLater(() -> {
+            int splitPaneWidth = splitPane.getBounds().width;
+            double dividerLocation = (splitPaneWidth / 4.) / 1000;
+            log.info("JSplitPane width [" + splitPaneWidth + "], setting divider location to [" + dividerLocation + "]");
+            splitPane.setDividerLocation(dividerLocation);
         });
     }
 
