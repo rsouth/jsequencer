@@ -29,10 +29,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -67,6 +64,7 @@ public class SequenceDialog extends JFrame {
     private JButton buttonExampleFile;
     private JButton buttonCopyToClipboard;
     private JSplitPane splitPane;
+    private JButton buttonNewFile;
 
     private DocumentState documentState = new DocumentState();
 
@@ -109,6 +107,7 @@ public class SequenceDialog extends JFrame {
         buttonOpen.addActionListener(e -> openFile());
         buttonExampleFile.addActionListener(e -> openExampleFile());
         buttonCopyToClipboard.addActionListener(e -> onCopyToClipboard());
+        buttonNewFile.addActionListener(e -> onNewFile());
 
         // scale slider callback
         scaleSlider.addChangeListener(e -> ((Canvas) canvasContainer).updateScale(((JSlider) e.getSource()).getValue()));
@@ -135,6 +134,7 @@ public class SequenceDialog extends JFrame {
         DialogUtils.FileDialogResult fileDialogResult = DialogUtils.openSaveAsDialog(fileFilter);
         if (fileDialogResult.isOkToProceed()) {
             this.documentState.saveSourceFile(fileDialogResult.getFile(), this.textArea1.getText());
+            triggerModelUpdate();
         }
     }
 
@@ -188,6 +188,15 @@ public class SequenceDialog extends JFrame {
         }
     }
 
+
+    private void onNewFile() {
+        if (dirtyFileCheck() == CANCEL_OPTION) {
+            return;
+        }
+
+        replaceDocument(null, null);
+    }
+
     private void openExampleFile() {
         if (dirtyFileCheck() == CANCEL_OPTION) {
             return;
@@ -206,26 +215,31 @@ public class SequenceDialog extends JFrame {
 
     private void replaceDocument(File file, Reader inputReader) {
         java.util.List<String> lines = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(inputReader)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
+        if (inputReader != null) {
+            try (BufferedReader reader = new BufferedReader(inputReader)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    lines.add(line);
+                }
 
-        } catch (IOException e) {
-            // todo fix this logging - show filename? something else? just exception msg??
-            if (file == null) {
-                log.severe("An exception occured while loading file from classpath: " + e.getMessage());
-            } else {
-                log.severe("An exception occurred while reading file []");
+            } catch (IOException e) {
+                // todo fix this logging - show filename? something else? just exception msg??
+                if (file == null) {
+                    log.severe("An exception occured while loading file from classpath: " + e.getMessage());
+                } else {
+                    log.severe("An exception occurred while reading file []");
+                }
+                e.printStackTrace();
             }
-            e.printStackTrace();
         }
 
         // update document state
         this.documentState = new DocumentState(file, String.join("\n", lines));
 
         SwingUtilities.invokeLater(() -> {
+            // update filename in tab
+            this.tabContainer.setTitleAt(0, file == null ? "Untitled" : file.getName());
+
             // update text area
             this.textArea1.setText(documentState.getCurrentText());
             log.info("Updated document with contents of file [" + file + "]");
@@ -268,6 +282,20 @@ public class SequenceDialog extends JFrame {
         String text = documentState.getCurrentText();
 
         SwingUtilities.invokeLater(() -> {
+            String currentTitle = tabContainer.getTitleAt(0);
+            if (documentState.isDirty()) {
+                // update tab title
+                if (!currentTitle.endsWith("*")) {
+                    tabContainer.setTitleAt(0, currentTitle + " *");
+                }
+            } else {
+                if (currentTitle.endsWith("*")) {
+                    String rawTitle = currentTitle.replace(" *", "");
+                    tabContainer.setTitleAt(0, rawTitle);
+                }
+            }
+
+            // update the canvas model
             RenderableGraph model = lexer.parse(text);
             ((Canvas) canvasContainer).updateModel(model);
         });
@@ -313,6 +341,12 @@ public class SequenceDialog extends JFrame {
             this.buttonCopyToClipboard = new JButton("Example File", new ImageIcon(copyToClipboardIconScaled));
             this.buttonCopyToClipboard.setSize(buttonW, buttonH);
 
+            // New File button
+            BufferedImage newFileIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/new-file.png"));
+            Image newFileIconScaled = newFileIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
+            this.buttonNewFile = new JButton("Example File", new ImageIcon(newFileIconScaled));
+            this.buttonNewFile.setSize(buttonW, buttonH);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -352,6 +386,10 @@ public class SequenceDialog extends JFrame {
         final JToolBar toolBar1 = new JToolBar();
         toolBar1.setPreferredSize(new Dimension(300, 60));
         panel2.add(toolBar1, BorderLayout.NORTH);
+        buttonNewFile.setHorizontalTextPosition(0);
+        buttonNewFile.setText("New");
+        buttonNewFile.setVerticalTextPosition(3);
+        toolBar1.add(buttonNewFile);
         buttonOpen.setActionCommand("Open");
         buttonOpen.setHorizontalTextPosition(0);
         buttonOpen.setPreferredSize(new Dimension(100, 50));

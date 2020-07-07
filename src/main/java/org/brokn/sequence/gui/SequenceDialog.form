@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.brokn.sequence.gui.SequenceDialog">
   <grid id="cbd77" binding="contentPane" custom-create="true" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="48" y="54" width="526" height="498"/>
+      <xy x="48" y="54" width="604" height="498"/>
     </constraints>
     <properties>
       <preferredSize width="1200" height="900"/>
@@ -26,6 +26,14 @@
                 </properties>
                 <border type="none"/>
                 <children>
+                  <component id="6c662" class="javax.swing.JButton" binding="buttonNewFile" custom-create="true">
+                    <constraints/>
+                    <properties>
+                      <horizontalTextPosition value="0"/>
+                      <text value="New"/>
+                      <verticalTextPosition value="3"/>
+                    </properties>
+                  </component>
                   <component id="54263" class="javax.swing.JButton" binding="buttonOpen" custom-create="true">
                     <constraints/>
                     <properties>
