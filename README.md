@@ -21,7 +21,12 @@
 
 <img src="https://i.ibb.co/tBvRy40/sequencer-example-2020-07-07.png" alt="sequencer-example-2020-07-07" border="0">
 
-Copy the diagram to your clipboard to paste straight in to chat or email, and because the diagram is generated from text it's easy to edit, share and version control.
+Copy the diagram to your clipboard to paste straight in to chat or email.
+
+Because the diagram is generated from text it's
+ - easy to edit
+ - easy to share
+ - easy to version control
 
 See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar.
 
