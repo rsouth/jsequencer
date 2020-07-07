@@ -32,7 +32,7 @@ See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar
 
 <div align="center" style="display: flex; flex-direction: column;">
   <p>
-    <img src="http://g.recordit.co/Ol7pXDzJRt.gif" width="800">
+    <img src="https://s7.gifyu.com/images/sequence-gizmo-6.gif" alt="sequence-gizmo-6.gif" border="0" />
   </p>
 </div>
 
