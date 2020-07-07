@@ -30,7 +30,11 @@ Because the diagram is generated from text it's
 
 See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar.
 
-<img src="http://g.recordit.co/Ol7pXDzJRt.gif" width="800">
+<div align="center" style="display: flex; flex-direction: column;">
+  <p>
+    <img src="http://g.recordit.co/Ol7pXDzJRt.gif" width="800">
+  </p>
+</div>
 
 #### Credits / Attributions
 
