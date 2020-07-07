@@ -6,9 +6,24 @@
   </p>
 </div>
 
-See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar.
+## Simple to get started
 
-[notes.txt](https://github.com/rsouth/sequencer/blob/develop/notes.txt) contains attributions.
+#### Describe your sequence
+`Client -> Server`
+
+`Server -> Service`
+
+`Service -> Server`
+
+`Server -> Client`
+
+#### Your diagram is created
+
+<img src="https://i.ibb.co/tBvRy40/sequencer-example-2020-07-07.png" alt="sequencer-example-2020-07-07" border="0">
+
+Copy the diagram to your clipboard to paste straight in to chat or email, and because the diagram is generated from text it's easy to edit, share and version control.
+
+See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar.
 
 <img src="http://g.recordit.co/Ol7pXDzJRt.gif" width="800">
 
