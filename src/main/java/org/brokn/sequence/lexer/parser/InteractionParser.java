@@ -63,6 +63,10 @@ public class InteractionParser {
                     if(fromNode.length() > 0 && toNode.length() > 0) {
                         interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount));
                         interactionCount++;
+                        if(fromNode.equals(toNode)) {
+                            // self-referential so increment interation code one more time, for the interaction back to self
+                            interactionCount++;
+                        }
                     }
                 }
             }

@@ -24,6 +24,7 @@ import java.awt.*;
 import java.util.Objects;
 
 import static org.brokn.sequence.rendering.Canvas.VERTICAL_GAP;
+import static org.brokn.sequence.rendering.RenderableLane.LANE_GAP;
 
 public class RenderableInteraction {
 
@@ -43,24 +44,65 @@ public class RenderableInteraction {
     public void draw(Graphics g) {
         int verticalOffset = renderableGraph.getMetaDataHeight(g);
 
+        boolean isSelfReferential = this.interaction.getFromLane().equals(this.interaction.getToLane());
+
+        if (isSelfReferential) {
+            drawSelfReferentialInteraction(g, verticalOffset);
+        } else {
+            drawPointToPointInteraction(g, verticalOffset);
+        }
+    }
+
+    private void drawSelfReferentialInteraction(Graphics g, int verticalOffset) {
         int fromLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getFromLane());
-        int toLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getToLane());
         int interactionFromXPosition = fromLaneXPosition + (RenderableLane.LANE_WIDTH / 2);
-        int interactionToXPosition = toLaneXPosition + (RenderableLane.LANE_WIDTH / 2);
-        int interactionYPosition = verticalOffset + VERTICAL_GAP + (this.interaction.getIndex() * VERTICAL_GAP);
+
+        int lineFromX = interactionFromXPosition + RenderableLane.LANE_WIDTH / 2;
+        int lineToX = lineFromX + (LANE_GAP / 2);
+
+        int fromLineY = verticalOffset + VERTICAL_GAP + (this.interaction.getIndex() * VERTICAL_GAP);
+        int toLineY = fromLineY + VERTICAL_GAP;
 
         // render line
-        g.drawLine(interactionFromXPosition, interactionYPosition, interactionToXPosition, interactionYPosition);
+        g.drawLine(interactionFromXPosition, fromLineY, lineToX, fromLineY);
+
+        // vertical line
+        g.drawLine(lineToX, fromLineY, lineToX, toLineY);
+
+        // second line
+        g.drawLine(interactionFromXPosition, toLineY, lineToX, toLineY);
 
         // Render message
-        if(this.interaction.getMessage() != null) {
+        renderInteractionMessage(g, interactionFromXPosition, fromLineY, lineToX);
+
+        new RenderableArrowhead().draw(g, this.interaction, interactionFromXPosition, toLineY);
+    }
+
+    private void drawPointToPointInteraction(Graphics g, int verticalOffset) {
+        int fromLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getFromLane());
+        int toLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getToLane());
+
+        int lineFromX = fromLaneXPosition + (RenderableLane.LANE_WIDTH / 2);
+        int lineToX = toLaneXPosition + (RenderableLane.LANE_WIDTH / 2);
+
+        int lineY = verticalOffset + VERTICAL_GAP + (this.interaction.getIndex() * VERTICAL_GAP);
+
+        // render line
+        g.drawLine(lineFromX, lineY, lineToX, lineY);
+
+        // Render message
+        renderInteractionMessage(g, lineFromX, lineY, lineToX);
+
+        new RenderableArrowhead().draw(g, this.interaction, lineToX, lineY);
+    }
+
+    private void renderInteractionMessage(Graphics g, int interactionFromXPosition, int interactionFromYPosition, int interactionToXPosition) {
+        if (this.interaction.getMessage() != null) {
             boolean isRight = interactionFromXPosition < interactionToXPosition;
             int messageWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(), this.interaction.getMessage());
             int labelX = isRight ? interactionFromXPosition + MESSAGE_PADDING : interactionFromXPosition - (messageWidth + MESSAGE_PADDING);
-            g.drawString(this.interaction.getMessage(), labelX, interactionYPosition - MESSAGE_PADDING);
+            g.drawString(this.interaction.getMessage(), labelX, interactionFromYPosition - MESSAGE_PADDING);
         }
-
-        new RenderableArrowhead().draw(g, this.interaction, interactionToXPosition, interactionYPosition);
     }
 
     static class RenderableArrowhead {
