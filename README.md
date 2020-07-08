@@ -41,16 +41,6 @@ See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar
 
 ## Credits / Attributions
 
-#### Icons
-
-'Export' and 'Save' icons made by [Becris](https://www.flaticon.com/authors/becris) from [www.flaticon.com](https://www.flaticon.com/).
-
-'Open' icon made by [dmitri13](https://www.flaticon.com/authors/dmitri13) from [www.flaticon.com](https://www.flaticon.com/).
-
-'New File', 'Info' and 'Example File' icon made by [freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/).
- 
-'Copy to Clipboard' icon made by [pixel-perfect](https://www.flaticon.com/authors/pixel-perfect) from [www.flaticon.com](https://www.flaticon.com/).
-
 #### Inspiration
 
 https://www.websequencediagrams.com/ is a website offering text-based sequence diagrams with a commercial offering.

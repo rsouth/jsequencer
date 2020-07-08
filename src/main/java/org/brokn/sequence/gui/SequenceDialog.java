@@ -19,13 +19,11 @@ package org.brokn.sequence.gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
 import org.brokn.sequence.lexer.Lexer;
 import org.brokn.sequence.lexer.parser.MetaDataParser;
 import org.brokn.sequence.rendering.Canvas;
 import org.brokn.sequence.rendering.RenderableGraph;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -57,17 +55,10 @@ public class SequenceDialog extends JFrame {
     }
 
     private JPanel contentPane;
-    private JButton buttonExport;
     private JTextArea textArea1;
     private JPanel canvasContainer;
-    private JButton buttonSave;
-    private JButton buttonOpen;
-    private JSlider scaleSlider;
     private JTabbedPane tabContainer;
-    private JButton buttonExampleFile;
-    private JButton buttonCopyToClipboard;
     private JSplitPane splitPane;
-    private JButton buttonNewFile;
     private JPanel statusBarPanel;
 
     private DocumentState documentState = new DocumentState();
@@ -79,7 +70,6 @@ public class SequenceDialog extends JFrame {
         $$$setupUI$$$();
         setLocationByPlatform(true);
         setContentPane(contentPane);
-        getRootPane().setDefaultButton(buttonExport);
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -104,17 +94,6 @@ public class SequenceDialog extends JFrame {
                 });
             }
         });
-
-        // button callbacks
-        buttonExport.addActionListener(e -> onExport());
-        buttonSave.addActionListener(e -> onSaveAs());
-        buttonOpen.addActionListener(e -> openFile());
-        buttonExampleFile.addActionListener(e -> openExampleFile());
-        buttonCopyToClipboard.addActionListener(e -> onCopyToClipboard());
-        buttonNewFile.addActionListener(e -> onNewFile());
-
-        // scale slider callback
-        scaleSlider.addChangeListener(e -> ((Canvas) canvasContainer).updateScale(((JSlider) e.getSource()).getValue()));
 
         // listen for keystrokes to kick off updating the diagram
         textArea1.addKeyListener(new KeyAdapter() {
@@ -344,58 +323,13 @@ public class SequenceDialog extends JFrame {
         this.canvasContainer.setIgnoreRepaint(true);
         this.canvasContainer.setBackground(Color.WHITE);
 
-        try {
-            int buttonW = 100, buttonH = 60;
-            int iconW = 40, iconH = 40;
+        // Menu Bar
+        MenuBar newMenuBar = new MenuBar(onFileMenuItemClicked, onDiagramMenuItemClicked, onHelpMenuItemClicked);
+        this.setJMenuBar(newMenuBar);
 
-            // Save source button
-            BufferedImage saveFileIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/save-file.png"));
-            Image saveFileIconScaled = saveFileIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
-            this.buttonSave = new JButton("Save Source", new ImageIcon(saveFileIconScaled));
-            this.buttonSave.setSize(buttonW, buttonH);
-
-            // Export image button
-            BufferedImage exportImageIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/export-image.png"));
-            Image exportImageIconScaled = exportImageIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
-            this.buttonExport = new JButton("Export Image", new ImageIcon(exportImageIconScaled));
-            this.buttonExport.setSize(buttonW, buttonH);
-
-            // Open file button
-            BufferedImage openFileIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/open-file.png"));
-            Image openFileIconScaled = openFileIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
-            this.buttonOpen = new JButton("Open", new ImageIcon(openFileIconScaled));
-            this.buttonOpen.setSize(buttonW, buttonH);
-
-            // Example file button
-            BufferedImage exampleFileIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/example-file.png"));
-            Image exampleFileIconScaled = exampleFileIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
-            this.buttonExampleFile = new JButton("Example File", new ImageIcon(exampleFileIconScaled));
-            this.buttonExampleFile.setSize(buttonW, buttonH);
-
-            // Copy to Clipboard button
-            BufferedImage copyToClipboardIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/copy-to-clipboard.png"));
-            Image copyToClipboardIconScaled = copyToClipboardIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
-            this.buttonCopyToClipboard = new JButton("Example File", new ImageIcon(copyToClipboardIconScaled));
-            this.buttonCopyToClipboard.setSize(buttonW, buttonH);
-
-            // New File button
-            BufferedImage newFileIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/new-file.png"));
-            Image newFileIconScaled = newFileIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
-            this.buttonNewFile = new JButton("Example File", new ImageIcon(newFileIconScaled));
-            this.buttonNewFile.setSize(buttonW, buttonH);
-
-            // Menu Bar
-            MenuBar newMenuBar = new MenuBar(onFileMenuItemClicked, onDiagramMenuItemClicked, onHelpMenuItemClicked);
-            this.setJMenuBar(newMenuBar);
-
-            // Status bar
-            this.statusBarPanel = new SeqStatusBar(contentPane, e -> onExport(), e -> onCopyToClipboard());
-            this.contentPane.add(statusBarPanel, BorderLayout.SOUTH);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        // Status bar
+        this.statusBarPanel = new SeqStatusBar(contentPane, e -> onExport(), e -> onCopyToClipboard());
+        this.contentPane.add(statusBarPanel, BorderLayout.SOUTH);
     }
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
@@ -487,12 +421,11 @@ public class SequenceDialog extends JFrame {
 
                 switch (menuItemText) {
                     case MenuBar.HELP_GRAMMAR:
-                        String title = showInputDialog(null, "Enter Title:", "Title", QUESTION_MESSAGE);
-                        addTokenToSource(MetaDataParser.TITLE_TOKEN, title);
+                        showMessageDialog(null, "todo", "Grammar", INFORMATION_MESSAGE);
                         break;
 
                     case MenuBar.HELP_ABOUT:
-                        JOptionPane.showMessageDialog(null, "github.com/rsouth/sequencer", "sequencer", INFORMATION_MESSAGE);
+                        showMessageDialog(null, "github.com/rsouth/sequencer", "sequencer", INFORMATION_MESSAGE);
                         break;
 
                     case MenuBar.HELP_EXAMPLE_FILE:
@@ -520,46 +453,6 @@ public class SequenceDialog extends JFrame {
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new BorderLayout(0, 0));
         panel1.add(panel2, BorderLayout.CENTER);
-        final JToolBar toolBar1 = new JToolBar();
-        toolBar1.setPreferredSize(new Dimension(300, 60));
-        toolBar1.setVisible(false);
-        panel2.add(toolBar1, BorderLayout.NORTH);
-        buttonNewFile.setHorizontalTextPosition(0);
-        buttonNewFile.setText("New");
-        buttonNewFile.setVerticalTextPosition(3);
-        toolBar1.add(buttonNewFile);
-        buttonOpen.setActionCommand("Open");
-        buttonOpen.setHorizontalTextPosition(0);
-        buttonOpen.setPreferredSize(new Dimension(100, 50));
-        buttonOpen.setText("Open");
-        buttonOpen.setVerticalTextPosition(3);
-        toolBar1.add(buttonOpen);
-        buttonSave.setHorizontalTextPosition(0);
-        buttonSave.setPreferredSize(new Dimension(100, 50));
-        buttonSave.setText("Save Source");
-        buttonSave.setVerticalTextPosition(3);
-        toolBar1.add(buttonSave);
-        buttonExport.setActionCommand("Export");
-        buttonExport.setHorizontalTextPosition(0);
-        buttonExport.setPreferredSize(new Dimension(100, 50));
-        buttonExport.setText("Export .png");
-        buttonExport.setVerticalTextPosition(3);
-        toolBar1.add(buttonExport);
-        buttonCopyToClipboard.setHorizontalTextPosition(0);
-        buttonCopyToClipboard.setText("To Clipboard");
-        buttonCopyToClipboard.setVerticalTextPosition(3);
-        toolBar1.add(buttonCopyToClipboard);
-        scaleSlider = new JSlider();
-        scaleSlider.setMaximum(10);
-        scaleSlider.setMinimum(-10);
-        scaleSlider.setMinorTickSpacing(1);
-        scaleSlider.setPaintTicks(true);
-        scaleSlider.setValue(1);
-        toolBar1.add(scaleSlider);
-        final Spacer spacer1 = new Spacer();
-        toolBar1.add(spacer1);
-        buttonExampleFile.setText("Example File");
-        toolBar1.add(buttonExampleFile);
         tabContainer = new JTabbedPane();
         panel2.add(tabContainer, BorderLayout.CENTER);
         splitPane = new JSplitPane();

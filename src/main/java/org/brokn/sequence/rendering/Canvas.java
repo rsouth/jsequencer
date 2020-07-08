@@ -19,7 +19,6 @@ package org.brokn.sequence.rendering;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferStrategy;
 import java.util.logging.Logger;
 
 public class Canvas extends JPanel {
