@@ -163,6 +163,11 @@ public class SequenceDialog extends JFrame {
     private void onCopyToClipboard() {
         Dimension clip = canvasContainer.getPreferredSize();
         log.info("Copy to clipboard, dims: " + clip);
+        if (clip.width <= 0 || clip.height <= 0) {
+            log.severe("Cannot copy to clipboard; clip size too small");
+            showMessageDialog(null, "Cannot copy to clipboard, clip area is too small", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         BufferedImage bImg = new BufferedImage(clip.width, clip.height, BufferedImage.TYPE_INT_RGB);
         Graphics2D cg = bImg.createGraphics();
@@ -240,7 +245,7 @@ public class SequenceDialog extends JFrame {
                 e.printStackTrace();
             }
         }
-        
+
         SwingUtilities.invokeLater(() -> {
             // update document state
             this.documentState = new DocumentState(file, String.join("\n", lines));

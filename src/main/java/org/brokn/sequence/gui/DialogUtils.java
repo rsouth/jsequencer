@@ -109,7 +109,7 @@ public class DialogUtils {
                     return new FileDialogResult(true, fileChooser.getSelectedFile());
 
                 } else {
-                    File file = new File(fileChooser.getSelectedFile().getPath() + fileFilter.getExtensions()[0]);
+                    File file = new File(fileChooser.getSelectedFile().getPath() + "." + fileFilter.getExtensions()[0]);
                     log.info("User saving in new file " + file.getPath());
                     return new FileDialogResult(true, file);
                 }

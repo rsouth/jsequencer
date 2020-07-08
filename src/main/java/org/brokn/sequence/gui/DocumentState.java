@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Logger;
 
+import static javax.swing.JOptionPane.showMessageDialog;
+
 public class DocumentState {
 
     private static final Logger log = Logger.getLogger(DocumentState.class.getName());
@@ -96,7 +98,14 @@ public class DocumentState {
      * @param selectedFile
      */
     public void exportAsImage(File selectedFile, JPanel canvas) {
-        BufferedImage bImg = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Dimension clip = canvas.getPreferredSize();
+        log.info("Export to file, dims: " + clip);
+        if (clip.width <= 0 || clip.height <= 0) {
+            log.severe("Cannot export to file; clip size too small");
+            showMessageDialog(null, "Cannot export image, clip area is too small", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        BufferedImage bImg = new BufferedImage(clip.width, clip.height, BufferedImage.TYPE_INT_RGB);
         Graphics2D cg = bImg.createGraphics();
         canvas.paintAll(cg);
         try {
