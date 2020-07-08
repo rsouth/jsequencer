@@ -240,11 +240,11 @@ public class SequenceDialog extends JFrame {
                 e.printStackTrace();
             }
         }
-
-        // update document state
-        this.documentState = new DocumentState(file, String.join("\n", lines));
-
+        
         SwingUtilities.invokeLater(() -> {
+            // update document state
+            this.documentState = new DocumentState(file, String.join("\n", lines));
+
             // update filename in tab
             this.tabContainer.setTitleAt(0, file == null ? "Untitled" : file.getName());
 
