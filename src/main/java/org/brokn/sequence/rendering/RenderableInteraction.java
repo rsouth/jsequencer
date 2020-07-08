@@ -21,6 +21,7 @@ import org.brokn.sequence.model.Interaction;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 import static org.brokn.sequence.rendering.Canvas.VERTICAL_GAP;
 
@@ -84,4 +85,23 @@ public class RenderableInteraction {
 
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RenderableInteraction that = (RenderableInteraction) o;
+        return interaction.equals(that.interaction);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(interaction);
+    }
+
+    @Override
+    public String toString() {
+        return "RenderableInteraction{" +
+                "interaction=" + interaction +
+                '}';
+    }
 }

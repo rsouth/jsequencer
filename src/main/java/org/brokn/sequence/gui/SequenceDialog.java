@@ -339,8 +339,9 @@ public class SequenceDialog extends JFrame {
 
     private void createUIComponents() {
         this.contentPane = new JPanel();
-
         this.canvasContainer = new Canvas();
+
+        this.canvasContainer.setIgnoreRepaint(true);
         this.canvasContainer.setBackground(Color.WHITE);
 
         try {

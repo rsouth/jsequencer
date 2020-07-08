@@ -21,6 +21,7 @@ import org.brokn.sequence.model.Lane;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 import static javax.swing.SwingUtilities.computeStringWidth;
 import static org.brokn.sequence.rendering.LayoutUtils.drawStringWithFont;
@@ -91,4 +92,23 @@ public class RenderableLane {
         return Canvas.VERTICAL_GAP + LANE_BOX_HEIGHT;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RenderableLane that = (RenderableLane) o;
+        return lane.equals(that.lane);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(renderableGraph, lane);
+    }
+
+    @Override
+    public String toString() {
+        return "RenderableLane{" +
+                "lane=" + lane +
+                '}';
+    }
 }
