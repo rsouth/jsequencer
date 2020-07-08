@@ -1,3 +1,20 @@
+/*
+ *     Copyright (C) 2020 rsouth (https://github.com/rsouth)
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.brokn.sequence.lexer.parser;
 
 import org.brokn.sequence.model.Interaction;
@@ -23,30 +40,28 @@ public class InteractionParser {
 
         try {
             String[] lines = input.split("\n");
-
+            int interactionCount = 0;
             for (String line : lines) {
-
                 // lines with -> are 'interactions'
                 if (line.contains(INTERACTION_TOKEN)) {
                     String[] split = line.split(INTERACTION_TOKEN);
                     String fromNode = split[0].trim();
                     String toNode = split[1].trim();
 
-                    String message = "";
+                    String message = null;
                     if (toNode.contains(":")) {
                         String[] split1 = toNode.split(":");
                         message = split1[1];
                         toNode = split1[0];
                     }
 
-
-                    interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message));
+                    interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount));
+                    interactionCount++;
                 }
             }
 
         } catch (Exception ex) {
             log.warning("Exception while parsing interactions, exception: " + ex.getMessage());
-            return new ArrayList<>();
         }
 
         log.info("Found [" + interactions.size() + "] interactions " + interactions);

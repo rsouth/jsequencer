@@ -1,57 +1,83 @@
+/*
+ *     Copyright (C) 2020 rsouth (https://github.com/rsouth)
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.brokn.sequence.rendering;
 
 import org.brokn.sequence.model.Interaction;
 
+import javax.swing.*;
 import java.awt.*;
 
 import static org.brokn.sequence.rendering.Canvas.VERTICAL_GAP;
 
 public class RenderableInteraction {
+
     private final Interaction interaction;
 
-    public RenderableInteraction(Interaction interaction) {
+    private final RenderableGraph renderableGraph;
+
+    private static final int ARROWHEAD_LENGTH = 10;
+
+    private static final int MESSAGE_PADDING = 5;
+
+    public RenderableInteraction(RenderableGraph renderableGraph, Interaction interaction) {
+        this.renderableGraph = renderableGraph;
         this.interaction = interaction;
     }
 
-    public Interaction getInteraction() {
-        return interaction;
-    }
-
-    public void draw(Graphics g, RenderableGraph renderableGraph, int interactionCount) {
+    public void draw(Graphics g) {
         int verticalOffset = renderableGraph.getMetaDataHeight(g);
 
-        int fromColumn = LayoutUtils.columnXPosition(this.getInteraction().getFromLane());
-        int toColumn = LayoutUtils.columnXPosition(this.getInteraction().getToLane());
-        int fromX = fromColumn + (RenderableLane.NODE_WIDTH / 2);
-        int toX = toColumn + (RenderableLane.NODE_WIDTH / 2);
-        int y = verticalOffset + VERTICAL_GAP + ((VERTICAL_GAP / 2) + 30) + (interactionCount * VERTICAL_GAP);
+        int fromLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getFromLane());
+        int toLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getToLane());
+        int interactionFromXPosition = fromLaneXPosition + (RenderableLane.LANE_WIDTH / 2);
+        int interactionToXPosition = toLaneXPosition + (RenderableLane.LANE_WIDTH / 2);
+        int interactionYPosition = verticalOffset + VERTICAL_GAP + (this.interaction.getIndex() * VERTICAL_GAP);
 
-        boolean isRight = fromX < toX;
-        int labelX = isRight ? fromX + 50 : fromX - 50;
-        g.drawString(this.interaction.getMessage(), labelX, y);
-        g.drawLine(fromX, y, toX, y);
+        // render line
+        g.drawLine(interactionFromXPosition, interactionYPosition, interactionToXPosition, interactionYPosition);
 
-        new RenderableArrowhead().draw(g, interaction, toX, y);
+        // Render message
+        if(this.interaction.getMessage() != null) {
+            boolean isRight = interactionFromXPosition < interactionToXPosition;
+            int messageWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(), this.interaction.getMessage());
+            int labelX = isRight ? interactionFromXPosition + MESSAGE_PADDING : interactionFromXPosition - (messageWidth + MESSAGE_PADDING);
+            g.drawString(this.interaction.getMessage(), labelX, interactionYPosition - MESSAGE_PADDING);
+        }
+
+        new RenderableArrowhead().draw(g, this.interaction, interactionToXPosition, interactionYPosition);
     }
 
     static class RenderableArrowhead {
 
         public void draw(Graphics g, Interaction interaction, int lineEndX, int lineEndY) {
+            int fromLaneIndex = interaction.getFromLane().getIndex();
+            int toLaneIndex = interaction.getToLane().getIndex();
 
-            int fromIdx = interaction.getFromLane().getIndex();
-            int toIdx = interaction.getToLane().getIndex();
-
-            boolean isRight = fromIdx < toIdx;
-
-            if (isRight) {
+            boolean isPointingRight = fromLaneIndex < toLaneIndex;
+            if (isPointingRight) {
                 // draw >
-                g.drawLine(lineEndX - 10, lineEndY - 10, lineEndX, lineEndY);
-                g.drawLine(lineEndX - 10, lineEndY + 10, lineEndX, lineEndY);
+                g.drawLine(lineEndX - ARROWHEAD_LENGTH, lineEndY - ARROWHEAD_LENGTH, lineEndX, lineEndY);
+                g.drawLine(lineEndX - ARROWHEAD_LENGTH, lineEndY + ARROWHEAD_LENGTH, lineEndX, lineEndY);
 
             } else {
                 // draw <
-                g.drawLine(lineEndX + 10, lineEndY - 10, lineEndX, lineEndY);
-                g.drawLine(lineEndX + 10, lineEndY + 10, lineEndX, lineEndY);
+                g.drawLine(lineEndX + ARROWHEAD_LENGTH, lineEndY - ARROWHEAD_LENGTH, lineEndX, lineEndY);
+                g.drawLine(lineEndX + ARROWHEAD_LENGTH, lineEndY + ARROWHEAD_LENGTH, lineEndX, lineEndY);
             }
 
         }

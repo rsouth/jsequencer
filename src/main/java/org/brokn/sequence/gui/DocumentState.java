@@ -1,13 +1,27 @@
-package org.brokn.sequence.gui;
+/*
+ *     Copyright (C) 2020 rsouth (https://github.com/rsouth)
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-import org.brokn.sequence.lexer.parser.InteractionParser;
+package org.brokn.sequence.gui;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Logger;
@@ -17,13 +31,15 @@ public class DocumentState {
     private static final Logger log = Logger.getLogger(DocumentState.class.getName());
 
     private File file;
-    private String text;
+    private String initialText;
+    private String currentText = "";
 
-    public DocumentState(File file, String text) {
-        assert text != null;
+    public DocumentState(File file, String initialText) {
+        assert initialText != null;
 
         this.file = file;
-        this.text = text;
+        this.initialText = initialText;
+        this.currentText = initialText;
     }
 
     public DocumentState() {
@@ -42,18 +58,18 @@ public class DocumentState {
         }
     }
 
-    public boolean isDirty(String currentState) {
+    public boolean isDirty() {
         // if the file is found on the classpath (i.e. it's the example-file.seq) then it's never dirty
         if(isClasspathFile(this.file)) {
             return false;
         }
 
-        if(this.text == null && currentState != null) {
+        if(this.initialText == null && this.currentText != null) {
             return true;
         }
 
-        if(this.text != null && currentState != null) {
-            return !this.text.equals(currentState);
+        if(this.initialText != null && this.currentText != null) {
+            return !this.initialText.equals(this.currentText);
         }
 
         // todo improve the above logic...
@@ -61,19 +77,17 @@ public class DocumentState {
     }
 
     public void saveSourceFile(File file, String text) {
-        try {
-            try (PrintWriter out = new PrintWriter(file)) {
-                log.info("Opened file [" + file + "] for writing");
-                out.print(text);
-
-                // update document state
-                this.file = file;
-                this.text = text;
-            }
-        } catch (FileNotFoundException e) {
-            log.severe("Failed to save source to file");
+        try (PrintWriter out = new PrintWriter(file,"UTF-8")) {
+            log.info("Opened file [" + file + "] for writing");
+            out.print(text);
+            out.flush();
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // update document state
+        this.file = file;
+        this.initialText = text;
     }
 
     /**
@@ -96,4 +110,17 @@ public class DocumentState {
         }
     }
 
+    public String getCurrentText() {
+        return this.currentText;
+    }
+
+    public boolean updateText(String text) {
+        if(this.currentText.equals(text)) {
+            // no change
+            return false;
+        } else {
+            this.currentText = text;
+            return true;
+        }
+    }
 }

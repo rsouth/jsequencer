@@ -1,3 +1,20 @@
+/*
+ *     Copyright (C) 2020 rsouth (https://github.com/rsouth)
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.brokn.sequence.gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -11,12 +28,15 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+
+import static javax.swing.JOptionPane.*;
 
 public class SequenceDialog extends JFrame {
 
@@ -42,8 +62,13 @@ public class SequenceDialog extends JFrame {
     private JSlider scaleSlider;
     private JTabbedPane tabContainer;
     private JButton buttonExampleFile;
+    private JButton buttonCopyToClipboard;
+    private JSplitPane splitPane;
+    private JButton buttonNewFile;
 
     private DocumentState documentState = new DocumentState();
+
+    private final Lexer lexer = new Lexer();
 
     public SequenceDialog() {
         super("Sequencer");
@@ -52,7 +77,6 @@ public class SequenceDialog extends JFrame {
         setContentPane(contentPane);
         getRootPane().setDefaultButton(buttonExport);
 
-
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
@@ -60,24 +84,20 @@ public class SequenceDialog extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                if (dirtyFileCheck() != JOptionPane.CANCEL_OPTION) {
+                if (dirtyFileCheck() != CANCEL_OPTION) {
                     System.exit(0);
                 }
             }
-        });
 
-        // listen for keystrokes to kick off updating the diagram
-        textArea1.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyTyped(KeyEvent event) {
-                super.keyTyped(event);
-
+            public void windowOpened(WindowEvent e) {
+                super.windowOpened(e);
                 SwingUtilities.invokeLater(() -> {
-                    String allText = ((JTextArea) event.getSource()).getText();
-                    RenderableGraph model = new Lexer().parse(allText);
-                    ((Canvas) canvasContainer).updateModel(model);
+                    int splitPaneWidth = splitPane.getWidth();
+                    double dividerLocation = (splitPaneWidth / 4.) / 1000;
+                    log.info("JSplitPane width [" + splitPaneWidth + "], setting divider location to [" + dividerLocation + "]");
+                    splitPane.setDividerLocation(dividerLocation);
                 });
-
             }
         });
 
@@ -86,40 +106,24 @@ public class SequenceDialog extends JFrame {
         buttonSave.addActionListener(e -> onSave());
         buttonOpen.addActionListener(e -> openFile());
         buttonExampleFile.addActionListener(e -> openExampleFile());
+        buttonCopyToClipboard.addActionListener(e -> onCopyToClipboard());
+        buttonNewFile.addActionListener(e -> onNewFile());
 
         // scale slider callback
         scaleSlider.addChangeListener(e -> ((Canvas) canvasContainer).updateScale(((JSlider) e.getSource()).getValue()));
-    }
 
-    private int dirtyFileCheck() {
-        if (this.documentState.isDirty(this.textArea1.getText())) {
-            int option = JOptionPane.showConfirmDialog(null,
-                    "Text has changed since last save, save it?", "Suuuure?",
-                    JOptionPane.YES_NO_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
-            switch (option) {
-                case JOptionPane.YES_OPTION:
-                    if (documentState.getFile() == null) {
-                        // open the save dialog
-                        onSave();
-                    } else {
-                        // just save again to the same file
-                        this.documentState.saveSourceFile(documentState.getFile(), this.textArea1.getText());
-                    }
-                    return option;
+        // listen for keystrokes to kick off updating the diagram
+        textArea1.addKeyListener(new KeyAdapter() {
 
-                case JOptionPane.NO_OPTION:
-                case JOptionPane.CANCEL_OPTION:
-                default:
-                    // don't save or quit the application
-                    // no-op
-                    return option;
-
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                if (documentState.updateText(textArea1.getText())) {
+                    triggerModelUpdate();
+                }
             }
-        } else {
-            // todo check if this is the right thing to do
-            return JOptionPane.NO_OPTION;
-        }
+
+        });
     }
 
     /**
@@ -130,6 +134,7 @@ public class SequenceDialog extends JFrame {
         DialogUtils.FileDialogResult fileDialogResult = DialogUtils.openSaveAsDialog(fileFilter);
         if (fileDialogResult.isOkToProceed()) {
             this.documentState.saveSourceFile(fileDialogResult.getFile(), this.textArea1.getText());
+            triggerModelUpdate();
         }
     }
 
@@ -145,75 +150,162 @@ public class SequenceDialog extends JFrame {
     }
 
     /**
+     * Handle 'copy to clipboard' button click
+     */
+    private void onCopyToClipboard() {
+        Dimension clip = canvasContainer.getPreferredSize();
+        log.info("Copy to clipboard, dims: " + clip);
+
+        BufferedImage bImg = new BufferedImage(clip.width, clip.height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D cg = bImg.createGraphics();
+        canvasContainer.paintAll(cg);
+
+        TransferableImage transferableImage = new TransferableImage(bImg);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+
+        clipboard.setContents(transferableImage, null);
+    }
+
+    /**
      * Show Open File dialog and if the user selects a file, replace the current document
      */
     private void openFile() {
-        if (dirtyFileCheck() == JOptionPane.CANCEL_OPTION) {
+        if (dirtyFileCheck() == CANCEL_OPTION) {
             return;
         }
 
         FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("SEQ Files", "seq");
         DialogUtils.FileDialogResult openFileDialogResult = DialogUtils.openOpenFileDialog(fileFilter);
         if (openFileDialogResult.isOkToProceed()) {
-            try {
-                File file = openFileDialogResult.getFile();
+            File file = openFileDialogResult.getFile();
+            try (FileReader fileReader = new FileReader(file)) {
                 log.info("Opening file [" + file + "] for reading");
-                updateDocument(file, new FileReader(file));
-            } catch (FileNotFoundException e) {
+                replaceDocument(file, fileReader);
+            } catch (IOException e) {
+                log.severe("Exception occurred while opening file [" + file + "]");
                 e.printStackTrace();
             }
         }
     }
 
+
+    private void onNewFile() {
+        if (dirtyFileCheck() == CANCEL_OPTION) {
+            return;
+        }
+
+        replaceDocument(null, null);
+    }
+
     private void openExampleFile() {
-        if (dirtyFileCheck() == JOptionPane.CANCEL_OPTION) {
+        if (dirtyFileCheck() == CANCEL_OPTION) {
             return;
         }
 
         InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("example-file.seq");
         if (systemResourceAsStream != null) {
-            InputStreamReader inputStreamReader = new InputStreamReader(systemResourceAsStream);
-            updateDocument(null, inputStreamReader);
+            try (InputStreamReader inputStreamReader = new InputStreamReader(systemResourceAsStream)) {
+                replaceDocument(null, inputStreamReader);
+            } catch (IOException e) {
+                log.severe("Exception occurred while opening example file");
+                e.printStackTrace();
+            }
         }
     }
 
-    private void updateDocument(File file, Reader inputReader) {
+    private void replaceDocument(File file, Reader inputReader) {
         java.util.List<String> lines = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(inputReader)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
+        if (inputReader != null) {
+            try (BufferedReader reader = new BufferedReader(inputReader)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    lines.add(line);
+                }
+
+            } catch (IOException e) {
+                // todo fix this logging - show filename? something else? just exception msg??
+                if (file == null) {
+                    log.severe("An exception occured while loading file from classpath: " + e.getMessage());
+                } else {
+                    log.severe("An exception occurred while reading file []");
+                }
+                e.printStackTrace();
             }
-
-        } catch (IOException e) {
-            // todo fix this logging - show filename? something else? just exception msg??
-            if (file == null) {
-                log.severe("An exception occured while loading file from classpath: " + e.getMessage());
-            } else {
-                log.severe("An exception occurred while reading file []");
-            }
-            e.printStackTrace();
-        }
-
-        // update text area
-        this.textArea1.setText(String.join("\n", lines));
-        log.info("Updated document with contents of file [" + file + "]");
-
-        // trigger a refresh of the diagram
-        // todo must be a cleaner way to do this
-        for (KeyListener keyListener : this.textArea1.getKeyListeners()) {
-            keyListener.keyTyped(new KeyEvent(this.textArea1, 0, 1L, 0, 0, '0'));
         }
 
         // update document state
-        this.documentState = new DocumentState(file, this.textArea1.getText());
+        this.documentState = new DocumentState(file, String.join("\n", lines));
+
+        SwingUtilities.invokeLater(() -> {
+            // update filename in tab
+            this.tabContainer.setTitleAt(0, file == null ? "Untitled" : file.getName());
+
+            // update text area
+            this.textArea1.setText(documentState.getCurrentText());
+            log.info("Updated document with contents of file [" + file + "]");
+
+            // trigger a refresh of the diagram
+            triggerModelUpdate();
+        });
+    }
+
+    /**
+     * Check the state of the source vs the last time it was saved.
+     * If the state is dirty, ask the user if they want to save.
+     * If yes:
+     * and the file was previously saved, save.
+     * and the file was not previously saved, open a save file dialog.
+     *
+     * @return
+     */
+    private int dirtyFileCheck() {
+        if (this.documentState.isDirty()) {
+            int option = JOptionPane.showConfirmDialog(null, "Text has been changed, save it?", "Suuuure?", YES_NO_CANCEL_OPTION, QUESTION_MESSAGE);
+            if (option == YES_OPTION) {
+                if (documentState.getFile() == null) {
+                    // open the save dialog
+                    onSave();
+
+                } else {
+                    // just save again to the same file
+                    this.documentState.saveSourceFile(documentState.getFile(), this.textArea1.getText());
+                }
+            }
+            return option;
+        } else {
+            // todo check if this is the right thing to do
+            return NO_OPTION;
+        }
+    }
+
+    private void triggerModelUpdate() {
+        String text = documentState.getCurrentText();
+
+        SwingUtilities.invokeLater(() -> {
+            String currentTitle = tabContainer.getTitleAt(0);
+            if (documentState.isDirty()) {
+                // update tab title
+                if (!currentTitle.endsWith("*")) {
+                    tabContainer.setTitleAt(0, currentTitle + " *");
+                }
+            } else {
+                if (currentTitle.endsWith("*")) {
+                    String rawTitle = currentTitle.replace(" *", "");
+                    tabContainer.setTitleAt(0, rawTitle);
+                }
+            }
+
+            // update the canvas model
+            RenderableGraph model = lexer.parse(text);
+            ((Canvas) canvasContainer).updateModel(model);
+        });
     }
 
     private void createUIComponents() {
         this.contentPane = new JPanel();
 
         this.canvasContainer = new Canvas();
-        this.canvasContainer.setBorder(BorderFactory.createDashedBorder(Color.BLUE));
+        this.canvasContainer.setBackground(Color.WHITE);
 
         try {
             int buttonW = 100, buttonH = 60;
@@ -242,6 +334,18 @@ public class SequenceDialog extends JFrame {
             Image exampleFileIconScaled = exampleFileIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
             this.buttonExampleFile = new JButton("Example File", new ImageIcon(exampleFileIconScaled));
             this.buttonExampleFile.setSize(buttonW, buttonH);
+
+            // Copy to Clipboard button
+            BufferedImage copyToClipboardIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/copy-to-clipboard.png"));
+            Image copyToClipboardIconScaled = copyToClipboardIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
+            this.buttonCopyToClipboard = new JButton("Example File", new ImageIcon(copyToClipboardIconScaled));
+            this.buttonCopyToClipboard.setSize(buttonW, buttonH);
+
+            // New File button
+            BufferedImage newFileIconRaw = ImageIO.read(ClassLoader.getSystemResource("icons/new-file.png"));
+            Image newFileIconScaled = newFileIconRaw.getScaledInstance(iconW, iconH, Image.SCALE_SMOOTH);
+            this.buttonNewFile = new JButton("Example File", new ImageIcon(newFileIconScaled));
+            this.buttonNewFile.setSize(buttonW, buttonH);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -282,6 +386,10 @@ public class SequenceDialog extends JFrame {
         final JToolBar toolBar1 = new JToolBar();
         toolBar1.setPreferredSize(new Dimension(300, 60));
         panel2.add(toolBar1, BorderLayout.NORTH);
+        buttonNewFile.setHorizontalTextPosition(0);
+        buttonNewFile.setText("New");
+        buttonNewFile.setVerticalTextPosition(3);
+        toolBar1.add(buttonNewFile);
         buttonOpen.setActionCommand("Open");
         buttonOpen.setHorizontalTextPosition(0);
         buttonOpen.setPreferredSize(new Dimension(100, 50));
@@ -299,6 +407,10 @@ public class SequenceDialog extends JFrame {
         buttonExport.setText("Export .png");
         buttonExport.setVerticalTextPosition(3);
         toolBar1.add(buttonExport);
+        buttonCopyToClipboard.setHorizontalTextPosition(0);
+        buttonCopyToClipboard.setText("To Clipboard");
+        buttonCopyToClipboard.setVerticalTextPosition(3);
+        toolBar1.add(buttonCopyToClipboard);
         scaleSlider = new JSlider();
         scaleSlider.setMaximum(10);
         scaleSlider.setMinimum(-10);
@@ -312,12 +424,16 @@ public class SequenceDialog extends JFrame {
         toolBar1.add(buttonExampleFile);
         tabContainer = new JTabbedPane();
         panel2.add(tabContainer, BorderLayout.CENTER);
-        final JSplitPane splitPane1 = new JSplitPane();
-        tabContainer.addTab("Untitled", splitPane1);
-        splitPane1.setRightComponent(canvasContainer);
+        splitPane = new JSplitPane();
+        tabContainer.addTab("Untitled", splitPane);
+        final JScrollPane scrollPane1 = new JScrollPane();
+        splitPane.setRightComponent(scrollPane1);
+        scrollPane1.setViewportView(canvasContainer);
+        final JScrollPane scrollPane2 = new JScrollPane();
+        splitPane.setLeftComponent(scrollPane2);
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        splitPane1.setLeftComponent(panel3);
+        scrollPane2.setViewportView(panel3);
         textArea1 = new JTextArea();
         textArea1.setFocusCycleRoot(true);
         Font textArea1Font = this.$$$getFont$$$("Courier New", Font.PLAIN, 12, textArea1.getFont());

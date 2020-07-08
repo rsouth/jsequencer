@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.brokn.sequence.gui.SequenceDialog">
   <grid id="cbd77" binding="contentPane" custom-create="true" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="48" y="54" width="436" height="498"/>
+      <xy x="48" y="54" width="604" height="498"/>
     </constraints>
     <properties>
       <preferredSize width="1200" height="900"/>
@@ -26,6 +26,14 @@
                 </properties>
                 <border type="none"/>
                 <children>
+                  <component id="6c662" class="javax.swing.JButton" binding="buttonNewFile" custom-create="true">
+                    <constraints/>
+                    <properties>
+                      <horizontalTextPosition value="0"/>
+                      <text value="New"/>
+                      <verticalTextPosition value="3"/>
+                    </properties>
+                  </component>
                   <component id="54263" class="javax.swing.JButton" binding="buttonOpen" custom-create="true">
                     <constraints/>
                     <properties>
@@ -55,6 +63,14 @@
                       <verticalTextPosition value="3"/>
                     </properties>
                   </component>
+                  <component id="90d3e" class="javax.swing.JButton" binding="buttonCopyToClipboard" custom-create="true">
+                    <constraints/>
+                    <properties>
+                      <horizontalTextPosition value="0"/>
+                      <text value="To Clipboard"/>
+                      <verticalTextPosition value="3"/>
+                    </properties>
+                  </component>
                   <component id="170fc" class="javax.swing.JSlider" binding="scaleSlider">
                     <constraints/>
                     <properties>
@@ -81,42 +97,56 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <splitpane id="e92c2">
+                  <splitpane id="e92c2" binding="splitPane">
                     <constraints>
                       <tabbedpane title="Untitled"/>
                     </constraints>
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <grid id="4458f" binding="canvasContainer" custom-create="true" layout-manager="BorderLayout" hgap="0" vgap="0">
+                      <scrollpane id="b080e">
                         <constraints>
                           <splitpane position="right"/>
                         </constraints>
                         <properties/>
                         <border type="none"/>
-                        <children/>
-                      </grid>
-                      <grid id="ae3a0" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <children>
+                          <grid id="4458f" binding="canvasContainer" custom-create="true" layout-manager="BorderLayout" hgap="0" vgap="0">
+                            <constraints/>
+                            <properties/>
+                            <border type="none"/>
+                            <children/>
+                          </grid>
+                        </children>
+                      </scrollpane>
+                      <scrollpane id="1397a">
                         <constraints>
                           <splitpane position="left"/>
                         </constraints>
                         <properties/>
                         <border type="none"/>
                         <children>
-                          <component id="95d32" class="javax.swing.JTextArea" binding="textArea1" default-binding="true">
-                            <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                                <preferred-size width="150" height="50"/>
-                              </grid>
-                            </constraints>
-                            <properties>
-                              <focusCycleRoot value="true"/>
-                              <font name="Courier New" size="12" style="0"/>
-                            </properties>
-                          </component>
+                          <grid id="d7ff7" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                            <margin top="0" left="0" bottom="0" right="0"/>
+                            <constraints/>
+                            <properties/>
+                            <border type="none"/>
+                            <children>
+                              <component id="95d32" class="javax.swing.JTextArea" binding="textArea1" default-binding="true">
+                                <constraints>
+                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                                    <preferred-size width="150" height="50"/>
+                                  </grid>
+                                </constraints>
+                                <properties>
+                                  <focusCycleRoot value="true"/>
+                                  <font name="Courier New" size="12" style="0"/>
+                                </properties>
+                              </component>
+                            </children>
+                          </grid>
                         </children>
-                      </grid>
+                      </scrollpane>
                     </children>
                   </splitpane>
                 </children>

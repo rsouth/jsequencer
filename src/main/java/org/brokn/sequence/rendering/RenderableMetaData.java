@@ -1,14 +1,34 @@
+/*
+ *     Copyright (C) 2020 rsouth (https://github.com/rsouth)
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.brokn.sequence.rendering;
 
 import org.brokn.sequence.model.MetaData;
 
-import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 
+import static org.brokn.sequence.rendering.LayoutUtils.drawStringWithFont;
+
 public class RenderableMetaData {
 
-    private static final int VERTICAL_GAP = 10;
+    private static final int VERTICAL_GAP = 20;
+
+    private static final int DOCUMENT_MARGIN = 10;
 
     private final MetaData model;
 
@@ -21,25 +41,21 @@ public class RenderableMetaData {
 
         //title
         if(this.model.getTitle() != null) {
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;
+            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;
         }
 
         // author
-        if(this.model.getAuthorName() != null) {
-            Font originalFont = g.getFont();
-            g.setFont(getTitleFont(g));
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorName()).height;
-            g.setFont(originalFont);
-        }
-
-        // author email
-        if(this.model.getAuthorEmail() != null) {
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorEmail()).height;
+        if(this.model.getAuthor() != null) {
+            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
+            totalHeight += VERTICAL_GAP;
         }
 
         // date
         if(this.model.isShowDate()) {
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, "date").height;
+            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), "date").height;
+            if(this.model.getTitle() != null || this.model.getAuthor() != null) {
+                totalHeight += VERTICAL_GAP;
+            }
         }
 
         return totalHeight;
@@ -49,51 +65,35 @@ public class RenderableMetaData {
 
         // draw title
         if(this.model.getTitle() != null) {
-            Font originalFont = g.getFont();
-            Font titleFont = new Font(originalFont.getName(), Font.BOLD, 20);
-            g.setFont(titleFont);
-
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;
-
-            g.drawString(this.model.getTitle(), 10, 10 + titleHeight);
-            g.setFont(originalFont);
-
+            Font titleFont = getTitleFont(g);
+            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, titleFont, this.model.getTitle()).height;
+            drawStringWithFont(g, titleFont, DOCUMENT_MARGIN, DOCUMENT_MARGIN + titleHeight, this.model.getTitle());
         }
 
         // draw author name
-        if(this.model.getAuthorName() != null) {
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;// 0 if no title shown
-            g.drawString(this.model.getAuthorName(), 10, 10 + titleHeight*2 + VERTICAL_GAP *2);
-        }
-
-        // draw author email
-        if(this.model.getAuthorEmail() != null) {
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;// 0 if no title shown
-            int authorWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(), this.model.getAuthorName());
-            g.drawString("(" + this.model.getAuthorEmail() + ")", 15 + authorWidth, 10 + titleHeight*2 + VERTICAL_GAP *2);
+        if(this.model.getAuthor() != null) {
+            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;// 0 if no title shown
+            int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
+            int y = titleHeight + (this.model.getTitle() == null ? DOCUMENT_MARGIN : VERTICAL_GAP) + authorHeight;
+            g.drawString(this.model.getAuthor(), DOCUMENT_MARGIN, y);
         }
 
         // draw current date (10th June 2020 so no regional ambiguity)
         // todo worth adding ability to format the date?
         if(this.model.isShowDate()) {
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getTitle()).height;// 0 if no title shown
-            int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorName()).height;
-            int emailHeight = LayoutUtils.getStringBounds((Graphics2D) g, this.model.getAuthorEmail()).height;
-            int spacing = 0;
-            if(authorHeight > 0) {
-                spacing += VERTICAL_GAP;
-            }
-            if(emailHeight > 0) {
-                spacing += VERTICAL_GAP;
-            }
-            int priotHeight = titleHeight + authorHeight + emailHeight + spacing;
+            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;// 0 if no title shown
+            int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
+            int dateHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), "date").height;
 
-            g.drawString(LocalDate.now().toString(), 10, 10 + priotHeight);
+            int spacing = (this.model.getTitle() != null || this.model.getAuthor() != null ? VERTICAL_GAP : 0);
+            int y = titleHeight + authorHeight + dateHeight + spacing;
+
+            g.drawString(LocalDate.now().toString(), DOCUMENT_MARGIN, y);
         }
     }
 
     private Font getTitleFont(Graphics g) {
-        return new Font(g.getFont().getName(), Font.BOLD, 20);
+        return g.getFont().deriveFont(Font.BOLD, 20);
     }
 
 }

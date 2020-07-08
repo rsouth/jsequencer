@@ -1,7 +1,7 @@
 # header
 :title Sequence Diagram Example
 :author John Smith
-:authorEmail john.smith@example.com
+:fontsize 14
 :date
 
 # Client / Server Response

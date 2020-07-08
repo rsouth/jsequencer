@@ -1,3 +1,20 @@
+/*
+ *     Copyright (C) 2020 rsouth (https://github.com/rsouth)
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.brokn.sequence.lexer.parser;
 
 import org.brokn.sequence.model.MetaData;
@@ -17,16 +34,16 @@ public class MetaDataParser {
     private static final Logger log = Logger.getLogger(MetaDataParser.class.getName());
 
     private static final String TITLE_TOKEN = ":title ";
-    private static final String AUTHOR_NAME_TOKEN = ":author ";
-    private static final String AUTHOR_EMAIL_TOKEN = ":authorEmail ";
+    private static final String AUTHOR_TOKEN = ":author ";
     private static final String DATE_TOKEN = ":date";
+    private static final String FONT_SIZE_TOKEN = ":fontsize";
 
     public MetaData parse(String input) {
         // parse title
         String title = null;
-        String authorName = null;
-        String authorMail = null;
+        String author = null;
         boolean showDate = false;
+        float fontSize = -1;
         for (String line : input.split("\n")) {
             if (line.trim().startsWith(TITLE_TOKEN)) {
                 try {
@@ -36,28 +53,31 @@ public class MetaDataParser {
                     log.warning("incomplete title token");
                 }
 
-            } else if (line.startsWith(AUTHOR_NAME_TOKEN)) {
+            } else if (line.startsWith(AUTHOR_TOKEN)) {
                 try {
-                    authorName = line.trim().replace(AUTHOR_NAME_TOKEN, "").trim();
+                    author = line.trim().replace(AUTHOR_TOKEN, "").trim();
                 } catch(ArrayIndexOutOfBoundsException ex) {
-                    authorName = null;
+                    author = null;
                     log.warning("incomplete author token");
-                }
-
-            } else if (line.startsWith(AUTHOR_EMAIL_TOKEN)) {
-                try {
-                    authorMail = line.trim().replace(AUTHOR_EMAIL_TOKEN, "").trim();
-                } catch (ArrayIndexOutOfBoundsException ex) {
-                    authorMail = null;
-                    log.warning("incomplete authorEmail token");
                 }
 
             } else if (line.trim().equals(DATE_TOKEN)) {
                 showDate = true;
+
+            } else if(line.trim().startsWith(FONT_SIZE_TOKEN)) {
+                try {
+                    String fontSizeString = line.trim().replace(FONT_SIZE_TOKEN, "").trim();
+                    fontSize = Float.parseFloat(fontSizeString);
+
+                } catch (NumberFormatException | NullPointerException ex) {
+                    fontSize = -1;
+                    log.warning("Font token specified but font size is not parseable");
+                }
+
             }
         }
 
-        MetaData metaData = new MetaData(title, authorName, authorMail, showDate);
+        MetaData metaData = new MetaData(title, author, showDate, fontSize);
         log.info("Parsed " + metaData);
         return metaData;
     }
