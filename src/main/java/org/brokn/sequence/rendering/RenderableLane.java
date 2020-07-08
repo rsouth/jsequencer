@@ -17,6 +17,7 @@
 
 package org.brokn.sequence.rendering;
 
+import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 
 import javax.swing.*;
@@ -47,6 +48,7 @@ public class RenderableLane {
 
     public void draw(Graphics g) {
         int headerOffset = renderableGraph.getMetaDataHeight(g);
+        System.out.println(headerOffset);
 
         // X position of the lane
         int laneXPosition = LayoutUtils.getLaneXPosition(this.lane);
@@ -65,7 +67,7 @@ public class RenderableLane {
 
         // draw vertical line
         int y1 = headerOffset + LANE_BOX_HEIGHT;
-        int y2 = headerOffset + (renderableGraph.interactions.size() * Canvas.VERTICAL_GAP) + getVerticalLinePadding();
+        int y2 = headerOffset + ((1+renderableGraph.interactions.stream().mapToInt(Interaction::getIndex).max().orElse(0)) * Canvas.VERTICAL_GAP) + getVerticalLinePadding();
         g.drawLine((laneXPosition + LANE_WIDTH / 2), y1, (laneXPosition + LANE_WIDTH / 2), y2);
 
     }

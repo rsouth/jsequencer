@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.brokn.sequence.rendering.Canvas.VERTICAL_GAP;
+
 public class RenderableGraph {
 
     // Model objects
@@ -71,7 +73,7 @@ public class RenderableGraph {
     public Dimension computeDiagramSize(Graphics g, boolean drawBorder) {
         int height = renderableMetaData.calculateHeaderHeight(g);
         height += RenderableLane.getVerticalLinePadding();
-        height += (this.interactions.size() * Canvas.VERTICAL_GAP);
+        height += (this.interactions.size() * VERTICAL_GAP);
         height += 50;
 
         int width = RenderableLane.LANE_WIDTH * renderableLanes.size() + (RenderableLane.LANE_GAP * renderableLanes.size());
@@ -107,7 +109,9 @@ public class RenderableGraph {
             throw new IllegalStateException("getHeaderHeight - renderableMetaData is NULL");
         }
 
-        return this.renderableMetaData.calculateHeaderHeight(g);
+        int headerHeight = this.renderableMetaData.calculateHeaderHeight(g);
+        System.out.println("header height: " + headerHeight);
+        return headerHeight;
     }
 
     @Override
