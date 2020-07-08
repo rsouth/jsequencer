@@ -24,6 +24,7 @@ import org.brokn.sequence.model.MetaData;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RenderableGraph {
 
@@ -109,4 +110,21 @@ public class RenderableGraph {
         return this.renderableMetaData.calculateHeaderHeight(g);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RenderableGraph that = (RenderableGraph) o;
+        return metaData.equals(that.metaData) &&
+                lanes.equals(that.lanes) &&
+                interactions.equals(that.interactions) &&
+                renderableMetaData.equals(that.renderableMetaData) &&
+                renderableLanes.equals(that.renderableLanes) &&
+                renderableInteractions.equals(that.renderableInteractions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(metaData, lanes, interactions, renderableMetaData, renderableLanes, renderableInteractions);
+    }
 }

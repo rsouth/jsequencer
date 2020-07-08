@@ -17,6 +17,8 @@
 
 package org.brokn.sequence.model;
 
+import java.util.Objects;
+
 public class Interaction {
 
     private final Lane fromLane;
@@ -48,6 +50,22 @@ public class Interaction {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Interaction that = (Interaction) o;
+        return index == that.index &&
+                Objects.equals(fromLane, that.fromLane) &&
+                Objects.equals(toLane, that.toLane) &&
+                Objects.equals(message, that.message);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fromLane, toLane, message, index);
+    }
+
+    @Override
     public String toString() {
         return "Interaction{" +
                 "fromLane=" + fromLane +
@@ -56,5 +74,4 @@ public class Interaction {
                 ", index=" + index +
                 '}';
     }
-
 }

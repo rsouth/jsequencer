@@ -19,6 +19,7 @@ package org.brokn.sequence.rendering;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferStrategy;
 import java.util.logging.Logger;
 
 public class Canvas extends JPanel {
@@ -35,12 +36,17 @@ public class Canvas extends JPanel {
     public Canvas() {
         setVisible(true);
         setSize(1, 1);
+        setDoubleBuffered(true);
     }
 
     public void updateModel(final RenderableGraph model) {
+        RenderableGraph previousModel = this.renderableGraph;
         this.renderableGraph = model;
-        doLayout();
-        paintComponent(getGraphics());
+
+        if(!model.equals(previousModel)) {
+            doLayout();
+            paintComponent(getGraphics());
+        }
     }
 
     @Override

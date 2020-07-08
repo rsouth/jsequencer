@@ -17,6 +17,8 @@
 
 package org.brokn.sequence.model;
 
+import java.util.Objects;
+
 public class Lane {
 
     private final int index;
@@ -33,6 +35,20 @@ public class Lane {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Lane lane = (Lane) o;
+        return index == lane.index &&
+                name.equals(lane.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(index, name);
     }
 
     @Override

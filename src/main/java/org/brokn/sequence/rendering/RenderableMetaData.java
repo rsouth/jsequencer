@@ -21,6 +21,7 @@ import org.brokn.sequence.model.MetaData;
 
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import static org.brokn.sequence.rendering.LayoutUtils.drawStringWithFont;
 
@@ -96,4 +97,16 @@ public class RenderableMetaData {
         return g.getFont().deriveFont(Font.BOLD, 20);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RenderableMetaData that = (RenderableMetaData) o;
+        return model.equals(that.model);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(model);
+    }
 }
