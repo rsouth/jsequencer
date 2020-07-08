@@ -12,6 +12,8 @@
 #### Describe your sequence
 `Client -> Server: Request`
 
+`Server -> Server: Parses request`
+
 `Server -> Service: Query`
 
 `Service -> Server: Data`
@@ -20,7 +22,7 @@
 
 #### Your diagram is created
 
-<img src="https://i.ibb.co/tBvRy40/sequencer-example-2020-07-07.png" alt="sequencer-example-2020-07-07" border="0">
+<img src="https://i.ibb.co/FDT8kNL/sequencer-example-2020-08-07.png" alt="sequencer-example-2020-08-07" border="0" />
 
 Copy the diagram to your clipboard to paste straight in to chat or email.
 
