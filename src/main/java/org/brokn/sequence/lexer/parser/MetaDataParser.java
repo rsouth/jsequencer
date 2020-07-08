@@ -33,9 +33,9 @@ public class MetaDataParser {
 
     private static final Logger log = Logger.getLogger(MetaDataParser.class.getName());
 
-    private static final String TITLE_TOKEN = ":title ";
-    private static final String AUTHOR_TOKEN = ":author ";
-    private static final String DATE_TOKEN = ":date";
+    public static final String TITLE_TOKEN = ":title ";
+    public static final String AUTHOR_TOKEN = ":author ";
+    public static final String DATE_TOKEN = ":date";
     private static final String FONT_SIZE_TOKEN = ":fontsize";
 
     public MetaData parse(String input) {
