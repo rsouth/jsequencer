@@ -21,6 +21,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.brokn.sequence.lexer.Lexer;
+import org.brokn.sequence.lexer.parser.MetaDataParser;
 import org.brokn.sequence.rendering.Canvas;
 import org.brokn.sequence.rendering.RenderableGraph;
 
@@ -33,6 +34,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -65,6 +68,7 @@ public class SequenceDialog extends JFrame {
     private JButton buttonCopyToClipboard;
     private JSplitPane splitPane;
     private JButton buttonNewFile;
+    private JPanel statusBarPanel;
 
     private DocumentState documentState = new DocumentState();
 
@@ -103,7 +107,7 @@ public class SequenceDialog extends JFrame {
 
         // button callbacks
         buttonExport.addActionListener(e -> onExport());
-        buttonSave.addActionListener(e -> onSave());
+        buttonSave.addActionListener(e -> onSaveAs());
         buttonOpen.addActionListener(e -> openFile());
         buttonExampleFile.addActionListener(e -> openExampleFile());
         buttonCopyToClipboard.addActionListener(e -> onCopyToClipboard());
@@ -129,13 +133,17 @@ public class SequenceDialog extends JFrame {
     /**
      * Handle 'save source' button click
      */
-    private void onSave() {
+    private void onSaveAs() {
         FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("pls use .seq extension...", "seq");
         DialogUtils.FileDialogResult fileDialogResult = DialogUtils.openSaveAsDialog(fileFilter);
         if (fileDialogResult.isOkToProceed()) {
-            this.documentState.saveSourceFile(fileDialogResult.getFile(), this.textArea1.getText());
-            triggerModelUpdate();
+            saveFile(fileDialogResult.getFile());
         }
+    }
+
+    private void saveFile(File file) {
+        this.documentState.saveSourceFile(file, this.textArea1.getText());
+        triggerModelUpdate();
     }
 
     /**
@@ -214,7 +222,7 @@ public class SequenceDialog extends JFrame {
     }
 
     private void replaceDocument(File file, Reader inputReader) {
-        java.util.List<String> lines = new ArrayList<>();
+        List<String> lines = new ArrayList<>();
         if (inputReader != null) {
             try (BufferedReader reader = new BufferedReader(inputReader)) {
                 String line;
@@ -264,7 +272,7 @@ public class SequenceDialog extends JFrame {
             if (option == YES_OPTION) {
                 if (documentState.getFile() == null) {
                     // open the save dialog
-                    onSave();
+                    onSaveAs();
 
                 } else {
                     // just save again to the same file
@@ -299,6 +307,29 @@ public class SequenceDialog extends JFrame {
             RenderableGraph model = lexer.parse(text);
             ((Canvas) canvasContainer).updateModel(model);
         });
+    }
+
+    private void addTokenToSource(String token, String param) {
+        List<String> lines = new ArrayList<>(Arrays.asList(this.textArea1.getText().split("\n")));
+
+        int idx = -1;
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (line.startsWith(token)) {
+                idx = i;
+            }
+        }
+
+        if (idx < 0) {
+            lines.add(0, token + param);
+        } else {
+            lines.remove(idx);
+            lines.add(idx, token + param);
+        }
+
+        this.textArea1.setText(String.join("\n", lines));
+        this.documentState.updateText(this.textArea1.getText());
+        triggerModelUpdate();
     }
 
     private void createUIComponents() {
@@ -347,6 +378,14 @@ public class SequenceDialog extends JFrame {
             this.buttonNewFile = new JButton("Example File", new ImageIcon(newFileIconScaled));
             this.buttonNewFile.setSize(buttonW, buttonH);
 
+            // Menu Bar
+            MenuBar newMenuBar = new MenuBar(onFileMenuItemClicked, onDiagramMenuItemClicked, onHelpMenuItemClicked);
+            this.setJMenuBar(newMenuBar);
+
+            // Status bar
+            this.statusBarPanel = new SeqStatusBar(contentPane, e -> onExport(), e -> onCopyToClipboard());
+            this.contentPane.add(statusBarPanel, BorderLayout.SOUTH);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -365,6 +404,98 @@ public class SequenceDialog extends JFrame {
         // show the window.
         dialog.setVisible(true);
     }
+
+    private final AbstractAction onFileMenuItemClicked = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() instanceof JMenuItem) {
+                String menuItemText = ((JMenuItem) e.getSource()).getText();
+                log.info("File menu [" + menuItemText + "] clicked");
+
+                switch (menuItemText) {
+                    case MenuBar.FILE_NEW:
+                        onNewFile();
+                        break;
+
+                    case MenuBar.FILE_OPEN:
+                        openFile();
+                        break;
+
+                    case MenuBar.FILE_SAVE:
+                        if (documentState.getFile() == null) {
+                            onSaveAs();
+                        } else {
+                            saveFile(documentState.getFile());
+                        }
+                        break;
+
+                    case MenuBar.FILE_SAVE_AS:
+                        onSaveAs();
+                        break;
+                }
+            }
+        }
+    };
+
+    private final AbstractAction onDiagramMenuItemClicked = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() instanceof JMenuItem) {
+                String menuItemText = ((JMenuItem) e.getSource()).getText();
+                log.info("File menu [" + menuItemText + "] clicked");
+
+                switch (menuItemText) {
+                    case MenuBar.DIAGRAM_ADD_TITLE:
+                        String title = showInputDialog(null, "Enter Title:", "Title", QUESTION_MESSAGE);
+                        addTokenToSource(MetaDataParser.TITLE_TOKEN, title);
+                        break;
+
+                    case MenuBar.DIAGRAM_ADD_AUTHOR:
+                        String authorName = showInputDialog(null, "Enter Author Name:", "Author Name", QUESTION_MESSAGE);
+                        addTokenToSource(MetaDataParser.AUTHOR_TOKEN, authorName);
+                        break;
+
+                    case MenuBar.DIAGRAM_ADD_DATE:
+                        addTokenToSource(MetaDataParser.DATE_TOKEN, "");
+                        break;
+
+                    case MenuBar.DIAGRAM_COPY_TO_CLIPBOARD:
+                        onCopyToClipboard();
+                        break;
+
+                    case MenuBar.DIAGRAM_EXPORT_AS:
+                        onExport();
+                        break;
+
+                }
+            }
+        }
+    };
+
+    private final AbstractAction onHelpMenuItemClicked = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() instanceof JMenuItem) {
+                String menuItemText = ((JMenuItem) e.getSource()).getText();
+                log.info("File menu [" + menuItemText + "] clicked");
+
+                switch (menuItemText) {
+                    case MenuBar.HELP_GRAMMAR:
+                        String title = showInputDialog(null, "Enter Title:", "Title", QUESTION_MESSAGE);
+                        addTokenToSource(MetaDataParser.TITLE_TOKEN, title);
+                        break;
+
+                    case MenuBar.HELP_ABOUT:
+                        JOptionPane.showMessageDialog(null, "github.com/rsouth/sequencer", "sequencer", INFORMATION_MESSAGE);
+                        break;
+
+                    case MenuBar.HELP_EXAMPLE_FILE:
+                        openExampleFile();
+                        break;
+                }
+            }
+        }
+    };
 
     /**
      * Method generated by IntelliJ IDEA GUI Designer
@@ -385,6 +516,7 @@ public class SequenceDialog extends JFrame {
         panel1.add(panel2, BorderLayout.CENTER);
         final JToolBar toolBar1 = new JToolBar();
         toolBar1.setPreferredSize(new Dimension(300, 60));
+        toolBar1.setVisible(false);
         panel2.add(toolBar1, BorderLayout.NORTH);
         buttonNewFile.setHorizontalTextPosition(0);
         buttonNewFile.setText("New");
@@ -439,6 +571,7 @@ public class SequenceDialog extends JFrame {
         Font textArea1Font = this.$$$getFont$$$("Courier New", Font.PLAIN, 12, textArea1.getFont());
         if (textArea1Font != null) textArea1.setFont(textArea1Font);
         panel3.add(textArea1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        contentPane.add(statusBarPanel, BorderLayout.SOUTH);
     }
 
     /**
