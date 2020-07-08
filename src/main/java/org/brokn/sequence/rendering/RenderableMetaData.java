@@ -38,7 +38,7 @@ public class RenderableMetaData {
     }
 
     public int calculateHeaderHeight(Graphics g) {
-        int totalHeight = 30;
+        int totalHeight = 20;
 
         //title
         if(this.model.getTitle() != null) {
