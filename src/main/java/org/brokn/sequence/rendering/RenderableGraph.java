@@ -109,9 +109,7 @@ public class RenderableGraph {
             throw new IllegalStateException("getHeaderHeight - renderableMetaData is NULL");
         }
 
-        int headerHeight = this.renderableMetaData.calculateHeaderHeight(g);
-        System.out.println("header height: " + headerHeight);
-        return headerHeight;
+        return this.renderableMetaData.calculateHeaderHeight(g);
     }
 
     @Override

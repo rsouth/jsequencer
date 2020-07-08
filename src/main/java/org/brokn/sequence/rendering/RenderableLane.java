@@ -48,7 +48,6 @@ public class RenderableLane {
 
     public void draw(Graphics g) {
         int headerOffset = renderableGraph.getMetaDataHeight(g);
-        System.out.println(headerOffset);
 
         // X position of the lane
         int laneXPosition = LayoutUtils.getLaneXPosition(this.lane);
