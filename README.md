@@ -1,4 +1,5 @@
 <div align="center" style="display: flex; flex-direction: column;">
+  <img src="./public/logo-white_bg.png" alt="sequencer logo" width="500px" />
   <h3>sequencer is a simple diagramming tool to make it easy for developers to share ideas</h3>
   <p>
       <img src="https://github.com/rsouth/sequencer/workflows/Java%20CI%20with%20Maven/badge.svg?branch=develop">
