@@ -22,7 +22,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.brokn.sequence.lexer.Lexer;
 import org.brokn.sequence.lexer.parser.MetaDataParser;
 import org.brokn.sequence.rendering.Canvas;
-import org.brokn.sequence.rendering.RenderableGraph;
+import org.brokn.sequence.rendering.RenderableDiagram;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -288,7 +288,7 @@ public class SequenceDialog extends JFrame {
             }
 
             // update the canvas model
-            RenderableGraph model = lexer.parse(text);
+            RenderableDiagram model = lexer.parse(text);
             ((Canvas) canvasContainer).updateModel(model);
         });
     }
@@ -372,6 +372,9 @@ public class SequenceDialog extends JFrame {
                     case MenuBar.FILE_SAVE_AS:
                         onSaveAs();
                         break;
+
+                    default:
+                        log.warning("File Menu: Unknown option selected");
                 }
             }
         }
@@ -407,6 +410,9 @@ public class SequenceDialog extends JFrame {
                         onExport();
                         break;
 
+                    default:
+                        log.warning("Diagram Menu: Unknown option selected");
+
                 }
             }
         }
@@ -431,6 +437,9 @@ public class SequenceDialog extends JFrame {
                     case MenuBar.HELP_EXAMPLE_FILE:
                         openExampleFile();
                         break;
+
+                    default:
+                        log.warning("Help Menu: Unknown option selected");
                 }
             }
         }

@@ -17,18 +17,18 @@
 
 package org.brokn.sequence.rendering;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 import org.brokn.sequence.model.MetaData;
+import org.brokn.sequence.rendering.utils.LayoutConstants;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-import static org.brokn.sequence.rendering.Canvas.VERTICAL_GAP;
-
-public class RenderableGraph {
+public class RenderableDiagram {
 
     // Model objects
     protected final MetaData metaData;
@@ -40,7 +40,7 @@ public class RenderableGraph {
     private final List<RenderableLane> renderableLanes = new ArrayList<>();
     private final List<RenderableInteraction> renderableInteractions = new ArrayList<>();
 
-    public RenderableGraph(MetaData metaData, List<Lane> lanes, List<Interaction> interactions) {
+    public RenderableDiagram(MetaData metaData, List<Lane> lanes, List<Interaction> interactions) {
         this.metaData = metaData;
         this.lanes.addAll(lanes);
         this.interactions.addAll(interactions);
@@ -50,21 +50,23 @@ public class RenderableGraph {
 
     public void draw(Graphics g) {
         this.setRenderingHints(g);
-        this.setTheme(g, this.metaData);
+        this.setFontSize(g, this.metaData.getFontSize());
 
         // Draw MetaData
-        renderableMetaData.draw(g);
+        this.renderableMetaData.draw(g);
+        int headerOffset = this.renderableMetaData.calculateHeaderHeight(g);
 
         // Draw Lanes
-        this.renderableLanes.forEach(renderableLane -> renderableLane.draw(g));
+        int totalInteractions = 1 + this.interactions.stream().mapToInt(Interaction::getIndex).max().orElse(1);
+        this.renderableLanes.forEach(renderableLane -> renderableLane.draw(g, headerOffset, totalInteractions));
 
         // Draw Interactions
-        this.renderableInteractions.forEach(renderableInteraction -> renderableInteraction.draw(g));
+        this.renderableInteractions.forEach(renderableInteraction -> renderableInteraction.draw(g, headerOffset));
     }
 
-    private void setTheme(Graphics g, MetaData metaData) {
-        if (metaData.getFontSize() > 0) {
-            g.setFont(g.getFont().deriveFont(metaData.getFontSize()));
+    private void setFontSize(Graphics g, float fontSize) {
+        if (fontSize > 0) {
+            g.setFont(g.getFont().deriveFont(fontSize));
         } else {
             g.setFont(g.getFont().deriveFont(14f));
         }
@@ -73,13 +75,13 @@ public class RenderableGraph {
     public Dimension computeDiagramSize(Graphics g, boolean drawBorder) {
         int height = renderableMetaData.calculateHeaderHeight(g);
         height += RenderableLane.getVerticalLinePadding();
-        height += (this.interactions.size() * VERTICAL_GAP);
+        height += (1 + this.interactions.stream().mapToInt(Interaction::getIndex).max().orElse(0) * LayoutConstants.CANVAS_VERTICAL_GAP);
         height += 50;
 
-        int width = RenderableLane.LANE_WIDTH * renderableLanes.size() + (RenderableLane.LANE_GAP * renderableLanes.size());
+        int width = LayoutConstants.LANE_WIDTH * renderableLanes.size() + (LayoutConstants.LANE_GAP * renderableLanes.size());
 
         Dimension diagramDimensions = new Dimension(width, height);
-        if(drawBorder) {
+        if (drawBorder) {
             g.drawRect(0, 0, diagramDimensions.width, diagramDimensions.height);
         }
 
@@ -87,7 +89,7 @@ public class RenderableGraph {
     }
 
     private void setRenderingHints(Graphics g) {
-        Graphics2D g2d = (Graphics2D)g;
+        Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
@@ -100,33 +102,38 @@ public class RenderableGraph {
 
     private void initRenderables() {
         this.renderableMetaData = new RenderableMetaData(metaData);
-        this.lanes.forEach(lane -> renderableLanes.add(new RenderableLane(this, lane)));
-        this.interactions.forEach(interaction -> renderableInteractions.add(new RenderableInteraction(this, interaction)));
-    }
-
-    protected int getMetaDataHeight(Graphics g) {
-        if(this.renderableMetaData == null) {
-            throw new IllegalStateException("getHeaderHeight - renderableMetaData is NULL");
-        }
-
-        return this.renderableMetaData.calculateHeaderHeight(g);
+        this.lanes.forEach(lane -> renderableLanes.add(new RenderableLane(lane)));
+        this.interactions.forEach(interaction -> renderableInteractions.add(new RenderableInteraction(interaction)));
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RenderableGraph that = (RenderableGraph) o;
-        return metaData.equals(that.metaData) &&
-                lanes.equals(that.lanes) &&
-                interactions.equals(that.interactions) &&
-                renderableMetaData.equals(that.renderableMetaData) &&
-                renderableLanes.equals(that.renderableLanes) &&
-                renderableInteractions.equals(that.renderableInteractions);
+        RenderableDiagram that = (RenderableDiagram) o;
+        return Objects.equal(metaData, that.metaData) &&
+                Objects.equal(lanes, that.lanes) &&
+                Objects.equal(interactions, that.interactions) &&
+                Objects.equal(renderableMetaData, that.renderableMetaData) &&
+                Objects.equal(renderableLanes, that.renderableLanes) &&
+                Objects.equal(renderableInteractions, that.renderableInteractions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(metaData, lanes, interactions, renderableMetaData, renderableLanes, renderableInteractions);
+        return Objects.hashCode(metaData, lanes, interactions, renderableMetaData, renderableLanes, renderableInteractions);
     }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("metaData", metaData)
+                .add("lanes", lanes)
+                .add("interactions", interactions)
+                .add("renderableMetaData", renderableMetaData)
+                .add("renderableLanes", renderableLanes)
+                .add("renderableInteractions", renderableInteractions)
+                .toString();
+    }
+
 }

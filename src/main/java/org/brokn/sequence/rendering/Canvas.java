@@ -25,12 +25,9 @@ public class Canvas extends JPanel {
 
     private static final Logger log = Logger.getLogger(Canvas.class.getName());
 
-    // Vertical gap between anything separated vertically (nodes/interactions/notes)
-    public static final int VERTICAL_GAP = 50;
+    private final double scale = 1;
 
-    private double scale = 1;
-
-    private RenderableGraph renderableGraph;
+    private RenderableDiagram renderableDiagram;
 
     public Canvas() {
         setVisible(true);
@@ -38,11 +35,11 @@ public class Canvas extends JPanel {
         setDoubleBuffered(true);
     }
 
-    public void updateModel(final RenderableGraph model) {
-        RenderableGraph previousModel = this.renderableGraph;
-        this.renderableGraph = model;
+    public void updateModel(final RenderableDiagram model) {
+        RenderableDiagram previousModel = this.renderableDiagram;
+        this.renderableDiagram = model;
 
-        if(!model.equals(previousModel)) {
+        if (!model.equals(previousModel)) {
             doLayout();
             paintComponent(getGraphics());
         }
@@ -52,7 +49,7 @@ public class Canvas extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (this.renderableGraph == null) {
+        if (this.renderableDiagram == null) {
             drawHelp(g);
 
         } else {
@@ -61,8 +58,8 @@ public class Canvas extends JPanel {
             g2.scale(scale, scale);
 
             // render the diagram
-            this.renderableGraph.draw(g);
-            setPreferredSize(this.renderableGraph.computeDiagramSize(g, false));
+            this.renderableDiagram.draw(g);
+            setPreferredSize(this.renderableDiagram.computeDiagramSize(g, false));
 
         }
     }
@@ -71,11 +68,4 @@ public class Canvas extends JPanel {
         new RenderableHelpMessage().draw(g);
     }
 
-    public void updateScale(int value) {
-        this.scale = 1 + (value / 10.0);
-        log.info("Updated canvas scale to " + this.scale);
-
-        doLayout();
-        paintComponent(getGraphics());
-    }
 }
