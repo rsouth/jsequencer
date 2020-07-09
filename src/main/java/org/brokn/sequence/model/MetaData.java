@@ -17,7 +17,8 @@
 
 package org.brokn.sequence.model;
 
-import java.util.Objects;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 
 public class MetaData {
 
@@ -59,22 +60,22 @@ public class MetaData {
         MetaData metaData = (MetaData) o;
         return showDate == metaData.showDate &&
                 Float.compare(metaData.fontSize, fontSize) == 0 &&
-                Objects.equals(title, metaData.title) &&
-                Objects.equals(author, metaData.author);
+                Objects.equal(title, metaData.title) &&
+                Objects.equal(author, metaData.author);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, author, showDate, fontSize);
+        return Objects.hashCode(title, author, showDate, fontSize);
     }
 
     @Override
     public String toString() {
-        return "MetaData{" +
-                "title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", showDate=" + showDate +
-                ", fontSize=" + fontSize +
-                '}';
+        return MoreObjects.toStringHelper(this)
+                .add("title", title)
+                .add("author", author)
+                .add("showDate", showDate)
+                .add("fontSize", fontSize)
+                .toString();
     }
 }

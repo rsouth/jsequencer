@@ -23,7 +23,7 @@ import org.brokn.sequence.lexer.parser.MetaDataParser;
 import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 import org.brokn.sequence.model.MetaData;
-import org.brokn.sequence.rendering.RenderableGraph;
+import org.brokn.sequence.rendering.RenderableDiagram;
 
 import java.util.List;
 
@@ -35,12 +35,12 @@ public class Lexer {
 
     private final InteractionParser interactionParser = new InteractionParser();
 
-    public RenderableGraph parse(String input) {
+    public RenderableDiagram parse(String input) {
         MetaData metaData = metaDataParser.parse(input);
         List<Lane> lanes = laneParser.parse(input);
         List<Interaction> interactions = interactionParser.parse(lanes, input);
 
-        return new RenderableGraph(metaData, lanes, interactions);
+        return new RenderableDiagram(metaData, lanes, interactions);
     }
 
 }

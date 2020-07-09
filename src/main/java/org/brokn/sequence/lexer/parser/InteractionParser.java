@@ -33,7 +33,9 @@ public class InteractionParser {
 
     private static final Logger log = Logger.getLogger(InteractionParser.class.getName());
 
-    private static final String INTERACTION_TOKEN = "->";
+    static final String INTERACTION_TOKEN = "->";
+
+    static final String INTERACTION_MESSAGE_TOKEN = ":";
 
     public List<Interaction> parse(List<Lane> lanes, String input) {
         List<Interaction> interactions = new ArrayList<>();
@@ -52,9 +54,10 @@ public class InteractionParser {
                     String message = null;
                     try {
                         if (toNode.contains(":")) {
-                            String[] split1 = toNode.split(":");
-                            message = split1[1].trim();
-                            toNode = split1[0].trim();
+                            int messageStartIndex = toNode.indexOf(INTERACTION_MESSAGE_TOKEN);
+                            String tmp = toNode;
+                            toNode = tmp.substring(0, messageStartIndex).trim();
+                            message = tmp.substring(messageStartIndex + 1).trim();
                         }
                     } catch (IndexOutOfBoundsException ex) {
                         log.warning("Interaction message is incomplete, not parsing");
@@ -64,7 +67,7 @@ public class InteractionParser {
                         interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount));
                         interactionCount++;
                         if(fromNode.equals(toNode)) {
-                            // self-referential so increment interation code one more time, for the interaction back to self
+                            // self-referential so increment interaction count one more time, for the interaction back to self
                             interactionCount++;
                         }
                     }
@@ -83,7 +86,7 @@ public class InteractionParser {
     private Lane laneByName(List<Lane> lanes, String name) {
         Optional<Lane> laneOptional = lanes.stream().filter(lane -> lane.getName().equals(name)).findFirst();
         if (!laneOptional.isPresent()) {
-            throw new IllegalStateException("LEXER :: Got interaction for unknown Lane");
+            throw new IllegalStateException("LEXER :: Got interaction for unknown Lane [" + name + "]");
         }
         return laneOptional.get();
     }

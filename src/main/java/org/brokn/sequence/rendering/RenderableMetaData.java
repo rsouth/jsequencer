@@ -17,19 +17,18 @@
 
 package org.brokn.sequence.rendering;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import org.brokn.sequence.model.MetaData;
+import org.brokn.sequence.rendering.utils.LayoutConstants;
+import org.brokn.sequence.rendering.utils.LayoutUtils;
 
 import java.awt.*;
 import java.time.LocalDate;
-import java.util.Objects;
 
-import static org.brokn.sequence.rendering.LayoutUtils.drawStringWithFont;
+import static org.brokn.sequence.rendering.utils.LayoutUtils.drawStringWithFont;
 
 public class RenderableMetaData {
-
-    private static final int VERTICAL_GAP = 20;
-
-    private static final int DOCUMENT_MARGIN = 10;
 
     private final MetaData model;
 
@@ -41,21 +40,21 @@ public class RenderableMetaData {
         int totalHeight = 20;
 
         //title
-        if(this.model.getTitle() != null) {
+        if (this.model.getTitle() != null) {
             totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;
         }
 
         // author
-        if(this.model.getAuthor() != null) {
+        if (this.model.getAuthor() != null) {
             totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
-            totalHeight += VERTICAL_GAP;
+            totalHeight += LayoutConstants.RM_VERTICAL_GAP;
         }
 
         // date
-        if(this.model.isShowDate()) {
+        if (this.model.isShowDate()) {
             totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), "date").height;
-            if(this.model.getTitle() != null || this.model.getAuthor() != null) {
-                totalHeight += VERTICAL_GAP;
+            if (this.model.getTitle() != null || this.model.getAuthor() != null) {
+                totalHeight += LayoutConstants.RM_VERTICAL_GAP;
             }
         }
 
@@ -65,31 +64,31 @@ public class RenderableMetaData {
     public void draw(Graphics g) {
 
         // draw title
-        if(this.model.getTitle() != null) {
+        if (this.model.getTitle() != null) {
             Font titleFont = getTitleFont(g);
             int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, titleFont, this.model.getTitle()).height;
-            drawStringWithFont(g, titleFont, DOCUMENT_MARGIN, DOCUMENT_MARGIN + titleHeight, this.model.getTitle());
+            drawStringWithFont(g, titleFont, LayoutConstants.RM_DOCUMENT_MARGIN, LayoutConstants.RM_DOCUMENT_MARGIN + titleHeight, this.model.getTitle());
         }
 
         // draw author name
-        if(this.model.getAuthor() != null) {
+        if (this.model.getAuthor() != null) {
             int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;// 0 if no title shown
             int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
-            int y = titleHeight + (this.model.getTitle() == null ? DOCUMENT_MARGIN : VERTICAL_GAP) + authorHeight;
-            g.drawString(this.model.getAuthor(), DOCUMENT_MARGIN, y);
+            int y = titleHeight + (this.model.getTitle() == null ? LayoutConstants.RM_DOCUMENT_MARGIN : LayoutConstants.RM_VERTICAL_GAP) + authorHeight;
+            g.drawString(this.model.getAuthor(), LayoutConstants.RM_DOCUMENT_MARGIN, y);
         }
 
         // draw current date (10th June 2020 so no regional ambiguity)
         // todo worth adding ability to format the date?
-        if(this.model.isShowDate()) {
+        if (this.model.isShowDate()) {
             int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;// 0 if no title shown
             int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
             int dateHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), "date").height;
 
-            int spacing = (this.model.getTitle() != null || this.model.getAuthor() != null ? VERTICAL_GAP : 0);
+            int spacing = (this.model.getTitle() != null || this.model.getAuthor() != null ? LayoutConstants.RM_VERTICAL_GAP : 0);
             int y = titleHeight + authorHeight + dateHeight + spacing;
 
-            g.drawString(LocalDate.now().toString(), DOCUMENT_MARGIN, y);
+            g.drawString(LocalDate.now().toString(), LayoutConstants.RM_DOCUMENT_MARGIN, y);
         }
     }
 
@@ -102,11 +101,18 @@ public class RenderableMetaData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RenderableMetaData that = (RenderableMetaData) o;
-        return model.equals(that.model);
+        return Objects.equal(model, that.model);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(model);
+        return Objects.hashCode(model);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("model", model)
+                .toString();
     }
 }

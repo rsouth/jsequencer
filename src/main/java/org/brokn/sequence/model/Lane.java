@@ -17,14 +17,19 @@
 
 package org.brokn.sequence.model;
 
-import java.util.Objects;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 public class Lane {
 
     private final int index;
+
     private final String name;
 
-    public Lane(int index, String name) {
+    public Lane(@Nonnegative int index, @Nonnull String name) {
         this.index = index;
         this.name = name;
     }
@@ -43,19 +48,19 @@ public class Lane {
         if (o == null || getClass() != o.getClass()) return false;
         Lane lane = (Lane) o;
         return index == lane.index &&
-                name.equals(lane.name);
+                Objects.equal(name, lane.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(index, name);
+        return Objects.hashCode(index, name);
     }
 
     @Override
     public String toString() {
-        return "Lane{" +
-                "index=" + index +
-                ", name='" + name + '\'' +
-                '}';
+        return MoreObjects.toStringHelper(this)
+                .add("index", index)
+                .add("name", name)
+                .toString();
     }
 }
