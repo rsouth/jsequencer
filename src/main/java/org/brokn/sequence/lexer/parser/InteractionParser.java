@@ -56,7 +56,7 @@ public class InteractionParser {
                         if (toNode.contains(":")) {
                             int messageStartIndex = toNode.indexOf(INTERACTION_MESSAGE_TOKEN);
                             String tmp = toNode;
-                            toNode = tmp.substring(0, messageStartIndex);
+                            toNode = tmp.substring(0, messageStartIndex).trim();
                             message = tmp.substring(messageStartIndex + 1).trim();
                         }
                     } catch (IndexOutOfBoundsException ex) {

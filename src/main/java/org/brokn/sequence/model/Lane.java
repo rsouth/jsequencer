@@ -20,12 +20,16 @@ package org.brokn.sequence.model;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 public class Lane {
 
     private final int index;
+
     private final String name;
 
-    public Lane(int index, String name) {
+    public Lane(@Nonnegative int index, @Nonnull String name) {
         this.index = index;
         this.name = name;
     }

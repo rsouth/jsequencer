@@ -18,8 +18,6 @@
 package org.brokn.sequence.lexer.parser;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.brokn.sequence.model.Lane;
 
 import java.util.ArrayList;
