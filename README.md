@@ -8,6 +8,12 @@
   </p>
 </div>
 
+## What is sequencer?
+Sequencer allows you to create **simple and clear sequence diagrams**, based on a simple grammar. Your diagram is **drawn in real-time** as you type, and is designed to be:
+ - easy to **edit**
+ - easy to **share**
+ - easy to **version control**
+
 ## Simple to get started
 
 #### Describe your sequence
@@ -21,16 +27,11 @@
 
 `Server -> Client: Response`
 
-#### Your diagram is created
+#### Your diagram is ready to go
 
 <img src="https://i.ibb.co/FDT8kNL/sequencer-example-2020-08-07.png" alt="sequencer-example-2020-08-07" border="0" />
 
 Copy the diagram to your clipboard to paste straight in to chat or email.
-
-Because the diagram is generated from text it's
- - easy to edit
- - easy to share
- - easy to version control
 
 See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar.
 
@@ -39,6 +40,11 @@ See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar
     <img src="https://s7.gifyu.com/images/sequence-gizmo-6.gif" alt="sequence-gizmo-6.gif" border="0" />
   </p>
 </div>
+
+## Contributing
+**Pull requests are welcome**. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
 
 ## Credits / Attributions
 
