@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import org.brokn.sequence.cli.HeadlessCli;
 import org.brokn.sequence.lexer.Lexer;
 import org.brokn.sequence.lexer.parser.MetaDataParser;
 import org.brokn.sequence.rendering.Canvas;
@@ -263,16 +264,21 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
     }
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        if (args.length > 1) {
+            System.out.println("use cli");
+            new HeadlessCli().run(args);
+        } else {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        SequenceDialog dialog = new SequenceDialog();
-        dialog.pack();
+            SequenceDialog dialog = new SequenceDialog();
+            dialog.pack();
 
-        // set initial focus to the text area
-        dialog.textArea1.requestFocusInWindow();
+            // set initial focus to the text area
+            dialog.textArea1.requestFocusInWindow();
 
-        // show the window.
-        dialog.setVisible(true);
+            // show the window.
+            dialog.setVisible(true);
+        }
     }
 
     private final AbstractAction onFileMenuItemClicked = new AbstractAction() {
