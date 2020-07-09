@@ -40,16 +40,16 @@ public class DialogUtils {
         private final boolean okToProceed;
         private final File file;
 
-        public FileDialogResult(boolean okToProceed, File file) {
+        FileDialogResult(boolean okToProceed, File file) {
             this.okToProceed = okToProceed;
             this.file = file;
         }
 
-        public boolean isOkToProceed() {
+        boolean isOkToProceed() {
             return okToProceed;
         }
 
-        public File getFile() {
+        File getFile() {
             return file;
         }
 
@@ -63,7 +63,7 @@ public class DialogUtils {
 
     }
 
-    public static DialogUtils.FileDialogResult openOpenFileDialog(FileNameExtensionFilter fileFilter) {
+    static DialogUtils.FileDialogResult openOpenFileDialog(FileNameExtensionFilter fileFilter) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(fileFilter);
         fileChooser.changeToParentDirectory();
@@ -85,7 +85,7 @@ public class DialogUtils {
         }
     }
 
-    public static FileDialogResult openSaveAsDialog(FileNameExtensionFilter fileFilter) {
+    static FileDialogResult openSaveAsDialog(FileNameExtensionFilter fileFilter) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(fileFilter);
         fileChooser.changeToParentDirectory();

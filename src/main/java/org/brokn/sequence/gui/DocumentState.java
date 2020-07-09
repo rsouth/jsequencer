@@ -20,7 +20,12 @@ package org.brokn.sequence.gui;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
+
+import static org.brokn.sequence.gui.Utils.replaceTokenAtLine;
 
 public class DocumentState {
 
@@ -31,7 +36,7 @@ public class DocumentState {
     private String currentText = "";
     private final TextChangedListener textChangedListener;
 
-    public DocumentState(TextChangedListener listener, File file, String initialText) {
+    DocumentState(TextChangedListener listener, File file, String initialText) {
         assert initialText != null;
         this.textChangedListener = listener;
         this.file = file;
@@ -40,19 +45,15 @@ public class DocumentState {
         this.textChangedListener.onTextChanged(this.initialText);
     }
 
-    public DocumentState(TextChangedListener listener) {
+    DocumentState(TextChangedListener listener) {
         this(listener, null, "");
     }
 
-    public File getFile() {
+    File getFile() {
         return this.file;
     }
 
-    private boolean isClasspathFile(File file) {
-        return this.file != null && ClassLoader.getSystemResource(file.getName()) != null;
-    }
-
-    public boolean isDirty() {
+    boolean isDirty() {
         // if the file is found on the classpath (i.e. it's the example-file.seq) then it's never dirty
         if(isClasspathFile(this.file)) {
             return false;
@@ -70,7 +71,7 @@ public class DocumentState {
         throw new IllegalStateException("shouldn't get here");
     }
 
-    public void saveSourceFile(File file) {
+    void saveSourceFile(File file) {
         try (PrintWriter out = new PrintWriter(file,"UTF-8")) {
             log.info("Opened file [" + file + "] for writing");
             out.print(this.currentText);
@@ -87,11 +88,11 @@ public class DocumentState {
         this.textChangedListener.onTextChanged(this.currentText);
     }
 
-    public String getCurrentText() {
+    String getCurrentText() {
         return this.currentText;
     }
 
-    public boolean updateText(String text) {
+    boolean updateText(String text) {
         if(this.currentText.equals(text)) {
             // no change
             return false;
@@ -101,4 +102,30 @@ public class DocumentState {
             return true;
         }
     }
+
+    void addTokenToSource(String token, String param) {
+        List<String> lines = new ArrayList<>(Arrays.asList(this.currentText.split("\n")));
+
+        // Find line index containing the token currently.
+        // There may, erroneously, be more than one. In that case we will take only the first - we'll remove the rest.
+        int tokenLineIndex = -1;
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (line.startsWith(token)) {
+                tokenLineIndex = i;
+                break;
+            }
+        }
+
+        // replace the first existing token, if any, and remove all others
+        replaceTokenAtLine(token + param, lines, tokenLineIndex);
+
+        // update the document
+        this.updateText(String.join("\n", lines));
+    }
+
+    private boolean isClasspathFile(File file) {
+        return this.file != null && ClassLoader.getSystemResource(file.getName()) != null;
+    }
+
 }

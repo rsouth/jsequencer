@@ -24,12 +24,12 @@ import java.io.File;
 
 public class SeqStatusBar extends JPanel {
 
-    final JLabel filePathLabel = new JLabel("");
+    private final JLabel filePathLabel = new JLabel("");
 
-    final JLabel fileName = new JLabel("");
+    private final JLabel fileName = new JLabel("");
 
 
-    public SeqStatusBar(JPanel contentPane, ActionListener exportAsImage, ActionListener copyToClipboard) {
+    SeqStatusBar(JPanel contentPane, ActionListener exportAsImage, ActionListener copyToClipboard) {
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
         JPanel rightPanel = new JPanel();
@@ -61,7 +61,7 @@ public class SeqStatusBar extends JPanel {
         this.add(rightPanel);
     }
 
-    public void setFileName(File file) {
+    void setFileName(File file) {
         SwingUtilities.invokeLater(() -> {
             if(file == null) {
                 this.filePathLabel.setText("");

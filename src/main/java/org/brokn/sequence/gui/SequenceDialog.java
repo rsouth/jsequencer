@@ -32,8 +32,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -41,7 +39,6 @@ import java.util.stream.Collectors;
 
 import static javax.swing.JOptionPane.*;
 import static org.brokn.sequence.gui.DialogUtils.exportAsImage;
-import static org.brokn.sequence.gui.Utils.replaceTokenAtLine;
 
 public class SequenceDialog extends JFrame implements TextChangedListener {
 
@@ -216,28 +213,6 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         });
     }
 
-    private void addTokenToSource(String token, String param) {
-        List<String> lines = new ArrayList<>(Arrays.asList(this.documentState.getCurrentText().split("\n")));
-
-        // Find line index containing the token currently.
-        // There may, erroneously, be more than one. In that case we will take only the first - we'll remove the rest.
-        int tokenLineIndex = -1;
-        for (int i = 0; i < lines.size(); i++) {
-            String line = lines.get(i);
-            if (line.startsWith(token)) {
-                tokenLineIndex = i;
-                break;
-            }
-        }
-
-        // replace the first existing token, if any, and remove all others
-        replaceTokenAtLine(token + param, lines, tokenLineIndex);
-
-        // update the document
-        this.documentState.updateText(String.join("\n", lines));
-        triggerModelUpdate();
-    }
-
     @Override
     public void onTextChanged(String newText) {
         SwingUtilities.invokeLater(() -> {
@@ -351,16 +326,16 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
                 switch (menuItemText) {
                     case MenuBar.DIAGRAM_ADD_TITLE:
                         String title = showInputDialog(null, "Enter Title:", "Title", QUESTION_MESSAGE);
-                        addTokenToSource(MetaDataParser.TITLE_TOKEN, title);
+                        documentState.addTokenToSource(MetaDataParser.TITLE_TOKEN, title);
                         break;
 
                     case MenuBar.DIAGRAM_ADD_AUTHOR:
                         String authorName = showInputDialog(null, "Enter Author Name:", "Author Name", QUESTION_MESSAGE);
-                        addTokenToSource(MetaDataParser.AUTHOR_TOKEN, authorName);
+                        documentState.addTokenToSource(MetaDataParser.AUTHOR_TOKEN, authorName);
                         break;
 
                     case MenuBar.DIAGRAM_ADD_DATE:
-                        addTokenToSource(MetaDataParser.DATE_TOKEN, "");
+                        documentState.addTokenToSource(MetaDataParser.DATE_TOKEN, "");
                         break;
 
                     case MenuBar.DIAGRAM_COPY_TO_CLIPBOARD:
