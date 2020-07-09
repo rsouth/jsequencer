@@ -65,9 +65,7 @@ class LaneParserTest {
     void parseInvalidCase_OneLane() {
         // One Lane
         List<Lane> testOne = this.laneParser.parse(" Client ");
-        assertEquals(1, testOne.size());
-        assertEquals("Client", testOne.get(0).getName());
-        assertEquals(0, testOne.get(0).getIndex());
+        assertEquals(0, testOne.size());
     }
 
     @Test
