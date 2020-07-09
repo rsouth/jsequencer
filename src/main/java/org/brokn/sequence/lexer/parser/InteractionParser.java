@@ -20,6 +20,7 @@ package org.brokn.sequence.lexer.parser;
 import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class InteractionParser {
 
     private static final String INTERACTION_TOKEN = "->";
 
-    public List<Interaction> parse(List<Lane> lanes, String input) {
+    public @Nonnull List<Interaction> parse(@Nonnull List<Lane> lanes, @Nonnull String input) {
         List<Interaction> interactions = new ArrayList<>();
 
         try {
