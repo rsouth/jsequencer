@@ -17,7 +17,8 @@
 
 package org.brokn.sequence.model;
 
-import java.util.Objects;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 
 public class Interaction {
 
@@ -55,23 +56,23 @@ public class Interaction {
         if (o == null || getClass() != o.getClass()) return false;
         Interaction that = (Interaction) o;
         return index == that.index &&
-                Objects.equals(fromLane, that.fromLane) &&
-                Objects.equals(toLane, that.toLane) &&
-                Objects.equals(message, that.message);
+                Objects.equal(fromLane, that.fromLane) &&
+                Objects.equal(toLane, that.toLane) &&
+                Objects.equal(message, that.message);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fromLane, toLane, message, index);
+        return Objects.hashCode(fromLane, toLane, message, index);
     }
 
     @Override
     public String toString() {
-        return "Interaction{" +
-                "fromLane=" + fromLane +
-                ", toLane=" + toLane +
-                ", message='" + message + '\'' +
-                ", index=" + index +
-                '}';
+        return MoreObjects.toStringHelper(this)
+                .add("fromLane", fromLane)
+                .add("toLane", toLane)
+                .add("message", message)
+                .add("index", index)
+                .toString();
     }
 }

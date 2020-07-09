@@ -17,38 +17,26 @@
 
 package org.brokn.sequence.rendering;
 
-import org.brokn.sequence.model.Interaction;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import org.brokn.sequence.model.Lane;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Objects;
 
 import static javax.swing.SwingUtilities.computeStringWidth;
+import static org.brokn.sequence.rendering.LayoutConstants.*;
 import static org.brokn.sequence.rendering.LayoutUtils.drawStringWithFont;
 
 public class RenderableLane {
 
-    public static final int LANE_WIDTH = 150;
-
-    public static final int LANE_GAP = 50;
-
-    public static final int LANE_BOX_HEIGHT = 30;
-
-    public static final int LANE_BOX_PADDING = 20;
-
-    private final RenderableGraph renderableGraph;
-
     private final Lane lane;
 
-    public RenderableLane(final RenderableGraph renderableGraph, final Lane lane) {
-        this.renderableGraph = renderableGraph;
+    public RenderableLane(final Lane lane) {
         this.lane = lane;
     }
 
-    public void draw(Graphics g) {
-        int headerOffset = renderableGraph.getMetaDataHeight(g);
-
+    public void draw(Graphics g, int headerOffset, int totalInteractions) {
         // X position of the lane
         int laneXPosition = LayoutUtils.getLaneXPosition(this.lane);
 
@@ -66,13 +54,14 @@ public class RenderableLane {
 
         // draw vertical line
         int y1 = headerOffset + LANE_BOX_HEIGHT;
-        int y2 = headerOffset + ((1+renderableGraph.interactions.stream().mapToInt(Interaction::getIndex).max().orElse(0)) * Canvas.VERTICAL_GAP) + getVerticalLinePadding();
+        int y2 = headerOffset + (totalInteractions * LayoutConstants.CANVAS_VERTICAL_GAP) + getVerticalLinePadding();
         g.drawLine((laneXPosition + LANE_WIDTH / 2), y1, (laneXPosition + LANE_WIDTH / 2), y2);
 
     }
 
     /**
      * Adjusts the font size to fit the available space (within the width of the lane)
+     *
      * @param g
      * @param text
      * @return
@@ -82,7 +71,7 @@ public class RenderableLane {
         for (float size = originalFont.getSize(); size > 0; size -= 0.1) {
             Font tryFont = originalFont.deriveFont(Font.BOLD, size);
             int width = SwingUtilities.computeStringWidth(g.getFontMetrics(tryFont), text);
-            if(width < LANE_WIDTH) {
+            if (width < LANE_WIDTH) {
                 return tryFont;
             }
         }
@@ -90,7 +79,7 @@ public class RenderableLane {
     }
 
     public static int getVerticalLinePadding() {
-        return Canvas.VERTICAL_GAP + LANE_BOX_HEIGHT;
+        return LayoutConstants.CANVAS_VERTICAL_GAP + LANE_BOX_HEIGHT;
     }
 
     @Override
@@ -98,18 +87,18 @@ public class RenderableLane {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RenderableLane that = (RenderableLane) o;
-        return lane.equals(that.lane);
+        return Objects.equal(lane, that.lane);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(renderableGraph, lane);
+        return Objects.hashCode(lane);
     }
 
     @Override
     public String toString() {
-        return "RenderableLane{" +
-                "lane=" + lane +
-                '}';
+        return MoreObjects.toStringHelper(this)
+                .add("lane", lane)
+                .toString();
     }
 }

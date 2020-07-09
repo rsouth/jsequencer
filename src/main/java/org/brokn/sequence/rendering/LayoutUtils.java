@@ -30,13 +30,13 @@ public class LayoutUtils {
         if (multi == 0) {
             return 10;
         } else {
-            int x = (multi * RenderableLane.LANE_WIDTH) + (multi * RenderableLane.LANE_GAP);
+            int x = (multi * LayoutConstants.LANE_WIDTH) + (multi * LayoutConstants.LANE_GAP);
             return 10 + x;
         }
     }
 
     static Rectangle getStringBounds(Graphics2D g2, Font font, String str) {
-        if(str == null) {
+        if (str == null) {
             // null string will have 0 height
             return new Rectangle(0, 0, 0, 0);
         }
