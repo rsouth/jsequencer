@@ -157,7 +157,7 @@ public class DialogUtils {
      *
      * @param selectedFile
      */
-    static void exportAsImage(File selectedFile, Canvas canvas) {
+    public static void exportAsImage(File selectedFile, Canvas canvas) {
         Dimension clip = canvas.getPreferredSize();
         log.info("Export to file, dims: " + clip);
         if (isValidClip(clip)) {
