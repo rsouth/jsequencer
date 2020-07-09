@@ -47,33 +47,16 @@ public class MetaDataParser {
         try {
             for (String line : input.split("\n")) {
                 if (line.trim().startsWith(TITLE_TOKEN)) {
-                    try {
-                        title = line.trim().replace(":title", "").trim();
-                    } catch (ArrayIndexOutOfBoundsException ex) {
-                        title = null;
-                        log.warning("incomplete title token");
-                    }
+                    title = getTokenValue(line, TITLE_TOKEN);
 
                 } else if (line.startsWith(AUTHOR_TOKEN)) {
-                    try {
-                        author = line.trim().replace(AUTHOR_TOKEN, "").trim();
-                    } catch (ArrayIndexOutOfBoundsException ex) {
-                        author = null;
-                        log.warning("incomplete author token");
-                    }
+                    author = getTokenValue(line, AUTHOR_TOKEN);
 
                 } else if (line.trim().equals(DATE_TOKEN)) {
                     showDate = true;
 
                 } else if (line.trim().startsWith(FONT_SIZE_TOKEN)) {
-                    try {
-                        String fontSizeString = line.trim().replace(FONT_SIZE_TOKEN, "").trim();
-                        fontSize = Float.parseFloat(fontSizeString);
-
-                    } catch (NumberFormatException | NullPointerException ex) {
-                        fontSize = -1;
-                        log.warning("Font token specified but font size is not parseable");
-                    }
+                    fontSize = getFontSize(line);
 
                 }
             }
@@ -85,4 +68,22 @@ public class MetaDataParser {
         log.info("Parsed " + metaData);
         return metaData;
     }
+
+    private float getFontSize(String line) {
+        float fontSize = -1;
+        try {
+            String fontSizeString = getTokenValue(line, FONT_SIZE_TOKEN);
+            fontSize = Float.parseFloat(fontSizeString);
+
+        } catch (NumberFormatException | NullPointerException ex) {
+            log.warning("Font token specified but font size is not parseable");
+        }
+
+        return fontSize;
+    }
+
+    private String getTokenValue(String line, String token) {
+        return line.trim().replace(token, "").trim();
+    }
+
 }
