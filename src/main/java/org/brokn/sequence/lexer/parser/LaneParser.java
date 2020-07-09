@@ -97,15 +97,10 @@ public class LaneParser {
                     }
                 }
 
-                // too many ->'s
-                if (lanesSplit.size() < 1 || lanesSplit.size() > 2) {
-                    throw new IllegalStateException("Invalid line " + line);
-                }
             }
 
         } catch (ArrayIndexOutOfBoundsException | IllegalStateException ex) {
-            log.warning("Exception thrown when parsing lane, message: " + ex.getMessage());
-            log.info("Parsed lane names: " + laneNames);
+            log.warning("Exception thrown when parsing lane, parsed lane names [" + laneNames + "], message: " + ex.getMessage());
             return newArrayList(laneNames);
         }
 
