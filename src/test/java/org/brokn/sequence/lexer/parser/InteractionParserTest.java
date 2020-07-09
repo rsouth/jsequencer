@@ -22,12 +22,15 @@ import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@RunWith(JUnitPlatform.class)
 class InteractionParserTest {
 
     private InteractionParser interactionParser;
