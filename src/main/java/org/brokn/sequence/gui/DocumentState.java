@@ -17,16 +17,10 @@
 
 package org.brokn.sequence.gui;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Logger;
-
-import static javax.swing.JOptionPane.showMessageDialog;
 
 public class DocumentState {
 
@@ -35,17 +29,19 @@ public class DocumentState {
     private File file;
     private String initialText;
     private String currentText = "";
+    private final TextChangedListener textChangedListener;
 
-    public DocumentState(File file, String initialText) {
+    public DocumentState(TextChangedListener listener, File file, String initialText) {
         assert initialText != null;
-
+        this.textChangedListener = listener;
         this.file = file;
         this.initialText = initialText;
         this.currentText = initialText;
+        this.textChangedListener.onTextChanged(this.initialText);
     }
 
-    public DocumentState() {
-        this(null, "");
+    public DocumentState(TextChangedListener listener) {
+        this(listener, null, "");
     }
 
     public File getFile() {
@@ -53,11 +49,7 @@ public class DocumentState {
     }
 
     private boolean isClasspathFile(File file) {
-        if(this.file == null || ClassLoader.getSystemResource(file.getName()) == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return this.file != null && ClassLoader.getSystemResource(file.getName()) != null;
     }
 
     public boolean isDirty() {
@@ -78,10 +70,10 @@ public class DocumentState {
         throw new IllegalStateException("shouldn't get here");
     }
 
-    public void saveSourceFile(File file, String text) {
+    public void saveSourceFile(File file) {
         try (PrintWriter out = new PrintWriter(file,"UTF-8")) {
             log.info("Opened file [" + file + "] for writing");
-            out.print(text);
+            out.print(this.currentText);
             out.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,34 +81,10 @@ public class DocumentState {
 
         // update document state
         this.file = file;
-        this.initialText = text;
-    }
+        this.initialText = this.currentText;
 
-    /**
-     * Export the current canvas as an image file.
-     *
-     * @param selectedFile
-     */
-    public void exportAsImage(File selectedFile, JPanel canvas) {
-        Dimension clip = canvas.getPreferredSize();
-        log.info("Export to file, dims: " + clip);
-        if (clip.width <= 0 || clip.height <= 0) {
-            log.severe("Cannot export to file; clip size too small");
-            showMessageDialog(null, "Cannot export image, clip area is too small", "Error", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        BufferedImage bImg = new BufferedImage(clip.width, clip.height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D cg = bImg.createGraphics();
-        canvas.paintAll(cg);
-        try {
-            log.info("Opening file [" + selectedFile + "] for graphics export");
-            if (ImageIO.write(bImg, "png", selectedFile)) {
-                log.info("Successfully exported diagram to file [" + selectedFile + "]");
-            }
-        } catch (IOException e) {
-            log.severe("Failed to export diagram to file [" + selectedFile + "]");
-            e.printStackTrace();
-        }
+        // trigger a refresh
+        this.textChangedListener.onTextChanged(this.currentText);
     }
 
     public String getCurrentText() {
@@ -129,6 +97,7 @@ public class DocumentState {
             return false;
         } else {
             this.currentText = text;
+            this.textChangedListener.onTextChanged(this.currentText);
             return true;
         }
     }

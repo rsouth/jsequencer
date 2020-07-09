@@ -17,9 +17,16 @@
 
 package org.brokn.sequence.gui;
 
+import org.brokn.sequence.rendering.Canvas;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import static javax.swing.JOptionPane.*;
@@ -56,7 +63,6 @@ public class DialogUtils {
 
     }
 
-
     public static DialogUtils.FileDialogResult openOpenFileDialog(FileNameExtensionFilter fileFilter) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(fileFilter);
@@ -78,7 +84,6 @@ public class DialogUtils {
             return new FileDialogResult(false, null);
         }
     }
-
 
     public static FileDialogResult openSaveAsDialog(FileNameExtensionFilter fileFilter) {
         JFileChooser fileChooser = new JFileChooser();
@@ -118,6 +123,56 @@ public class DialogUtils {
         } else {
             log.info("User cancelled file save action");
             return new FileDialogResult(false, null);
+        }
+    }
+
+    static boolean isValidClip(Dimension clip) {
+        if (clip.width <= 0 || clip.height <= 0) {
+            log.severe("Clip area too small to create image " + clip);
+            showMessageDialog(null, "Clip area is too small to create Image", "Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
+    static void copyToClipboard(Canvas canvas) {
+        Dimension clip = canvas.getPreferredSize();
+        log.info("Copy to clipboard, dims: " + clip);
+
+        if(isValidClip(clip)) {
+            BufferedImage bImg = new BufferedImage(clip.width, clip.height, BufferedImage.TYPE_INT_RGB);
+            Graphics2D cg = bImg.createGraphics();
+            canvas.paintAll(cg);
+
+            TransferableImage transferableImage = new TransferableImage(bImg);
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+
+            clipboard.setContents(transferableImage, null);
+        }
+    }
+
+    /**
+     * Export the current canvas as an image file.
+     *
+     * @param selectedFile
+     */
+    static void exportAsImage(File selectedFile, Canvas canvas) {
+        Dimension clip = canvas.getPreferredSize();
+        log.info("Export to file, dims: " + clip);
+        if (isValidClip(clip)) {
+            BufferedImage bImg = new BufferedImage(clip.width, clip.height, BufferedImage.TYPE_INT_RGB);
+            Graphics2D cg = bImg.createGraphics();
+            canvas.paintAll(cg);
+            try {
+                log.info("Opening file [" + selectedFile + "] for graphics export");
+                if (ImageIO.write(bImg, "png", selectedFile)) {
+                    log.info("Successfully exported diagram to file [" + selectedFile + "]");
+                }
+            } catch (IOException e) {
+                log.severe("Failed to export diagram to file [" + selectedFile + "]");
+                e.printStackTrace();
+            }
         }
     }
 
