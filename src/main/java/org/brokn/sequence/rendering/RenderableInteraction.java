@@ -20,6 +20,8 @@ package org.brokn.sequence.rendering;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.brokn.sequence.model.Interaction;
+import org.brokn.sequence.rendering.utils.LayoutConstants;
+import org.brokn.sequence.rendering.utils.LayoutUtils;
 
 import javax.swing.*;
 import java.awt.*;

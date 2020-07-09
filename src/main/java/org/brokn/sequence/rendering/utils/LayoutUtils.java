@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.brokn.sequence.rendering;
+package org.brokn.sequence.rendering.utils;
 
 import org.brokn.sequence.model.Lane;
 
@@ -25,7 +25,7 @@ import java.awt.font.GlyphVector;
 
 public class LayoutUtils {
 
-    static int getLaneXPosition(Lane lane) {
+    public static int getLaneXPosition(Lane lane) {
         int multi = lane.getIndex();
         if (multi == 0) {
             return 10;
@@ -35,7 +35,7 @@ public class LayoutUtils {
         }
     }
 
-    static Rectangle getStringBounds(Graphics2D g2, Font font, String str) {
+    public static Rectangle getStringBounds(Graphics2D g2, Font font, String str) {
         if (str == null) {
             // null string will have 0 height
             return new Rectangle(0, 0, 0, 0);
@@ -51,7 +51,7 @@ public class LayoutUtils {
         return pixelBounds;
     }
 
-    static void drawStringWithFont(Graphics g, Font font, int x, int y, String text) {
+    public static void drawStringWithFont(Graphics g, Font font, int x, int y, String text) {
         Font originalFont = g.getFont();
         g.setFont(font);
         g.drawString(text, x, y);

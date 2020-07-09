@@ -39,7 +39,6 @@ class InteractionParserTest {
 
     @Test
     void parse() {
-        //Interaction: fromLane, toLane, Message, index
         assertEquals(0, this.interactionParser.parse(null, null).size());
         assertEquals(0, this.interactionParser.parse(Lists.newArrayList(), null).size());
         assertEquals(0, this.interactionParser.parse(Lists.newArrayList(), "").size());

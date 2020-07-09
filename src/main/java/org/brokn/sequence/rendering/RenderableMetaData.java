@@ -20,11 +20,13 @@ package org.brokn.sequence.rendering;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.brokn.sequence.model.MetaData;
+import org.brokn.sequence.rendering.utils.LayoutConstants;
+import org.brokn.sequence.rendering.utils.LayoutUtils;
 
 import java.awt.*;
 import java.time.LocalDate;
 
-import static org.brokn.sequence.rendering.LayoutUtils.drawStringWithFont;
+import static org.brokn.sequence.rendering.utils.LayoutUtils.drawStringWithFont;
 
 public class RenderableMetaData {
 

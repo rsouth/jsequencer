@@ -20,13 +20,15 @@ package org.brokn.sequence.rendering;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.brokn.sequence.model.Lane;
+import org.brokn.sequence.rendering.utils.LayoutConstants;
+import org.brokn.sequence.rendering.utils.LayoutUtils;
 
 import javax.swing.*;
 import java.awt.*;
 
 import static javax.swing.SwingUtilities.computeStringWidth;
-import static org.brokn.sequence.rendering.LayoutConstants.*;
-import static org.brokn.sequence.rendering.LayoutUtils.drawStringWithFont;
+import static org.brokn.sequence.rendering.utils.LayoutConstants.*;
+import static org.brokn.sequence.rendering.utils.LayoutUtils.drawStringWithFont;
 
 public class RenderableLane {
 

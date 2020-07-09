@@ -15,33 +15,31 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.brokn.sequence.rendering;
+package org.brokn.sequence.rendering.utils;
 
 public class LayoutConstants {
 
-    // todo should these be package pvt? protected? public seems wrong
-
     // Vertical gap between anything separated vertically (nodes/interactions/notes)
     // taken from Canvas
-    static final int CANVAS_VERTICAL_GAP = 50;
+    public static final int CANVAS_VERTICAL_GAP = 50;
 
     // taken from RenderableInteraction
-    static final int RI_ARROWHEAD_LENGTH = 10;
-    static final int RI_MESSAGE_X_PADDING = 5;
+    public static final int RI_ARROWHEAD_LENGTH = 10;
+    public static final int RI_MESSAGE_X_PADDING = 5;
     // end taken from RenderablsInteraction
 
 
     // taken from RenderableMetadata
-    static final int RM_VERTICAL_GAP = 20;
-    static final int RM_DOCUMENT_MARGIN = 10;
+    public static final int RM_VERTICAL_GAP = 20;
+    public static final int RM_DOCUMENT_MARGIN = 10;
     // end taken from RenderableMetaData
 
 
     // taken from RenderableLane
-    static final int LANE_WIDTH = 150;
-    static final int LANE_GAP = 50;
-    static final int LANE_BOX_HEIGHT = 30;
-    static final int LANE_BOX_PADDING = 20;
+    public static final int LANE_WIDTH = 150;
+    public static final int LANE_GAP = 50;
+    public static final int LANE_BOX_HEIGHT = 30;
+    public static final int LANE_BOX_PADDING = 20;
     // end taken from RenderableLane
 
 }

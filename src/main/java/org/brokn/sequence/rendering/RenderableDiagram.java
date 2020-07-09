@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 import org.brokn.sequence.model.MetaData;
+import org.brokn.sequence.rendering.utils.LayoutConstants;
 
 import java.awt.*;
 import java.util.ArrayList;

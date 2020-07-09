@@ -127,7 +127,7 @@ public class LaneParser {
         }
 
         // cannot have a message (:) without a toNode being named
-        if(line.contains(INTERACTION_TOKEN) && !line.contains(INTERACTION_MESSAGE_TOKEN)) {
+        if(line.contains(INTERACTION_MESSAGE_TOKEN) && !line.contains(INTERACTION_TOKEN)) {
             return false;
         }
 
