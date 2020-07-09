@@ -42,15 +42,6 @@ class LaneParserTest {
     }
 
     @Test
-    void parseValidCase_OneLane() {
-        // One Lane
-        List<Lane> testOne = this.laneParser.parse(" Client ");
-        assertEquals(1, testOne.size());
-        assertEquals("Client", testOne.get(0).getName());
-        assertEquals(0, testOne.get(0).getIndex());
-    }
-
-    @Test
     void parseValidCase_EmptyToLane() {
         // One Lane
         List<Lane> testOne = this.laneParser.parse(" Client    ->  ");
@@ -68,6 +59,15 @@ class LaneParserTest {
         assertEquals("Server", testTwo.get(1).getName());
         assertEquals(0, testTwo.get(0).getIndex());
         assertEquals(1, testTwo.get(1).getIndex());
+    }
+
+    @Test
+    void parseInvalidCase_OneLane() {
+        // One Lane
+        List<Lane> testOne = this.laneParser.parse(" Client ");
+        assertEquals(1, testOne.size());
+        assertEquals("Client", testOne.get(0).getName());
+        assertEquals(0, testOne.get(0).getIndex());
     }
 
     @Test

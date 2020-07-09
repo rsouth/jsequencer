@@ -58,8 +58,6 @@ public class LaneParser {
             for (String line : inputLines) {
                 if (line.contains(INTERACTION_TOKEN)) {
                     knownLanes.addAll(parseLaneNames(line));
-                } else {
-                    knownLanes.add(line.replace("-", "").trim());
                 }
             }
 
