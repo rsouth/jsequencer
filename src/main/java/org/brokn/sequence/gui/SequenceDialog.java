@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static javax.swing.JOptionPane.*;
+import static org.brokn.sequence.gui.DialogUtils.copyToClipboard;
 import static org.brokn.sequence.gui.DialogUtils.exportAsImage;
 
 public class SequenceDialog extends JFrame implements TextChangedListener {
@@ -231,13 +232,6 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
     }
 
     /**
-     * Handle 'copy to clipboard' action
-     */
-    private void onCopyToClipboard() {
-        DialogUtils.copyToClipboard((Canvas) this.canvasContainer);
-    }
-
-    /**
      * Handle 'New File' action
      */
     private void onNewFile() {
@@ -339,7 +333,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
                         break;
 
                     case MenuBar.DIAGRAM_COPY_TO_CLIPBOARD:
-                        onCopyToClipboard();
+                        copyToClipboard((Canvas) canvasContainer);
                         break;
 
                     case MenuBar.DIAGRAM_EXPORT_AS:
@@ -392,7 +386,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         this.setJMenuBar(newMenuBar);
 
         // Status bar
-        this.statusBarPanel = new SeqStatusBar(contentPane, e -> onExport(), e -> onCopyToClipboard());
+        this.statusBarPanel = new SeqStatusBar(contentPane, e -> onExport(), e -> copyToClipboard((Canvas) canvasContainer));
         this.contentPane.add(statusBarPanel, BorderLayout.SOUTH);
     }
 
