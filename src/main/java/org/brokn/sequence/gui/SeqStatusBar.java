@@ -18,26 +18,60 @@
 package org.brokn.sequence.gui;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 public class SeqStatusBar extends JPanel {
 
+    final JLabel filePathLabel = new JLabel("");
+
+    final JLabel fileName = new JLabel("");
+
+
     public SeqStatusBar(JPanel contentPane, ActionListener exportAsImage, ActionListener copyToClipboard) {
-        this.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        this.setBorder(new BevelBorder(BevelBorder.LOWERED));
-        this.setPreferredSize(new Dimension(contentPane.getWidth(), 25));
+        this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
         JButton statusBarExportButton = new JButton("Export");
         statusBarExportButton.setHorizontalAlignment(SwingConstants.RIGHT);
         statusBarExportButton.addActionListener(exportAsImage);
-        this.add(statusBarExportButton);
 
         JButton statusBarCopyToClipboardButton = new JButton("Copy to Clipboard");
         statusBarCopyToClipboardButton.setHorizontalAlignment(SwingConstants.RIGHT);
         statusBarCopyToClipboardButton.addActionListener(copyToClipboard);
-        this.add(statusBarCopyToClipboardButton);
+
+        rightPanel.add(statusBarExportButton);
+        rightPanel.add(statusBarCopyToClipboardButton);
+
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+
+        filePathLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        filePathLabel.setVerticalAlignment(SwingConstants.CENTER);
+        fileName.setFont(fileName.getFont().deriveFont(Font.BOLD));
+
+        leftPanel.add(filePathLabel);
+        leftPanel.add(fileName);
+
+        this.add(leftPanel);
+        this.add(Box.createHorizontalGlue());
+        this.add(rightPanel);
+    }
+
+    public void setFileName(File file) {
+        SwingUtilities.invokeLater(() -> {
+            if(file == null) {
+                this.filePathLabel.setText("");
+                this.fileName.setText("");
+
+            } else {
+                this.filePathLabel.setText(file.getParent() + File.separator);
+                this.fileName.setText(file.getName());
+            }
+        });
     }
 
 }

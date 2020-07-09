@@ -17,6 +17,8 @@
 
 package org.brokn.sequence.gui;
 
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.brokn.sequence.lexer.Lexer;
@@ -27,21 +29,21 @@ import org.brokn.sequence.rendering.RenderableDiagram;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static javax.swing.JOptionPane.*;
+import static org.brokn.sequence.gui.DialogUtils.exportAsImage;
+import static org.brokn.sequence.gui.Utils.replaceTokenAtLine;
 
-public class SequenceDialog extends JFrame {
-
-    private static final Logger log = Logger.getLogger(SequenceDialog.class.getName());
+public class SequenceDialog extends JFrame implements TextChangedListener {
 
     static {
         try {
@@ -54,6 +56,8 @@ public class SequenceDialog extends JFrame {
         }
     }
 
+    private static final Logger log = Logger.getLogger(SequenceDialog.class.getName());
+
     private JPanel contentPane;
     private JTextArea textArea1;
     private JPanel canvasContainer;
@@ -61,7 +65,7 @@ public class SequenceDialog extends JFrame {
     private JSplitPane splitPane;
     private JPanel statusBarPanel;
 
-    private DocumentState documentState = new DocumentState();
+    private DocumentState documentState;
 
     private final Lexer lexer = new Lexer();
 
@@ -70,6 +74,8 @@ public class SequenceDialog extends JFrame {
         $$$setupUI$$$();
         setLocationByPlatform(true);
         setContentPane(contentPane);
+
+        this.documentState = new DocumentState(this);
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -110,130 +116,62 @@ public class SequenceDialog extends JFrame {
     }
 
     /**
-     * Handle 'save source' button click
-     */
-    private void onSaveAs() {
-        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("pls use .seq extension...", "seq");
-        DialogUtils.FileDialogResult fileDialogResult = DialogUtils.openSaveAsDialog(fileFilter);
-        if (fileDialogResult.isOkToProceed()) {
-            saveFile(fileDialogResult.getFile());
-        }
-    }
-
-    private void saveFile(File file) {
-        this.documentState.saveSourceFile(file, this.textArea1.getText());
-        triggerModelUpdate();
-    }
-
-    /**
-     * Handle 'export image' button click
-     */
-    private void onExport() {
-        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("pls use .png extension...", "png");
-        DialogUtils.FileDialogResult fileDialogResult = DialogUtils.openSaveAsDialog(fileFilter);
-        if (fileDialogResult.isOkToProceed()) {
-            this.documentState.exportAsImage(fileDialogResult.getFile(), this.canvasContainer);
-        }
-    }
-
-    /**
-     * Handle 'copy to clipboard' button click
-     */
-    private void onCopyToClipboard() {
-        Dimension clip = canvasContainer.getPreferredSize();
-        log.info("Copy to clipboard, dims: " + clip);
-        if (clip.width <= 0 || clip.height <= 0) {
-            log.severe("Cannot copy to clipboard; clip size too small");
-            showMessageDialog(null, "Cannot copy to clipboard, clip area is too small", "Error", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        BufferedImage bImg = new BufferedImage(clip.width, clip.height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D cg = bImg.createGraphics();
-        canvasContainer.paintAll(cg);
-
-        TransferableImage transferableImage = new TransferableImage(bImg);
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-
-        clipboard.setContents(transferableImage, null);
-    }
-
-    /**
      * Show Open File dialog and if the user selects a file, replace the current document
      */
     private void openFile() {
-        if (dirtyFileCheck() == CANCEL_OPTION) {
-            return;
-        }
-
-        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("SEQ Files", "seq");
-        DialogUtils.FileDialogResult openFileDialogResult = DialogUtils.openOpenFileDialog(fileFilter);
-        if (openFileDialogResult.isOkToProceed()) {
-            File file = openFileDialogResult.getFile();
-            try (FileReader fileReader = new FileReader(file)) {
-                log.info("Opening file [" + file + "] for reading");
-                replaceDocument(file, fileReader);
-            } catch (IOException e) {
-                log.severe("Exception occurred while opening file [" + file + "]");
-                e.printStackTrace();
+        if (dirtyFileCheck() != CANCEL_OPTION) {
+            FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("SEQ Files", "seq");
+            DialogUtils.FileDialogResult openFileDialogResult = DialogUtils.openOpenFileDialog(fileFilter);
+            if (openFileDialogResult.isOkToProceed()) {
+                File file = openFileDialogResult.getFile();
+                try {
+                    log.info("Opening file [" + file + "] for reading");
+                    //noinspection UnstableApiUsage
+                    List<String> lines = Files.readLines(file, StandardCharsets.UTF_8);
+                    replaceDocument(file, lines);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-
-    private void onNewFile() {
-        if (dirtyFileCheck() == CANCEL_OPTION) {
-            return;
-        }
-
-        replaceDocument(null, null);
-    }
-
+    /**
+     * Opens example-file.seq from resources
+     */
     private void openExampleFile() {
-        if (dirtyFileCheck() == CANCEL_OPTION) {
-            return;
-        }
-
-        InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("example-file.seq");
-        if (systemResourceAsStream != null) {
-            try (InputStreamReader inputStreamReader = new InputStreamReader(systemResourceAsStream)) {
-                replaceDocument(null, inputStreamReader);
-            } catch (IOException e) {
-                log.severe("Exception occurred while opening example file");
-                e.printStackTrace();
+        if (dirtyFileCheck() != CANCEL_OPTION) {
+            InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("example-file.seq");
+            if (systemResourceAsStream != null) {
+                try (InputStreamReader inputStreamReader = new InputStreamReader(systemResourceAsStream)) {
+                    try (BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+                        List<String> lines = bufferedReader.lines().collect(Collectors.toList());
+                        replaceDocument(null, lines);
+                    }
+                } catch (IOException e) {
+                    log.severe("Exception occurred while opening example file");
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    private void replaceDocument(File file, Reader inputReader) {
-        List<String> lines = new ArrayList<>();
-        if (inputReader != null) {
-            try (BufferedReader reader = new BufferedReader(inputReader)) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    lines.add(line);
-                }
-
-            } catch (IOException e) {
-                // todo fix this logging - show filename? something else? just exception msg??
-                if (file == null) {
-                    log.severe("An exception occured while loading file from classpath: " + e.getMessage());
-                } else {
-                    log.severe("An exception occurred while reading file []");
-                }
-                e.printStackTrace();
-            }
-        }
-
+    /**
+     * Replace the current document with the parameters
+     *
+     * @param file
+     * @param lines
+     */
+    private void replaceDocument(File file, List<String> lines) {
         SwingUtilities.invokeLater(() -> {
             // update document state
-            this.documentState = new DocumentState(file, String.join("\n", lines));
+            this.documentState = new DocumentState(SequenceDialog.this, file, String.join("\n", lines));
 
-            // update filename in tab
+            // update filename in UI
+            ((SeqStatusBar) this.statusBarPanel).setFileName(file);
             this.tabContainer.setTitleAt(0, file == null ? "Untitled" : file.getName());
 
             // update text area
-            this.textArea1.setText(documentState.getCurrentText());
             log.info("Updated document with contents of file [" + file + "]");
 
             // trigger a refresh of the diagram
@@ -260,76 +198,99 @@ public class SequenceDialog extends JFrame {
 
                 } else {
                     // just save again to the same file
-                    this.documentState.saveSourceFile(documentState.getFile(), this.textArea1.getText());
+                    this.documentState.saveSourceFile(documentState.getFile());
                 }
             }
             return option;
-        } else {
-            // todo check if this is the right thing to do
-            return NO_OPTION;
         }
+
+        return NO_OPTION;
     }
 
     private void triggerModelUpdate() {
-        String text = documentState.getCurrentText();
-
         SwingUtilities.invokeLater(() -> {
-            String currentTitle = tabContainer.getTitleAt(0);
-            if (documentState.isDirty()) {
-                // update tab title
-                if (!currentTitle.endsWith("*")) {
-                    tabContainer.setTitleAt(0, currentTitle + " *");
-                }
-            } else {
-                if (currentTitle.endsWith("*")) {
-                    String rawTitle = currentTitle.replace(" *", "");
-                    tabContainer.setTitleAt(0, rawTitle);
-                }
-            }
-
-            // update the canvas model
+            // update the canvas model, which triggers a re-paint
+            String text = documentState.getCurrentText();
             RenderableDiagram model = lexer.parse(text);
             ((Canvas) canvasContainer).updateModel(model);
         });
     }
 
     private void addTokenToSource(String token, String param) {
-        List<String> lines = new ArrayList<>(Arrays.asList(this.textArea1.getText().split("\n")));
+        List<String> lines = new ArrayList<>(Arrays.asList(this.documentState.getCurrentText().split("\n")));
 
-        int idx = -1;
+        // Find line index containing the token currently.
+        // There may, erroneously, be more than one. In that case we will take only the first - we'll remove the rest.
+        int tokenLineIndex = -1;
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             if (line.startsWith(token)) {
-                idx = i;
+                tokenLineIndex = i;
+                break;
             }
         }
 
-        if (idx < 0) {
-            lines.add(0, token + param);
-        } else {
-            lines.remove(idx);
-            lines.add(idx, token + param);
-        }
+        // replace the first existing token, if any, and remove all others
+        replaceTokenAtLine(token + param, lines, tokenLineIndex);
 
-        this.textArea1.setText(String.join("\n", lines));
-        this.documentState.updateText(this.textArea1.getText());
+        // update the document
+        this.documentState.updateText(String.join("\n", lines));
         triggerModelUpdate();
     }
 
-    private void createUIComponents() {
-        this.contentPane = new JPanel();
-        this.canvasContainer = new Canvas();
+    @Override
+    public void onTextChanged(String newText) {
+        SwingUtilities.invokeLater(() -> {
+            final File file = documentState.getFile();
+            String currentTitle = file == null ? "Untitled" : file.getName();
+            if (documentState.isDirty()) {
+                // suffix tab title with *
+                tabContainer.setTitleAt(0, currentTitle + " *");
+            } else {
+                tabContainer.setTitleAt(0, currentTitle);
+            }
 
-        this.canvasContainer.setIgnoreRepaint(true);
-        this.canvasContainer.setBackground(Color.WHITE);
+            this.textArea1.setText(newText);
+            triggerModelUpdate();
+        });
+    }
 
-        // Menu Bar
-        MenuBar newMenuBar = new MenuBar(onFileMenuItemClicked, onDiagramMenuItemClicked, onHelpMenuItemClicked);
-        this.setJMenuBar(newMenuBar);
+    /**
+     * Handle 'copy to clipboard' action
+     */
+    private void onCopyToClipboard() {
+        DialogUtils.copyToClipboard((Canvas) this.canvasContainer);
+    }
 
-        // Status bar
-        this.statusBarPanel = new SeqStatusBar(contentPane, e -> onExport(), e -> onCopyToClipboard());
-        this.contentPane.add(statusBarPanel, BorderLayout.SOUTH);
+    /**
+     * Handle 'New File' action
+     */
+    private void onNewFile() {
+        if (dirtyFileCheck() != CANCEL_OPTION) {
+            replaceDocument(null, Lists.newArrayList());
+        }
+    }
+
+    /**
+     * Handle 'export image' action
+     */
+    private void onExport() {
+        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Portable Network Graphics (*.png)", "png");
+        DialogUtils.FileDialogResult fileDialogResult = DialogUtils.openSaveAsDialog(fileFilter);
+        if (fileDialogResult.isOkToProceed()) {
+            exportAsImage(fileDialogResult.getFile(), (Canvas) this.canvasContainer);
+        }
+    }
+
+    /**
+     * Handle 'save source' action
+     */
+    private void onSaveAs() {
+        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("sequencer files (*.seq)", "seq");
+        DialogUtils.FileDialogResult fileDialogResult = DialogUtils.openSaveAsDialog(fileFilter);
+        if (fileDialogResult.isOkToProceed()) {
+            this.documentState.saveSourceFile(fileDialogResult.getFile());
+        }
     }
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
@@ -365,7 +326,7 @@ public class SequenceDialog extends JFrame {
                         if (documentState.getFile() == null) {
                             onSaveAs();
                         } else {
-                            saveFile(documentState.getFile());
+                            documentState.saveSourceFile(documentState.getFile());
                         }
                         break;
 
@@ -444,6 +405,21 @@ public class SequenceDialog extends JFrame {
             }
         }
     };
+
+    private void createUIComponents() {
+        this.contentPane = new JPanel();
+        this.canvasContainer = new Canvas();
+        this.canvasContainer.setIgnoreRepaint(true);
+        this.canvasContainer.setBackground(Color.WHITE);
+
+        // Menu Bar
+        MenuBar newMenuBar = new MenuBar(onFileMenuItemClicked, onDiagramMenuItemClicked, onHelpMenuItemClicked);
+        this.setJMenuBar(newMenuBar);
+
+        // Status bar
+        this.statusBarPanel = new SeqStatusBar(contentPane, e -> onExport(), e -> onCopyToClipboard());
+        this.contentPane.add(statusBarPanel, BorderLayout.SOUTH);
+    }
 
     /**
      * Method generated by IntelliJ IDEA GUI Designer
