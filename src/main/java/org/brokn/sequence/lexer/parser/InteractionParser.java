@@ -33,7 +33,9 @@ public class InteractionParser {
 
     private static final Logger log = Logger.getLogger(InteractionParser.class.getName());
 
-    private static final String INTERACTION_TOKEN = "->";
+    static final String INTERACTION_TOKEN = "->";
+
+    static final String INTERACTION_MESSAGE_TOKEN = ":";
 
     public List<Interaction> parse(List<Lane> lanes, String input) {
         List<Interaction> interactions = new ArrayList<>();
@@ -64,7 +66,7 @@ public class InteractionParser {
                         interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount));
                         interactionCount++;
                         if(fromNode.equals(toNode)) {
-                            // self-referential so increment interation code one more time, for the interaction back to self
+                            // self-referential so increment interaction count one more time, for the interaction back to self
                             interactionCount++;
                         }
                     }

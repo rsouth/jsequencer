@@ -36,7 +36,7 @@ public class MetaDataParser {
     public static final String TITLE_TOKEN = ":title ";
     public static final String AUTHOR_TOKEN = ":author ";
     public static final String DATE_TOKEN = ":date";
-    private static final String FONT_SIZE_TOKEN = ":fontsize";
+    public static final String FONT_SIZE_TOKEN = ":fontsize";
 
     public MetaData parse(String input) {
         // parse title
