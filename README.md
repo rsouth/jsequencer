@@ -4,10 +4,7 @@
   <p>
       <img src="https://github.com/rsouth/sequencer/workflows/Java%20CI%20with%20Maven/badge.svg?branch=develop">
       <img src="https://github.com/rsouth/sequencer/workflows/Maven%20Package/badge.svg">
-  </p>
-  <p>
-    <a href="https://codeclimate.com/github/rsouth/sequencer/maintainability"><img src="https://api.codeclimate.com/v1/badges/7cc6ac9e91e80b4cdbbc/maintainability" /></a>
-    <a href="https://codeclimate.com/github/rsouth/sequencer/test_coverage"><img src="https://api.codeclimate.com/v1/badges/7cc6ac9e91e80b4cdbbc/test_coverage" /></a>
+      <a href="https://codeclimate.com/github/rsouth/sequencer/maintainability"><img src="https://api.codeclimate.com/v1/badges/7cc6ac9e91e80b4cdbbc/maintainability" /></a>
   </p>
 </div>
 
