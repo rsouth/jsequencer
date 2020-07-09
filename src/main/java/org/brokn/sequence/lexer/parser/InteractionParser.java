@@ -54,9 +54,10 @@ public class InteractionParser {
                     String message = null;
                     try {
                         if (toNode.contains(":")) {
-                            String[] split1 = toNode.split(":");
-                            message = split1[1].trim();
-                            toNode = split1[0].trim();
+                            int messageStartIndex = toNode.indexOf(INTERACTION_MESSAGE_TOKEN);
+                            String tmp = toNode;
+                            toNode = tmp.substring(0, messageStartIndex);
+                            message = tmp.substring(messageStartIndex + 1).trim();
                         }
                     } catch (IndexOutOfBoundsException ex) {
                         log.warning("Interaction message is incomplete, not parsing");
@@ -85,7 +86,7 @@ public class InteractionParser {
     private Lane laneByName(List<Lane> lanes, String name) {
         Optional<Lane> laneOptional = lanes.stream().filter(lane -> lane.getName().equals(name)).findFirst();
         if (!laneOptional.isPresent()) {
-            throw new IllegalStateException("LEXER :: Got interaction for unknown Lane");
+            throw new IllegalStateException("LEXER :: Got interaction for unknown Lane [" + name + "]");
         }
         return laneOptional.get();
     }

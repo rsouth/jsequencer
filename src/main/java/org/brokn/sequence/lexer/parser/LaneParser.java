@@ -23,10 +23,14 @@ import com.google.common.collect.Sets;
 import org.brokn.sequence.model.Lane;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.google.common.base.Splitter.on;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 import static org.brokn.sequence.lexer.parser.InteractionParser.INTERACTION_MESSAGE_TOKEN;
 import static org.brokn.sequence.lexer.parser.InteractionParser.INTERACTION_TOKEN;
 
@@ -56,13 +60,15 @@ public class LaneParser {
             for (String line : inputLines) {
                 if (line.contains(INTERACTION_TOKEN)) {
                     knownLanes.addAll(parseLaneNames(line));
+                } else {
+                    knownLanes.add(line.replace("-", "").trim());
                 }
             }
 
             // create a new Lane for each unique lane name we found
-            List<String> strings = Lists.newArrayList(Sets.newHashSet(knownLanes));
-            for (int i = 0; i < strings.size(); i++) {
-                foundLanes.add(new Lane(i, strings.get(i)));
+            List<String> uniqueLanes = newArrayList(newLinkedHashSet(knownLanes));
+            for (int i = 0; i < uniqueLanes.size(); i++) {
+                foundLanes.add(new Lane(i, uniqueLanes.get(i)));
             }
 
         } catch (Exception ex) {
@@ -74,37 +80,68 @@ public class LaneParser {
     }
 
     private List<String> parseLaneNames(String line) {
-        List<String> laneNames = new ArrayList<>();
+        Set<String> laneNames = new LinkedHashSet<>();
 
         try {
-            List<String> lanesSplit = interactionSplitter.splitToList(line);
+            if(isValid(line)) {
+                List<String> lanesSplit = interactionSplitter.splitToList(line);
 
-            // 'from' lane is the first entry
-            if (lanesSplit.size() >= 1) {
-                String fromNode = lanesSplit.get(0);
-                laneNames.add(fromNode);
-            }
-
-            // 'to' lane is the second entry, but any message (":msg") must be removed first
-            if (lanesSplit.size() == 2) {
-                String secondPart = lanesSplit.get(1);
-                List<String> toNodeAndMsg = laneAndMessageSplitter.splitToList(secondPart);
-                if (toNodeAndMsg.size() >= 1) {
-                    laneNames.add(toNodeAndMsg.get(0));
+                // 'from' lane is the first entry
+                if (lanesSplit.size() >= 1) {
+                    String fromNode = lanesSplit.get(0);
+                    laneNames.add(fromNode);
                 }
-            }
 
-            // too many ->'s
-            if(lanesSplit.size() < 1 || lanesSplit.size() > 2) {
-                throw new IllegalStateException("Invalid line " + line);
+                // 'to' lane is the second entry, but any message (":msg") must be removed first
+                if (lanesSplit.size() == 2) {
+                    String secondPart = lanesSplit.get(1);
+                    List<String> toNodeAndMsg = laneAndMessageSplitter.splitToList(secondPart);
+                    if (toNodeAndMsg.size() >= 1) {
+                        laneNames.add(toNodeAndMsg.get(0));
+                    }
+                }
+
+                // too many ->'s
+                if (lanesSplit.size() < 1 || lanesSplit.size() > 2) {
+                    throw new IllegalStateException("Invalid line " + line);
+                }
             }
 
         } catch (ArrayIndexOutOfBoundsException | IllegalStateException ex) {
             log.warning("Exception thrown when parsing lane, message: " + ex.getMessage());
-            return Lists.newArrayList();
+            log.info("Parsed lane names: " + laneNames);
+            return newArrayList(laneNames);
         }
 
-        return laneNames;
+        log.info("Parsed lane names: " + laneNames);
+        return newArrayList(laneNames);
+    }
+
+    private boolean isValid(String line) {
+        // it is not valid to have no 'from' Lane
+        if(line.startsWith(INTERACTION_TOKEN)) {
+            return false;
+        }
+
+        // only expect one instance of "->"
+        if(line.indexOf(INTERACTION_TOKEN) != line.lastIndexOf(INTERACTION_TOKEN)) {
+            return false;
+        }
+
+        // cannot have a message (:) without a toNode being named
+        if(line.contains(INTERACTION_TOKEN) && !line.contains(INTERACTION_MESSAGE_TOKEN)) {
+            return false;
+        }
+
+        // check that message token : is AFTER the toNode name
+        if(line.contains(INTERACTION_TOKEN) && line.contains(INTERACTION_MESSAGE_TOKEN)) {
+            if(line.split(INTERACTION_TOKEN)[1].trim().startsWith(INTERACTION_MESSAGE_TOKEN)) {
+                // first instance of : must be after the toNode name
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }
