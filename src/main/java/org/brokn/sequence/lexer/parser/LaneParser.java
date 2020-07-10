@@ -18,13 +18,13 @@
 package org.brokn.sequence.lexer.parser;
 
 import com.google.common.base.Splitter;
+import com.google.common.flogger.FluentLogger;
 import org.brokn.sequence.model.Lane;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Lists.newArrayList;
@@ -39,7 +39,7 @@ import static org.brokn.sequence.lexer.parser.InteractionParser.INTERACTION_TOKE
  */
 public class LaneParser {
 
-    private static final Logger log = Logger.getLogger(LaneParser.class.getName());
+    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
     private final Splitter lineSplitter = Splitter.onPattern("\n").omitEmptyStrings().trimResults();
 
@@ -68,10 +68,10 @@ public class LaneParser {
             }
 
         } catch (Exception ex) {
-            log.warning("Exception while parsing lanes, exception: " + ex.getMessage());
+            logger.atWarning().log("Exception while parsing lanes, exception: " + ex.getMessage());
         }
 
-        log.info("Found [" + foundLanes.size() + "] Lanes " + foundLanes);
+        logger.atInfo().log("Found [" + foundLanes.size() + "] Lanes " + foundLanes);
         return foundLanes;
     }
 
@@ -100,11 +100,11 @@ public class LaneParser {
             }
 
         } catch (ArrayIndexOutOfBoundsException | IllegalStateException ex) {
-            log.warning("Exception thrown when parsing lane, parsed lane names [" + laneNames + "], message: " + ex.getMessage());
+            logger.atWarning().log("Exception thrown when parsing lane, parsed lane names [" + laneNames + "], message: " + ex.getMessage());
             return newArrayList(laneNames);
         }
 
-        log.info("Parsed lane names: " + laneNames);
+        logger.atInfo().log("Parsed lane names: " + laneNames);
         return newArrayList(laneNames);
     }
 

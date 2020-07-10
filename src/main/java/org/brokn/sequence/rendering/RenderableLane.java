@@ -20,14 +20,14 @@ package org.brokn.sequence.rendering;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.brokn.sequence.model.Lane;
-import org.brokn.sequence.rendering.utils.LayoutConstants;
+import org.brokn.sequence.rendering.utils.LayoutHelper;
 import org.brokn.sequence.rendering.utils.LayoutUtils;
 
 import javax.swing.*;
 import java.awt.*;
 
 import static javax.swing.SwingUtilities.computeStringWidth;
-import static org.brokn.sequence.rendering.utils.LayoutConstants.*;
+import static org.brokn.sequence.rendering.utils.LayoutHelper.*;
 import static org.brokn.sequence.rendering.utils.LayoutUtils.drawStringWithFont;
 
 public class RenderableLane {
@@ -56,7 +56,7 @@ public class RenderableLane {
 
         // draw vertical line
         int y1 = headerOffset + LANE_BOX_HEIGHT;
-        int y2 = headerOffset + (totalInteractions * LayoutConstants.CANVAS_VERTICAL_GAP) + getVerticalLinePadding();
+        int y2 = headerOffset + (totalInteractions * LayoutHelper.CANVAS_VERTICAL_GAP) + getVerticalLinePadding();
         g.drawLine((laneXPosition + LANE_WIDTH / 2), y1, (laneXPosition + LANE_WIDTH / 2), y2);
 
     }
@@ -81,7 +81,7 @@ public class RenderableLane {
     }
 
     public static int getVerticalLinePadding() {
-        return LayoutConstants.CANVAS_VERTICAL_GAP + LANE_BOX_HEIGHT;
+        return LayoutHelper.CANVAS_VERTICAL_GAP + LANE_BOX_HEIGHT;
     }
 
     @Override

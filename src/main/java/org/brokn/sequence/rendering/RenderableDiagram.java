@@ -22,7 +22,7 @@ import com.google.common.base.Objects;
 import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 import org.brokn.sequence.model.MetaData;
-import org.brokn.sequence.rendering.utils.LayoutConstants;
+import org.brokn.sequence.rendering.utils.LayoutHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -31,9 +31,9 @@ import java.util.List;
 public class RenderableDiagram {
 
     // Model objects
-    protected final MetaData metaData;
-    protected final List<Lane> lanes = new ArrayList<>();
-    protected final List<Interaction> interactions = new ArrayList<>();
+    private final MetaData metaData;
+    private final List<Lane> lanes = new ArrayList<>();
+    private final List<Interaction> interactions = new ArrayList<>();
 
     // Renderable objects
     private RenderableMetaData renderableMetaData;
@@ -64,21 +64,13 @@ public class RenderableDiagram {
         this.renderableInteractions.forEach(renderableInteraction -> renderableInteraction.draw(g, headerOffset));
     }
 
-    private void setFontSize(Graphics g, float fontSize) {
-        if (fontSize > 0) {
-            g.setFont(g.getFont().deriveFont(fontSize));
-        } else {
-            g.setFont(g.getFont().deriveFont(14f));
-        }
-    }
-
     public Dimension computeDiagramSize(Graphics g, boolean drawBorder) {
         int height = renderableMetaData.calculateHeaderHeight(g);
         height += RenderableLane.getVerticalLinePadding();
-        height += (1 + this.interactions.stream().mapToInt(Interaction::getIndex).max().orElse(0) * LayoutConstants.CANVAS_VERTICAL_GAP);
+        height += (1 + this.interactions.stream().mapToInt(Interaction::getIndex).max().orElse(0) * LayoutHelper.CANVAS_VERTICAL_GAP);
         height += 50;
 
-        int width = LayoutConstants.LANE_WIDTH * renderableLanes.size() + (LayoutConstants.LANE_GAP * renderableLanes.size());
+        int width = LayoutHelper.LANE_WIDTH * renderableLanes.size() + (LayoutHelper.LANE_GAP * renderableLanes.size());
 
         Dimension diagramDimensions = new Dimension(width, height);
         if (drawBorder) {
@@ -98,6 +90,14 @@ public class RenderableDiagram {
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+    }
+
+    private void setFontSize(Graphics g, float fontSize) {
+        if (fontSize > 0) {
+            g.setFont(g.getFont().deriveFont(fontSize));
+        } else {
+            g.setFont(g.getFont().deriveFont(14f));
+        }
     }
 
     private void initRenderables() {

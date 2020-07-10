@@ -19,7 +19,9 @@ package org.brokn.sequence.gui;
 
 import java.util.List;
 
-public class Utils {
+public final class GuiUtils {
+
+    private GuiUtils() { }
 
     static void replaceTokenAtLine(String tokenAndParam, List<String> lines, int tokenLineIndex) {
         if(tokenLineIndex == -1) {

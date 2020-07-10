@@ -28,8 +28,7 @@ public class SeqStatusBar extends JPanel {
 
     private final JLabel fileName = new JLabel("");
 
-
-    SeqStatusBar(JPanel contentPane, ActionListener exportAsImage, ActionListener copyToClipboard) {
+    SeqStatusBar(ActionListener exportAsImage, ActionListener copyToClipboard) {
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
         JPanel rightPanel = new JPanel();

@@ -17,19 +17,20 @@
 
 package org.brokn.sequence.gui;
 
+import com.google.common.flogger.FluentLogger;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
-import static org.brokn.sequence.gui.Utils.replaceTokenAtLine;
+import static org.brokn.sequence.gui.GuiUtils.replaceTokenAtLine;
 
 public class DocumentState {
 
-    private static final Logger log = Logger.getLogger(DocumentState.class.getName());
+    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
     private File file;
     private String initialText;
@@ -73,7 +74,7 @@ public class DocumentState {
 
     void saveSourceFile(File file) {
         try (PrintWriter out = new PrintWriter(file,"UTF-8")) {
-            log.info("Opened file [" + file + "] for writing");
+            logger.atInfo().log("Opened file [" + file + "] for writing");
             out.print(this.currentText);
             out.flush();
         } catch (IOException e) {

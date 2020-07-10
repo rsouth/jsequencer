@@ -17,6 +17,7 @@
 
 package org.brokn.sequence.lexer.parser;
 
+import com.google.common.flogger.FluentLogger;
 import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 
@@ -24,7 +25,6 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 /**
  * Parse interactions between Lanes.
@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  */
 public class InteractionParser {
 
-    private static final Logger log = Logger.getLogger(InteractionParser.class.getName());
+    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
     static final String INTERACTION_TOKEN = "->";
 
@@ -61,7 +61,7 @@ public class InteractionParser {
                             message = tmp.substring(messageStartIndex + 1).trim();
                         }
                     } catch (IndexOutOfBoundsException ex) {
-                        log.warning("Interaction message is incomplete, not parsing");
+                        logger.atWarning().log("Interaction message is incomplete, not parsing");
                     }
 
                     if(fromNode.length() > 0 && toNode.length() > 0) {
@@ -76,10 +76,10 @@ public class InteractionParser {
             }
 
         } catch (Exception ex) {
-            log.warning("Exception while parsing interactions, exception: " + ex.getMessage());
+            logger.atWarning().log("Exception while parsing interactions, exception: " + ex.getMessage());
         }
 
-        log.info("Found [" + interactions.size() + "] interactions " + interactions);
+        logger.atInfo().log("Found [" + interactions.size() + "] interactions " + interactions);
         return interactions;
 
     }

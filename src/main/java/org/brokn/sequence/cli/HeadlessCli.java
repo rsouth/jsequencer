@@ -17,6 +17,7 @@
 
 package org.brokn.sequence.cli;
 
+import com.google.common.flogger.FluentLogger;
 import org.apache.commons.cli.*;
 
 import java.nio.file.Files;
@@ -26,6 +27,8 @@ import java.nio.file.Paths;
  * Headless Mode
  */
 public class HeadlessCli {
+
+    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
     private final Options options = new Options();
 
@@ -75,30 +78,6 @@ public class HeadlessCli {
         formatter.printHelp("sequencer", options);
     }
 
-    static class CliValidationResult {
-        private final boolean valid;
-        private String reason;
-        private CommandLine cmd;
-
-        public CliValidationResult(boolean valid, String reason, CommandLine cmd) {
-            this.valid = valid;
-            this.reason = reason;
-            this.cmd = cmd;
-        }
-
-        public boolean isValid() {
-            return valid;
-        }
-
-        public String getReason() {
-            return reason;
-        }
-
-        public CommandLine getCmd() {
-            return cmd;
-        }
-    }
-
     private CliValidationResult validateParameters(String[] args) {
         try {
             CommandLineParser parser = new DefaultParser();
@@ -108,12 +87,12 @@ public class HeadlessCli {
                 // check input file exists
                 boolean exists = Files.exists(Paths.get(cmd.getOptionValue("i")));
                 if (!exists) {
-                    System.err.println("file doesn't exist, fool");
+                    logger.atSevere().log("file doesn't exist, fool");
                     return new CliValidationResult(false, "Input file does not exist", cmd);
 
                 } else {
                     // proceed, bro.
-                    System.out.println("proceed, bro.");
+                    logger.atInfo().log("proceed, bro.");
                     return new CliValidationResult(true, "OK", cmd);
                 }
 
@@ -126,5 +105,29 @@ public class HeadlessCli {
             return new CliValidationResult(false, "not sure, just failed", null);
         }
 
+    }
+
+    static class CliValidationResult {
+        private final boolean valid;
+        private String reason;
+        private CommandLine cmd;
+
+        CliValidationResult(boolean valid, String reason, CommandLine cmd) {
+            this.valid = valid;
+            this.reason = reason;
+            this.cmd = cmd;
+        }
+
+        boolean isValid() {
+            return valid;
+        }
+
+        String getReason() {
+            return reason;
+        }
+
+        CommandLine getCmd() {
+            return cmd;
+        }
     }
 }
