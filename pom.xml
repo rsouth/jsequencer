@@ -123,6 +123,8 @@
                         <arg>-Xlint:unchecked</arg>
                         <arg>--enable-preview</arg>
                     </compilerArgs>
+                    <source>14</source>
+                    <target>14</target>
                 </configuration>
             </plugin>
 

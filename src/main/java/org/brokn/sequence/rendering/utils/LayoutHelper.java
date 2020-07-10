@@ -33,15 +33,20 @@ public final class LayoutHelper {
 
     // taken from RenderableMetadata
     public static final int RM_VERTICAL_GAP = 20;
-    public static final int RM_DOCUMENT_MARGIN = 10;
     // end taken from RenderableMetaData
 
 
-    // taken from RenderableLane
+    // New Constants
+    public static final int DIAGRAM_PADDING = 10;
+    public static final int HEADER_V_GAP = 5;
+    public static final int HEADER_BOTTOM_PADDING = 10;
+
     public static final int LANE_WIDTH = 150;
     public static final int LANE_GAP = 50;
     public static final int LANE_BOX_HEIGHT = 30;
+    public static final int LANE_BOX_MAX_WIDTH = 125; // ?
     public static final int LANE_BOX_PADDING = 20;
-    // end taken from RenderableLane
+
+    public static final int INTERACTION_V_GAP = 50;
 
 }

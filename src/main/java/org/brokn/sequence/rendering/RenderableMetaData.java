@@ -21,19 +21,49 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.brokn.sequence.model.MetaData;
 import org.brokn.sequence.rendering.utils.LayoutHelper;
-import org.brokn.sequence.rendering.utils.LayoutUtils;
 
 import java.awt.*;
 import java.time.LocalDate;
 
+import static org.brokn.sequence.rendering.utils.LayoutHelper.DIAGRAM_PADDING;
+import static org.brokn.sequence.rendering.utils.LayoutHelper.HEADER_V_GAP;
 import static org.brokn.sequence.rendering.utils.LayoutUtils.drawStringWithFont;
+import static org.brokn.sequence.rendering.utils.LayoutUtils.getStringBounds;
 
 public class RenderableMetaData {
 
     private final MetaData model;
 
-    public RenderableMetaData(MetaData metaData) {
+    public RenderableMetaData(final MetaData metaData) {
         this.model = metaData;
+    }
+
+    public void draw(final Graphics g) {
+
+        // draw title
+        if (this.model.getTitle() != null) {
+            Font titleFont = getTitleFont(g);
+            int titleHeight = getStringBounds((Graphics2D) g, titleFont, this.model.getTitle()).height;
+            drawStringWithFont(g, titleFont, DIAGRAM_PADDING, DIAGRAM_PADDING + titleHeight, this.model.getTitle());
+        }
+
+        // draw author name
+        if (this.model.getAuthor() != null) {
+            int heightSoFar = DIAGRAM_PADDING + getTitleHeight(g) + (getTitleHeight(g) > 0 ? HEADER_V_GAP : 0);
+            int authorHeight = getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
+            int y = heightSoFar + authorHeight;
+            g.drawString(this.model.getAuthor(), DIAGRAM_PADDING, y);
+        }
+
+        // draw current date (10th June 2020 so no regional ambiguity)
+        if (this.model.isShowDate()) {
+            int heightSoFar = DIAGRAM_PADDING +
+                    getTitleHeight(g) + (getTitleHeight(g) > 0 ? HEADER_V_GAP : 0) +
+                    getAuthorHeight(g) + (getAuthorHeight(g) > 0 ? HEADER_V_GAP : 0);
+            int dateHeight = getStringBounds((Graphics2D) g, g.getFont(), "date").height;
+            int y = heightSoFar + dateHeight;
+            g.drawString(LocalDate.now().toString(), DIAGRAM_PADDING, y);
+        }
     }
 
     public int calculateHeaderHeight(Graphics g) {
@@ -41,18 +71,18 @@ public class RenderableMetaData {
 
         //title
         if (this.model.getTitle() != null) {
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;
+            totalHeight += getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;
         }
 
         // author
         if (this.model.getAuthor() != null) {
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
+            totalHeight += getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
             totalHeight += LayoutHelper.RM_VERTICAL_GAP;
         }
 
         // date
         if (this.model.isShowDate()) {
-            totalHeight += LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), "date").height;
+            totalHeight += getStringBounds((Graphics2D) g, g.getFont(), "date").height;
             if (this.model.getTitle() != null || this.model.getAuthor() != null) {
                 totalHeight += LayoutHelper.RM_VERTICAL_GAP;
             }
@@ -61,38 +91,15 @@ public class RenderableMetaData {
         return totalHeight;
     }
 
-    public void draw(Graphics g) {
-
-        // draw title
-        if (this.model.getTitle() != null) {
-            Font titleFont = getTitleFont(g);
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, titleFont, this.model.getTitle()).height;
-            drawStringWithFont(g, titleFont, LayoutHelper.RM_DOCUMENT_MARGIN, LayoutHelper.RM_DOCUMENT_MARGIN + titleHeight, this.model.getTitle());
-        }
-
-        // draw author name
-        if (this.model.getAuthor() != null) {
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;// 0 if no title shown
-            int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
-            int y = titleHeight + (this.model.getTitle() == null ? LayoutHelper.RM_DOCUMENT_MARGIN : LayoutHelper.RM_VERTICAL_GAP) + authorHeight;
-            g.drawString(this.model.getAuthor(), LayoutHelper.RM_DOCUMENT_MARGIN, y);
-        }
-
-        // draw current date (10th June 2020 so no regional ambiguity)
-        // todo worth adding ability to format the date?
-        if (this.model.isShowDate()) {
-            int titleHeight = LayoutUtils.getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;// 0 if no title shown
-            int authorHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
-            int dateHeight = LayoutUtils.getStringBounds((Graphics2D) g, g.getFont(), "date").height;
-
-            int spacing = (this.model.getTitle() != null || this.model.getAuthor() != null ? LayoutHelper.RM_VERTICAL_GAP : 0);
-            int y = titleHeight + authorHeight + dateHeight + spacing;
-
-            g.drawString(LocalDate.now().toString(), LayoutHelper.RM_DOCUMENT_MARGIN, y);
-        }
+    private int getTitleHeight(final Graphics g) {
+        return this.model.getTitle() == null ? 0 : getStringBounds((Graphics2D) g, getTitleFont(g), this.model.getTitle()).height;
     }
 
-    private Font getTitleFont(Graphics g) {
+    private int getAuthorHeight(final Graphics g) {
+        return this.model.getAuthor() == null ? 0 : getStringBounds((Graphics2D) g, g.getFont(), this.model.getAuthor()).height;
+    }
+
+    private Font getTitleFont(final Graphics g) {
         return g.getFont().deriveFont(Font.BOLD, 20);
     }
 
