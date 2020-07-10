@@ -55,3 +55,4 @@ https://www.websequencediagrams.com/ is a website offering text-based sequence d
 ## License
 
 This project is licensed under the terms of the GNU General Public License v3.0.
+
