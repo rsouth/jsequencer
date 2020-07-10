@@ -23,14 +23,16 @@ import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 
-public class LayoutUtils {
+public final class LayoutUtils {
+
+    private LayoutUtils() { }
 
     public static int getLaneXPosition(Lane lane) {
         int multi = lane.getIndex();
         if (multi == 0) {
             return 10;
         } else {
-            int x = (multi * LayoutConstants.LANE_WIDTH) + (multi * LayoutConstants.LANE_GAP);
+            int x = (multi * LayoutHelper.LANE_WIDTH) + (multi * LayoutHelper.LANE_GAP);
             return 10 + x;
         }
     }

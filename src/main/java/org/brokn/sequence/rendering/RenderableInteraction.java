@@ -20,13 +20,13 @@ package org.brokn.sequence.rendering;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.brokn.sequence.model.Interaction;
-import org.brokn.sequence.rendering.utils.LayoutConstants;
+import org.brokn.sequence.rendering.utils.LayoutHelper;
 import org.brokn.sequence.rendering.utils.LayoutUtils;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class RenderableInteraction {
+public final class RenderableInteraction {
 
     private final Interaction interaction;
 
@@ -46,13 +46,13 @@ public class RenderableInteraction {
 
     private void drawSelfReferentialInteraction(Graphics g, int verticalOffset) {
         int fromLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getFromLane());
-        int interactionFromXPosition = fromLaneXPosition + (LayoutConstants.LANE_WIDTH / 2);
+        int interactionFromXPosition = fromLaneXPosition + (LayoutHelper.LANE_WIDTH / 2);
 
-        int lineFromX = interactionFromXPosition + LayoutConstants.LANE_WIDTH / 2;
-        int lineToX = lineFromX + (LayoutConstants.LANE_GAP / 2);
+        int lineFromX = interactionFromXPosition + LayoutHelper.LANE_WIDTH / 2;
+        int lineToX = lineFromX + (LayoutHelper.LANE_GAP / 2);
 
-        int fromLineY = verticalOffset + LayoutConstants.CANVAS_VERTICAL_GAP + (this.interaction.getIndex() * LayoutConstants.CANVAS_VERTICAL_GAP);
-        int toLineY = fromLineY + LayoutConstants.CANVAS_VERTICAL_GAP;
+        int fromLineY = verticalOffset + LayoutHelper.CANVAS_VERTICAL_GAP + (this.interaction.getIndex() * LayoutHelper.CANVAS_VERTICAL_GAP);
+        int toLineY = fromLineY + LayoutHelper.CANVAS_VERTICAL_GAP;
 
         // render line
         g.drawLine(interactionFromXPosition, fromLineY, lineToX, fromLineY);
@@ -73,10 +73,10 @@ public class RenderableInteraction {
         int fromLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getFromLane());
         int toLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getToLane());
 
-        int lineFromX = fromLaneXPosition + (LayoutConstants.LANE_WIDTH / 2);
-        int lineToX = toLaneXPosition + (LayoutConstants.LANE_WIDTH / 2);
+        int lineFromX = fromLaneXPosition + (LayoutHelper.LANE_WIDTH / 2);
+        int lineToX = toLaneXPosition + (LayoutHelper.LANE_WIDTH / 2);
 
-        int lineY = verticalOffset + LayoutConstants.CANVAS_VERTICAL_GAP + (this.interaction.getIndex() * LayoutConstants.CANVAS_VERTICAL_GAP);
+        int lineY = verticalOffset + LayoutHelper.CANVAS_VERTICAL_GAP + (this.interaction.getIndex() * LayoutHelper.CANVAS_VERTICAL_GAP);
 
         // render line
         g.drawLine(lineFromX, lineY, lineToX, lineY);
@@ -91,34 +91,9 @@ public class RenderableInteraction {
         if (this.interaction.getMessage() != null) {
             boolean isRight = interactionFromXPosition < interactionToXPosition;
             int messageWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(), this.interaction.getMessage());
-            int labelX = isRight ? interactionFromXPosition + LayoutConstants.RI_MESSAGE_X_PADDING : interactionFromXPosition - (messageWidth + LayoutConstants.RI_MESSAGE_X_PADDING);
-            g.drawString(this.interaction.getMessage(), labelX, interactionFromYPosition - LayoutConstants.RI_MESSAGE_X_PADDING);
+            int labelX = isRight ? interactionFromXPosition + LayoutHelper.RI_MESSAGE_X_PADDING : interactionFromXPosition - (messageWidth + LayoutHelper.RI_MESSAGE_X_PADDING);
+            g.drawString(this.interaction.getMessage(), labelX, interactionFromYPosition - LayoutHelper.RI_MESSAGE_X_PADDING);
         }
-    }
-
-    static class RenderableArrowhead {
-
-        private RenderableArrowhead() {
-        }
-
-        public static void draw(Graphics g, Interaction interaction, int lineEndX, int lineEndY) {
-            int fromLaneIndex = interaction.getFromLane().getIndex();
-            int toLaneIndex = interaction.getToLane().getIndex();
-
-            boolean isPointingRight = fromLaneIndex < toLaneIndex;
-            if (isPointingRight) {
-                // draw >
-                g.drawLine(lineEndX - LayoutConstants.RI_ARROWHEAD_LENGTH, lineEndY - LayoutConstants.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-                g.drawLine(lineEndX - LayoutConstants.RI_ARROWHEAD_LENGTH, lineEndY + LayoutConstants.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-
-            } else {
-                // draw <
-                g.drawLine(lineEndX + LayoutConstants.RI_ARROWHEAD_LENGTH, lineEndY - LayoutConstants.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-                g.drawLine(lineEndX + LayoutConstants.RI_ARROWHEAD_LENGTH, lineEndY + LayoutConstants.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-            }
-
-        }
-
     }
 
     @Override

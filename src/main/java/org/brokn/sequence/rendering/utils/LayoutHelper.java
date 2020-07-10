@@ -17,7 +17,9 @@
 
 package org.brokn.sequence.rendering.utils;
 
-public class LayoutConstants {
+public final class LayoutHelper {
+
+    private LayoutHelper() { }
 
     // Vertical gap between anything separated vertically (nodes/interactions/notes)
     // taken from Canvas

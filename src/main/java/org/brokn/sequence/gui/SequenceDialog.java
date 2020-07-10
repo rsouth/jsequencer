@@ -18,6 +18,7 @@
 package org.brokn.sequence.gui;
 
 import com.google.common.collect.Lists;
+import com.google.common.flogger.FluentLogger;
 import com.google.common.io.Files;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -35,7 +36,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static javax.swing.JOptionPane.*;
@@ -55,7 +55,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         }
     }
 
-    private static final Logger log = Logger.getLogger(SequenceDialog.class.getName());
+    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
     private JPanel contentPane;
     private JTextArea textArea1;
@@ -94,7 +94,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
                 SwingUtilities.invokeLater(() -> {
                     int splitPaneWidth = splitPane.getWidth();
                     double dividerLocation = (splitPaneWidth / 4.) / 1000;
-                    log.info("JSplitPane width [" + splitPaneWidth + "], setting divider location to [" + dividerLocation + "]");
+                    logger.atInfo().log("JSplitPane width [" + splitPaneWidth + "], setting divider location to [" + dividerLocation + "]");
                     splitPane.setDividerLocation(dividerLocation);
                 });
             }
@@ -124,7 +124,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
             if (openFileDialogResult.isOkToProceed()) {
                 try {
                     File file = openFileDialogResult.getFile();
-                    log.info("Opening file [" + file + "] for reading");
+                    logger.atInfo().log("Opening file [" + file + "] for reading");
                     //noinspection UnstableApiUsage
                     List<String> lines = Files.readLines(file, StandardCharsets.UTF_8);
                     replaceDocument(file, lines);
@@ -148,7 +148,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
                         replaceDocument(null, lines);
                     }
                 } catch (IOException e) {
-                    log.severe("Exception occurred while opening example file");
+                    logger.atSevere().log("Exception occurred while opening example file");
                     e.printStackTrace();
                 }
             }
@@ -258,7 +258,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         if (args.length > 1) {
-            System.out.println("use cli");
+            logger.atInfo().log("use cli");
             new HeadlessCli().run(args);
         } else {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -279,31 +279,20 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() instanceof JMenuItem) {
                 String menuItemText = ((JMenuItem) e.getSource()).getText();
-                log.info("File menu [" + menuItemText + "] clicked");
+                logger.atInfo().log("File menu [" + menuItemText + "] clicked");
 
                 switch (menuItemText) {
-                    case MenuBar.FILE_NEW:
-                        onNewFile();
-                        break;
-
-                    case MenuBar.FILE_OPEN:
-                        openFile();
-                        break;
-
-                    case MenuBar.FILE_SAVE:
+                    case MenuBar.FILE_SAVE -> {
                         if (documentState.getFile() == null) {
                             onSaveAs();
                         } else {
                             documentState.saveSourceFile(documentState.getFile());
                         }
-                        break;
-
-                    case MenuBar.FILE_SAVE_AS:
-                        onSaveAs();
-                        break;
-
-                    default:
-                        log.warning("File Menu: Unknown option selected");
+                    }
+                    case MenuBar.FILE_NEW -> onNewFile();
+                    case MenuBar.FILE_OPEN -> openFile();
+                    case MenuBar.FILE_SAVE_AS -> onSaveAs();
+                    default -> logger.atWarning().log("File Menu: Unknown option selected");
                 }
             }
         }
@@ -314,34 +303,21 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() instanceof JMenuItem) {
                 String menuItemText = ((JMenuItem) e.getSource()).getText();
-                log.info("File menu [" + menuItemText + "] clicked");
+                logger.atInfo().log("File menu [" + menuItemText + "] clicked");
 
                 switch (menuItemText) {
-                    case MenuBar.DIAGRAM_ADD_TITLE:
+                    case MenuBar.DIAGRAM_ADD_TITLE -> {
                         String title = showInputDialog(null, "Enter Title:", "Title", QUESTION_MESSAGE);
                         documentState.addTokenToSource(MetaDataParser.TITLE_TOKEN, title);
-                        break;
-
-                    case MenuBar.DIAGRAM_ADD_AUTHOR:
+                    }
+                    case MenuBar.DIAGRAM_ADD_AUTHOR -> {
                         String authorName = showInputDialog(null, "Enter Author Name:", "Author Name", QUESTION_MESSAGE);
                         documentState.addTokenToSource(MetaDataParser.AUTHOR_TOKEN, authorName);
-                        break;
-
-                    case MenuBar.DIAGRAM_ADD_DATE:
-                        documentState.addTokenToSource(MetaDataParser.DATE_TOKEN, "");
-                        break;
-
-                    case MenuBar.DIAGRAM_COPY_TO_CLIPBOARD:
-                        copyToClipboard((Canvas) canvasContainer);
-                        break;
-
-                    case MenuBar.DIAGRAM_EXPORT_AS:
-                        onExport();
-                        break;
-
-                    default:
-                        log.warning("Diagram Menu: Unknown option selected");
-
+                    }
+                    case MenuBar.DIAGRAM_ADD_DATE -> documentState.addTokenToSource(MetaDataParser.DATE_TOKEN, "");
+                    case MenuBar.DIAGRAM_COPY_TO_CLIPBOARD -> copyToClipboard((Canvas) canvasContainer);
+                    case MenuBar.DIAGRAM_EXPORT_AS -> onExport();
+                    default -> logger.atWarning().log("Diagram Menu: Unknown option selected");
                 }
             }
         }
@@ -352,23 +328,13 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() instanceof JMenuItem) {
                 String menuItemText = ((JMenuItem) e.getSource()).getText();
-                log.info("File menu [" + menuItemText + "] clicked");
+                logger.atInfo().log("File menu [" + menuItemText + "] clicked");
 
                 switch (menuItemText) {
-                    case MenuBar.HELP_GRAMMAR:
-                        showMessageDialog(null, "todo", "Grammar", INFORMATION_MESSAGE);
-                        break;
-
-                    case MenuBar.HELP_ABOUT:
-                        showMessageDialog(null, "github.com/rsouth/sequencer", "sequencer", INFORMATION_MESSAGE);
-                        break;
-
-                    case MenuBar.HELP_EXAMPLE_FILE:
-                        openExampleFile();
-                        break;
-
-                    default:
-                        log.warning("Help Menu: Unknown option selected");
+                    case MenuBar.HELP_GRAMMAR -> showMessageDialog(null, "todo", "Grammar", INFORMATION_MESSAGE);
+                    case MenuBar.HELP_ABOUT -> showMessageDialog(null, "github.com/rsouth/sequencer", "sequencer", INFORMATION_MESSAGE);
+                    case MenuBar.HELP_EXAMPLE_FILE -> openExampleFile();
+                    default -> logger.atWarning().log("Help Menu: Unknown option selected");
                 }
             }
         }
@@ -385,7 +351,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         this.setJMenuBar(newMenuBar);
 
         // Status bar
-        this.statusBarPanel = new SeqStatusBar(contentPane, e -> onExport(), e -> copyToClipboard((Canvas) canvasContainer));
+        this.statusBarPanel = new SeqStatusBar(e -> onExport(), e -> copyToClipboard((Canvas) canvasContainer));
         this.contentPane.add(statusBarPanel, BorderLayout.SOUTH);
     }
 

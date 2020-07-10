@@ -19,13 +19,10 @@ package org.brokn.sequence.rendering;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.logging.Logger;
 
 public class Canvas extends JPanel {
 
-    private static final Logger log = Logger.getLogger(Canvas.class.getName());
-
-    private final double scale = 1;
+    private static double scale = 1;
 
     private RenderableDiagram renderableDiagram;
 
@@ -60,7 +57,6 @@ public class Canvas extends JPanel {
             // render the diagram
             this.renderableDiagram.draw(g);
             setPreferredSize(this.renderableDiagram.computeDiagramSize(g, false));
-
         }
     }
 
