@@ -119,11 +119,11 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
      */
     private void openFile() {
         if (dirtyFileCheck() != CANCEL_OPTION) {
-            FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("SEQ Files", "seq");
+            FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Sequencer SEQ Files", "seq");
             DialogUtils.FileDialogResult openFileDialogResult = DialogUtils.openOpenFileDialog(fileFilter);
             if (openFileDialogResult.isOkToProceed()) {
-                File file = openFileDialogResult.getFile();
                 try {
+                    File file = openFileDialogResult.getFile();
                     log.info("Opening file [" + file + "] for reading");
                     //noinspection UnstableApiUsage
                     List<String> lines = Files.readLines(file, StandardCharsets.UTF_8);
@@ -165,13 +165,6 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         SwingUtilities.invokeLater(() -> {
             // update document state
             this.documentState = new DocumentState(SequenceDialog.this, file, String.join("\n", lines));
-
-            // update filename in UI
-            ((SeqStatusBar) this.statusBarPanel).setFileName(file);
-            this.tabContainer.setTitleAt(0, file == null ? "Untitled" : file.getName());
-
-            // update text area
-            log.info("Updated document with contents of file [" + file + "]");
 
             // trigger a refresh of the diagram
             triggerModelUpdate();
