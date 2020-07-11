@@ -2,13 +2,11 @@
   <img src="./public/logo-white_bg.png" alt="sequencer logo" width="500px" />
   <h3>sequencer is a simple diagramming tool to make it easy for developers to share ideas</h3>
   <p>
-    <img src="https://github.com/rsouth/sequencer/workflows/Java%20CI%20with%20Maven/badge.svg?branch=develop">
-    <img src="https://github.com/rsouth/sequencer/workflows/Maven%20Package/badge.svg">
     <a href="https://codeclimate.com/github/rsouth/sequencer/maintainability"><img src="https://api.codeclimate.com/v1/badges/7cc6ac9e91e80b4cdbbc/maintainability" /></a>
-    <img alt="Libraries.io dependency status for GitHub repo" src="https://img.shields.io/librariesio/github/rsouth/sequencer">
-    <img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/rsouth/sequencer">
-    <img alt="GitHub" src="https://img.shields.io/github/license/rsouth/sequencer">
-    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/rsouth/sequencer">
+    <img alt="Libraries.io dependency status for GitHub repo" src="https://img.shields.io/librariesio/github/rsouth/jsequencer">
+    <img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/rsouth/jsequencer">
+    <img alt="GitHub" src="https://img.shields.io/github/license/rsouth/jsequencer">
+    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/rsouth/jsequencer">
   </p>
 </div>
 
