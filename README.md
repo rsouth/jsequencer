@@ -3,7 +3,6 @@
   <h3>sequencer is a simple diagramming tool to make it easy for developers to share ideas</h3>
   <p>
     <a href="https://codeclimate.com/github/rsouth/sequencer/maintainability"><img src="https://api.codeclimate.com/v1/badges/7cc6ac9e91e80b4cdbbc/maintainability" /></a>
-    <img alt="Libraries.io dependency status for GitHub repo" src="https://img.shields.io/librariesio/github/rsouth/sequencer">
     <img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/rsouth/jsequencer">
     <img alt="GitHub" src="https://img.shields.io/github/license/rsouth/jsequencer">
     <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/rsouth/jsequencer">
