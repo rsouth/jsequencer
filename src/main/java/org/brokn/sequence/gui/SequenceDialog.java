@@ -220,7 +220,9 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
                 tabContainer.setTitleAt(0, currentTitle);
             }
 
+            final int caretPosition = this.textArea1.getCaretPosition();
             this.textArea1.setText(newText);
+            this.textArea1.setCaretPosition(caretPosition);
             triggerModelUpdate();
         });
     }
