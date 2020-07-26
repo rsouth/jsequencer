@@ -45,9 +45,9 @@ public class MenuBar extends JMenuBar {
     public static final String HELP_ABOUT = "About";
     public static final String HELP_EXAMPLE_FILE = "Example File";
 
-    public MenuBar(AbstractAction fileMenuListener, AbstractAction diagramMenuListener, AbstractAction helpMennuListener) {
+    public MenuBar(AbstractAction fileMenuListener, AbstractAction diagramMenuListener, AbstractAction helpMenuListener) {
         createMenuItems();
-        attachMouseListeners(fileMenuListener, diagramMenuListener, helpMennuListener);
+        attachMouseListeners(fileMenuListener, diagramMenuListener, helpMenuListener);
     }
 
     private void attachMouseListeners(AbstractAction fileMenuListener, AbstractAction diagramMenuListener, AbstractAction helpMenuListener) {

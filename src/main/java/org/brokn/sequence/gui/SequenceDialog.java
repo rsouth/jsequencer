@@ -34,6 +34,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.logging.LogManager;
 import java.util.stream.Collectors;
@@ -348,6 +349,8 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         this.canvasContainer.setIgnoreRepaint(true);
         this.canvasContainer.setBackground(Color.WHITE);
 
+        this.setTitle(MessageFormat.format("Sequencer ({0})", System.getProperty("java.version")));
+
         // Menu Bar
         MenuBar newMenuBar = new MenuBar(onFileMenuItemClicked, onDiagramMenuItemClicked, onHelpMenuItemClicked);
         this.setJMenuBar(newMenuBar);
@@ -419,5 +422,4 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
     }
-
 }
