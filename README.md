@@ -49,9 +49,12 @@ Please make sure to update tests as appropriate.
 
 ## Credits / Attributions
 
+#### Icons
+Icons made by [Dave Gandy](https://www.flaticon.com/authors/dave-gandy) from [www.flaticon.com](https://www.flaticon.com/)
+
 #### Inspiration
 
-https://www.websequencediagrams.com/ is a website offering text-based sequence diagrams with a commercial offering.
+[WebSequenceDiagrams](https://www.websequencediagrams.com/) which is an online text-based sequence diagram generator with a commercial offering.
 
 ## License
 

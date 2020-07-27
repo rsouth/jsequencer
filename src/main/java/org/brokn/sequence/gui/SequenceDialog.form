@@ -46,19 +46,50 @@
           <component id="33d61" class="javax.swing.JButton" binding="newFileButton">
             <constraints/>
             <properties>
-              <text value="New"/>
+              <borderPainted value="true"/>
+              <contentAreaFilled value="true"/>
+              <hideActionText value="true"/>
+              <horizontalTextPosition value="0"/>
+              <icon value="icons/new-file.png"/>
+              <iconTextGap value="0"/>
+              <inheritsPopupMenu value="true"/>
+              <maximumSize width="35" height="32"/>
+              <minimumSize width="35" height="32"/>
+              <opaque value="true"/>
+              <preferredSize width="40" height="40"/>
+              <text value=""/>
             </properties>
           </component>
           <component id="16ce6" class="javax.swing.JButton" binding="openButton">
             <constraints/>
             <properties>
-              <text value="Open"/>
+              <borderPainted value="true"/>
+              <contentAreaFilled value="true"/>
+              <hideActionText value="true"/>
+              <horizontalTextPosition value="0"/>
+              <icon value="icons/open-file.png"/>
+              <maximumSize width="35" height="32"/>
+              <minimumSize width="35" height="32"/>
+              <preferredSize width="40" height="40"/>
+              <text value=""/>
             </properties>
+          </component>
+          <component id="afc96" class="javax.swing.JToolBar$Separator">
+            <constraints/>
+            <properties/>
           </component>
           <component id="71b10" class="javax.swing.JButton" binding="closeButton">
             <constraints/>
             <properties>
-              <text value="Close"/>
+              <borderPainted value="true"/>
+              <contentAreaFilled value="true"/>
+              <hideActionText value="true"/>
+              <horizontalTextPosition value="0"/>
+              <icon value="icons/close-file.png"/>
+              <maximumSize width="35" height="32"/>
+              <minimumSize width="35" height="32"/>
+              <preferredSize width="40" height="40"/>
+              <text value=""/>
             </properties>
           </component>
           <component id="70638" class="javax.swing.JToolBar$Separator">
@@ -68,13 +99,15 @@
           <component id="cee08" class="javax.swing.JButton" binding="saveButton" default-binding="true">
             <constraints/>
             <properties>
-              <text value="Save"/>
-            </properties>
-          </component>
-          <component id="39d79" class="javax.swing.JButton" binding="saveAsButton" default-binding="true">
-            <constraints/>
-            <properties>
-              <text value="Save As"/>
+              <borderPainted value="true"/>
+              <contentAreaFilled value="true"/>
+              <hideActionText value="true"/>
+              <horizontalTextPosition value="0"/>
+              <icon value="icons/save-file.png"/>
+              <maximumSize width="35" height="32"/>
+              <minimumSize width="35" height="32"/>
+              <preferredSize width="40" height="40"/>
+              <text value=""/>
             </properties>
           </component>
           <component id="a83ef" class="javax.swing.JToolBar$Separator">
@@ -84,13 +117,29 @@
           <component id="6f4c3" class="javax.swing.JButton" binding="clipboardButton" default-binding="true">
             <constraints/>
             <properties>
-              <text value="Clipboard"/>
+              <borderPainted value="true"/>
+              <contentAreaFilled value="true"/>
+              <hideActionText value="true"/>
+              <horizontalTextPosition value="0"/>
+              <icon value="icons/clipboard.png"/>
+              <maximumSize width="35" height="32"/>
+              <minimumSize width="35" height="32"/>
+              <preferredSize width="40" height="40"/>
+              <text value=""/>
             </properties>
           </component>
           <component id="8f81f" class="javax.swing.JButton" binding="exportButton" default-binding="true">
             <constraints/>
             <properties>
-              <text value="Export"/>
+              <borderPainted value="true"/>
+              <contentAreaFilled value="true"/>
+              <hideActionText value="true"/>
+              <horizontalTextPosition value="0"/>
+              <icon value="icons/export-image.png"/>
+              <maximumSize width="35" height="32"/>
+              <minimumSize width="35" height="32"/>
+              <preferredSize width="40" height="40"/>
+              <text value=""/>
             </properties>
           </component>
           <hspacer id="c8f84">
