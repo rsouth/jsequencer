@@ -32,6 +32,7 @@ public class MenuBar extends JMenuBar {
 
     public static final String FILE_NEW = "New";
     public static final String FILE_OPEN = "Open";
+    public static final String FILE_CLOSE = "Close";
     public static final String FILE_SAVE = "Save";
     public static final String FILE_SAVE_AS = "Save As...";
 
@@ -90,9 +91,11 @@ public class MenuBar extends JMenuBar {
         // File
         KeyStroke keyStroke_Ctrl_N = getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK);
         KeyStroke keyStroke_Ctrl_O = getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK);
+        KeyStroke keyStroke_Ctrl_C = getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK);
         KeyStroke keyStroke_Ctrl_S = getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK);
         menuFile.add(createMenuItem(FILE_NEW, KeyEvent.VK_N, keyStroke_Ctrl_N));
         menuFile.add(createMenuItem(FILE_OPEN, KeyEvent.VK_O, keyStroke_Ctrl_O));
+        menuFile.add(createMenuItem(FILE_CLOSE, KeyEvent.VK_C, keyStroke_Ctrl_C));
         menuFile.add(createMenuItem(FILE_SAVE, KeyEvent.VK_S, keyStroke_Ctrl_S));
         menuFile.add(createMenuItem(FILE_SAVE_AS, KeyEvent.VK_A));
         menuFile.setMnemonic(KeyEvent.VK_F);

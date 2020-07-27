@@ -17,33 +17,29 @@
 
 package org.brokn.sequence.gui;
 
-import com.google.common.collect.Lists;
 import com.google.common.flogger.FluentLogger;
-import com.google.common.io.Files;
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import org.brokn.sequence.cli.HeadlessCli;
-import org.brokn.sequence.lexer.Lexer;
 import org.brokn.sequence.lexer.parser.MetaDataParser;
-import org.brokn.sequence.rendering.Canvas;
-import org.brokn.sequence.rendering.RenderableDiagram;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.logging.LogManager;
-import java.util.stream.Collectors;
 
 import static javax.swing.JOptionPane.*;
 import static org.brokn.sequence.gui.DialogUtils.copyToClipboard;
 import static org.brokn.sequence.gui.DialogUtils.exportAsImage;
 
-public class SequenceDialog extends JFrame implements TextChangedListener {
+public class SequenceDialog extends JFrame {
 
     static {
         try {
@@ -59,23 +55,23 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
     private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
     private JPanel contentPane;
-    private JTextArea textArea1;
-    private JPanel canvasContainer;
     private JTabbedPane tabContainer;
-    private JSplitPane splitPane;
     private JPanel statusBarPanel;
-
-    private DocumentState documentState;
-
-    private final Lexer lexer = new Lexer();
+    private JButton newFileButton;
+    private JToolBar toolBar;
+    private JButton openButton;
+    private JButton closeButton;
+    private JButton saveButton;
+    private JButton saveAsButton;
+    private JButton clipboardButton;
+    private JButton exportButton;
+    private JButton exampleButton;
 
     public SequenceDialog() {
         super("Sequencer");
         $$$setupUI$$$();
         setLocationByPlatform(true);
         setContentPane(contentPane);
-
-        this.documentState = new DocumentState(this);
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -84,92 +80,87 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                if (dirtyFileCheck() != CANCEL_OPTION) {
-                    System.exit(0);
+                for (int i = 0; i < tabContainer.getTabCount(); i++) {
+                    tabContainer.setSelectedIndex(i);
+                    if (dirtyFileCheck((TabDocument) tabContainer.getComponentAt(i)) == CANCEL_OPTION) {
+                        return;
+                    }
                 }
+                System.exit(0);
             }
 
             @Override
             public void windowOpened(WindowEvent e) {
                 super.windowOpened(e);
-                SwingUtilities.invokeLater(() -> {
-                    int splitPaneWidth = splitPane.getWidth();
-                    double dividerLocation = (splitPaneWidth / 4.) / 1000;
-                    logger.atInfo().log("JSplitPane width [" + splitPaneWidth + "], setting divider location to [" + dividerLocation + "]");
-                    splitPane.setDividerLocation(dividerLocation);
-                });
+
+                // Add a default tab
+                addTab(null);
             }
         });
 
-        // listen for keystrokes to kick off updating the diagram
-        textArea1.addKeyListener(new KeyAdapter() {
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                super.keyReleased(e);
-                if (documentState.updateText(textArea1.getText())) {
-                    triggerModelUpdate();
-                }
-            }
-
-        });
+        // todo temp 'new' button, give it an icon, rename etc...
+        newFileButton.addActionListener(e -> onNewFile());
+        openButton.addActionListener(e -> openFile());
+        closeButton.addActionListener(e -> onCloseFile());
+        saveButton.addActionListener(e -> getActiveTab().getDocumentState().saveSourceFile(getActiveTab().getDocumentState().getFile()));
+        saveAsButton.addActionListener(e -> onSaveAs());
+        clipboardButton.addActionListener(e -> copyToClipboard(getActiveTab().getCanvas()));
+        exportButton.addActionListener(e -> onExport());
+        exampleButton.addActionListener(e -> openExampleFile());
     }
 
     /**
      * Show Open File dialog and if the user selects a file, replace the current document
      */
     private void openFile() {
-        if (dirtyFileCheck() != CANCEL_OPTION) {
-            FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Sequencer SEQ Files", "seq");
-            DialogUtils.FileDialogResult openFileDialogResult = DialogUtils.openOpenFileDialog(fileFilter);
-            if (openFileDialogResult.isOkToProceed()) {
-                try {
-                    File file = openFileDialogResult.getFile();
-                    logger.atInfo().log("Opening file [" + file + "] for reading");
-                    //noinspection UnstableApiUsage
-                    List<String> lines = Files.readLines(file, StandardCharsets.UTF_8);
-                    replaceDocument(file, lines);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Sequencer SEQ Files", "seq");
+        DialogUtils.FileDialogResult openFileDialogResult = DialogUtils.openOpenFileDialog(fileFilter);
+        if (openFileDialogResult.isOkToProceed()) {
+            File file = openFileDialogResult.getFile();
+            logger.atInfo().log("Opening file [" + file + "] for reading");
+            if (getActiveTab().getDocumentState().getFile() == null && !getActiveTab().getDocumentState().isDirty()) {
+                getActiveTab().replaceDocument(file);
+            } else {
+                addTab(file);
             }
         }
     }
 
     /**
-     * Opens example-file.seq from resources
+     * Show example file context, demonstrating all features
      */
     private void openExampleFile() {
-        if (dirtyFileCheck() != CANCEL_OPTION) {
-            InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("example-file.seq");
-            if (systemResourceAsStream != null) {
-                try (InputStreamReader inputStreamReader = new InputStreamReader(systemResourceAsStream)) {
-                    try (BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
-                        List<String> lines = bufferedReader.lines().collect(Collectors.toList());
-                        replaceDocument(null, lines);
-                    }
-                } catch (IOException e) {
-                    logger.atSevere().log("Exception occurred while opening example file");
-                    e.printStackTrace();
-                }
-            }
+        addTab(null);
+        getActiveTab().loadExampleContext();
+    }
+
+
+    private void onCloseFile() {
+        if (dirtyFileCheck(getActiveTab()) != CANCEL_OPTION) {
+            tabContainer.remove(getActiveTab());
+        }
+        if (tabContainer.getTabCount() == 0) {
+            addTab(null);
         }
     }
 
-    /**
-     * Replace the current document with the parameters
-     *
-     * @param file
-     * @param lines
-     */
-    private void replaceDocument(File file, List<String> lines) {
-        SwingUtilities.invokeLater(() -> {
-            // update document state
-            this.documentState = new DocumentState(SequenceDialog.this, file, String.join("\n", lines));
+    private void addTab(@Nullable File file) {
+        Component newTab;
+        if (file != null) {
+            newTab = new TabDocument(file);
+            this.tabContainer.addTab("", newTab);
 
-            // trigger a refresh of the diagram
-            triggerModelUpdate();
-        });
+        } else {
+            newTab = new TabDocument();
+            this.tabContainer.addTab("Untitled", newTab);
+        }
+
+        tabContainer.setSelectedComponent(newTab);
+        getActiveTab().transferFocus();
+    }
+
+    private TabDocument getActiveTab() {
+        return (TabDocument) this.tabContainer.getSelectedComponent();
     }
 
     /**
@@ -181,17 +172,17 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
      *
      * @return
      */
-    private int dirtyFileCheck() {
-        if (this.documentState.isDirty()) {
+    private int dirtyFileCheck(TabDocument tabDocument) {
+        if (tabDocument.getDocumentState().isDirty()) {
             int option = JOptionPane.showConfirmDialog(null, "Text has been changed, save it?", "Suuuure?", YES_NO_CANCEL_OPTION, QUESTION_MESSAGE);
             if (option == YES_OPTION) {
-                if (documentState.getFile() == null) {
+                if (this.getActiveTab().getDocumentState().getFile() == null) {
                     // open the save dialog
                     onSaveAs();
 
                 } else {
                     // just save again to the same file
-                    this.documentState.saveSourceFile(documentState.getFile());
+                    this.getActiveTab().getDocumentState().saveSourceFile(this.getActiveTab().getDocumentState().getFile());
                 }
             }
             return option;
@@ -200,40 +191,14 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         return NO_OPTION;
     }
 
-    private void triggerModelUpdate() {
-        SwingUtilities.invokeLater(() -> {
-            // update the canvas model, which triggers a re-paint
-            String text = documentState.getCurrentText();
-            RenderableDiagram model = lexer.parse(text);
-            ((Canvas) canvasContainer).updateModel(model);
-        });
-    }
-
-    @Override
-    public void onTextChanged(String newText) {
-        SwingUtilities.invokeLater(() -> {
-            final File file = documentState.getFile();
-            String currentTitle = file == null ? "Untitled" : file.getName();
-            if (documentState.isDirty()) {
-                // suffix tab title with *
-                tabContainer.setTitleAt(0, currentTitle + " *");
-            } else {
-                tabContainer.setTitleAt(0, currentTitle);
-            }
-
-            final int caretPosition = this.textArea1.getCaretPosition();
-            this.textArea1.setText(newText);
-            this.textArea1.setCaretPosition(caretPosition);
-            triggerModelUpdate();
-        });
-    }
-
     /**
      * Handle 'New File' action
      */
     private void onNewFile() {
-        if (dirtyFileCheck() != CANCEL_OPTION) {
-            replaceDocument(null, Lists.newArrayList());
+        if (getActiveTab().getDocumentState().getFile() == null && !getActiveTab().getDocumentState().isDirty()) {
+            getActiveTab().resetDocument();
+        } else {
+            addTab(null);
         }
     }
 
@@ -244,7 +209,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Portable Network Graphics (*.png)", "png");
         DialogUtils.FileDialogResult fileDialogResult = DialogUtils.openSaveAsDialog(fileFilter);
         if (fileDialogResult.isOkToProceed()) {
-            exportAsImage(fileDialogResult.getFile(), (Canvas) this.canvasContainer);
+            exportAsImage(fileDialogResult.getFile(), this.getActiveTab().getCanvas());
         }
     }
 
@@ -255,7 +220,7 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("sequencer files (*.seq)", "seq");
         DialogUtils.FileDialogResult fileDialogResult = DialogUtils.openSaveAsDialog(fileFilter);
         if (fileDialogResult.isOkToProceed()) {
-            this.documentState.saveSourceFile(fileDialogResult.getFile());
+            this.getActiveTab().getDocumentState().saveSourceFile(fileDialogResult.getFile());
         }
     }
 
@@ -268,9 +233,6 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
 
             SequenceDialog dialog = new SequenceDialog();
             dialog.pack();
-
-            // set initial focus to the text area
-            dialog.textArea1.requestFocusInWindow();
 
             // show the window.
             dialog.setVisible(true);
@@ -286,14 +248,15 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
 
                 switch (menuItemText) {
                     case MenuBar.FILE_SAVE -> {
-                        if (documentState.getFile() == null) {
+                        if (getActiveTab().getDocumentState().getFile() == null) {
                             onSaveAs();
                         } else {
-                            documentState.saveSourceFile(documentState.getFile());
+                            getActiveTab().getDocumentState().saveSourceFile(getActiveTab().getDocumentState().getFile());
                         }
                     }
                     case MenuBar.FILE_NEW -> onNewFile();
                     case MenuBar.FILE_OPEN -> openFile();
+                    case MenuBar.FILE_CLOSE -> onCloseFile();
                     case MenuBar.FILE_SAVE_AS -> onSaveAs();
                     default -> logger.atWarning().log("File Menu: Unknown option selected");
                 }
@@ -311,14 +274,14 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
                 switch (menuItemText) {
                     case MenuBar.DIAGRAM_ADD_TITLE -> {
                         String title = showInputDialog(null, "Enter Title:", "Title", QUESTION_MESSAGE);
-                        documentState.addTokenToSource(MetaDataParser.TITLE_TOKEN, title);
+                        getActiveTab().getDocumentState().addTokenToSource(MetaDataParser.TITLE_TOKEN, title);
                     }
                     case MenuBar.DIAGRAM_ADD_AUTHOR -> {
                         String authorName = showInputDialog(null, "Enter Author Name:", "Author Name", QUESTION_MESSAGE);
-                        documentState.addTokenToSource(MetaDataParser.AUTHOR_TOKEN, authorName);
+                        getActiveTab().getDocumentState().addTokenToSource(MetaDataParser.AUTHOR_TOKEN, authorName);
                     }
-                    case MenuBar.DIAGRAM_ADD_DATE -> documentState.addTokenToSource(MetaDataParser.DATE_TOKEN, "");
-                    case MenuBar.DIAGRAM_COPY_TO_CLIPBOARD -> copyToClipboard((Canvas) canvasContainer);
+                    case MenuBar.DIAGRAM_ADD_DATE -> getActiveTab().getDocumentState().addTokenToSource(MetaDataParser.DATE_TOKEN, "");
+                    case MenuBar.DIAGRAM_COPY_TO_CLIPBOARD -> copyToClipboard(getActiveTab().getCanvas());
                     case MenuBar.DIAGRAM_EXPORT_AS -> onExport();
                     default -> logger.atWarning().log("Diagram Menu: Unknown option selected");
                 }
@@ -345,18 +308,14 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
 
     private void createUIComponents() {
         this.contentPane = new JPanel();
-        this.canvasContainer = new Canvas();
-        this.canvasContainer.setIgnoreRepaint(true);
-        this.canvasContainer.setBackground(Color.WHITE);
-
-        this.setTitle(MessageFormat.format("Sequencer ({0})", System.getProperty("java.version")));
+        this.setTitle(MessageFormat.format("Sequencer (java: {0})", System.getProperty("java.version")));
 
         // Menu Bar
         MenuBar newMenuBar = new MenuBar(onFileMenuItemClicked, onDiagramMenuItemClicked, onHelpMenuItemClicked);
         this.setJMenuBar(newMenuBar);
 
         // Status bar
-        this.statusBarPanel = new SeqStatusBar(e -> onExport(), e -> copyToClipboard((Canvas) canvasContainer));
+        this.statusBarPanel = new SeqStatusBar(e -> onExport(), e -> copyToClipboard(getActiveTab().getCanvas()));
         this.contentPane.add(statusBarPanel, BorderLayout.SOUTH);
     }
 
@@ -379,41 +338,40 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
         panel1.add(panel2, BorderLayout.CENTER);
         tabContainer = new JTabbedPane();
         panel2.add(tabContainer, BorderLayout.CENTER);
-        splitPane = new JSplitPane();
-        tabContainer.addTab("Untitled", splitPane);
-        final JScrollPane scrollPane1 = new JScrollPane();
-        splitPane.setRightComponent(scrollPane1);
-        scrollPane1.setViewportView(canvasContainer);
-        final JScrollPane scrollPane2 = new JScrollPane();
-        splitPane.setLeftComponent(scrollPane2);
-        final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        scrollPane2.setViewportView(panel3);
-        textArea1 = new JTextArea();
-        textArea1.setFocusCycleRoot(true);
-        Font textArea1Font = this.$$$getFont$$$("Courier New", Font.PLAIN, 12, textArea1.getFont());
-        if (textArea1Font != null) textArea1.setFont(textArea1Font);
-        panel3.add(textArea1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         contentPane.add(statusBarPanel, BorderLayout.SOUTH);
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
-        if (currentFont == null) return null;
-        String resultName;
-        if (fontName == null) {
-            resultName = currentFont.getName();
-        } else {
-            Font testFont = new Font(fontName, Font.PLAIN, 10);
-            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
-                resultName = fontName;
-            } else {
-                resultName = currentFont.getName();
-            }
-        }
-        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
+        toolBar = new JToolBar();
+        toolBar.setVisible(true);
+        contentPane.add(toolBar, BorderLayout.NORTH);
+        newFileButton = new JButton();
+        newFileButton.setText("New");
+        toolBar.add(newFileButton);
+        openButton = new JButton();
+        openButton.setText("Open");
+        toolBar.add(openButton);
+        closeButton = new JButton();
+        closeButton.setText("Close");
+        toolBar.add(closeButton);
+        final JToolBar.Separator toolBar$Separator1 = new JToolBar.Separator();
+        toolBar.add(toolBar$Separator1);
+        saveButton = new JButton();
+        saveButton.setText("Save");
+        toolBar.add(saveButton);
+        saveAsButton = new JButton();
+        saveAsButton.setText("Save As");
+        toolBar.add(saveAsButton);
+        final JToolBar.Separator toolBar$Separator2 = new JToolBar.Separator();
+        toolBar.add(toolBar$Separator2);
+        clipboardButton = new JButton();
+        clipboardButton.setText("Clipboard");
+        toolBar.add(clipboardButton);
+        exportButton = new JButton();
+        exportButton.setText("Export");
+        toolBar.add(exportButton);
+        final Spacer spacer1 = new Spacer();
+        toolBar.add(spacer1);
+        exampleButton = new JButton();
+        exampleButton.setText("Example");
+        toolBar.add(exampleButton);
     }
 
     /**
@@ -422,4 +380,5 @@ public class SequenceDialog extends JFrame implements TextChangedListener {
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
     }
+
 }

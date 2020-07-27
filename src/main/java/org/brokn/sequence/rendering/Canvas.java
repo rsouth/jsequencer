@@ -22,8 +22,6 @@ import java.awt.*;
 
 public class Canvas extends JPanel {
 
-    private static double scale = 1;
-
     private RenderableDiagram renderableDiagram;
 
     public Canvas() {
@@ -46,22 +44,16 @@ public class Canvas extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (this.renderableDiagram == null) {
-            drawHelp(g);
-
-        } else {
+        if (this.renderableDiagram != null) {
             // update scale
             Graphics2D g2 = (Graphics2D) g;
+            double scale = 1;
             g2.scale(scale, scale);
 
             // render the diagram
             this.renderableDiagram.draw(g);
             setPreferredSize(this.renderableDiagram.computeDiagramSize(g, false));
         }
-    }
-
-    private void drawHelp(Graphics g) {
-        new RenderableHelpMessage().draw(g);
     }
 
 }

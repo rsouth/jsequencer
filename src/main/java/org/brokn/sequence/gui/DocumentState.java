@@ -18,10 +18,12 @@
 package org.brokn.sequence.gui;
 
 import com.google.common.flogger.FluentLogger;
+import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,22 +34,56 @@ public class DocumentState {
 
     private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
+    private static final String EXAMPLE_FILE_CONTENT =
+                    """
+                    # header
+                    :title Sequence Diagram Example
+                    :author John Smith
+                    :fontsize 14
+                    :date
+
+                    # Client / Server Response
+                    Client -> Server: Request
+                    Server -> Server: Parses request
+                    Server -> Service: Query
+                    Service -> Server: Data
+                    Server -> Client: Response
+                    """;
+
     private File file;
-    private String initialText;
+    private String initialText = "";
     private String currentText = "";
     private final TextChangedListener textChangedListener;
 
-    DocumentState(TextChangedListener listener, File file, String initialText) {
-        assert initialText != null;
+    // New Empty File / Example File
+    DocumentState(TextChangedListener listener, boolean loadExampleContent) {
+        this.file = null;
         this.textChangedListener = listener;
-        this.file = file;
-        this.initialText = initialText;
-        this.currentText = initialText;
+        if(loadExampleContent) {
+            this.initialText = EXAMPLE_FILE_CONTENT;
+            this.currentText = EXAMPLE_FILE_CONTENT;
+        }
         this.textChangedListener.onTextChanged(this.initialText);
     }
 
-    DocumentState(TextChangedListener listener) {
-        this(listener, null, "");
+    // File on disk
+    DocumentState(TextChangedListener listener, File file) {
+        this.textChangedListener = listener;
+        this.file = file;
+        loadDocumentFromFile();
+        this.textChangedListener.onTextChanged(this.currentText);
+    }
+
+    private void loadDocumentFromFile() {
+        try {
+            //noinspection UnstableApiUsage
+            List<String> lines = Files.readLines(file, StandardCharsets.UTF_8);
+            String text = String.join("\n", lines);
+            this.initialText = text;
+            this.currentText = text;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     File getFile() {
@@ -55,11 +91,6 @@ public class DocumentState {
     }
 
     boolean isDirty() {
-        // if the file is found on the classpath (i.e. it's the example-file.seq) then it's never dirty
-        if(isClasspathFile(this.file)) {
-            return false;
-        }
-
         if(this.initialText == null && this.currentText != null) {
             return true;
         }
@@ -73,7 +104,7 @@ public class DocumentState {
     }
 
     void saveSourceFile(File file) {
-        try (PrintWriter out = new PrintWriter(file,"UTF-8")) {
+        try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
             logger.atInfo().log("Opened file [" + file + "] for writing");
             out.print(this.currentText);
             out.flush();
@@ -123,10 +154,6 @@ public class DocumentState {
 
         // update the document
         this.updateText(String.join("\n", lines));
-    }
-
-    private boolean isClasspathFile(File file) {
-        return this.file != null && ClassLoader.getSystemResource(file.getName()) != null;
     }
 
 }
