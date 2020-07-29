@@ -46,8 +46,8 @@ public class DocumentState {
                     Client -> Server: Request
                     Server -> Server: Parses request
                     Server -> Service: Query
-                    Service -> Server: Data
-                    Server -> Client: Response
+                    Service --> Server: Data
+                    Server --> Client: Response
                     """;
 
     private File file;

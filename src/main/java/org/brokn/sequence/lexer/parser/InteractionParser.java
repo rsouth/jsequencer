@@ -36,6 +36,8 @@ public class InteractionParser {
 
     static final String INTERACTION_TOKEN = "->";
 
+    static final String INTERACTION_REPLY_TOKEN = "-->";
+
     static final String INTERACTION_MESSAGE_TOKEN = ":";
 
     public @Nonnull List<Interaction> parse(@Nonnull List<Lane> lanes, @Nonnull String input) {
@@ -47,7 +49,13 @@ public class InteractionParser {
             for (String line : lines) {
                 // lines with -> are 'interactions'
                 if (line.contains(INTERACTION_TOKEN)) {
-                    String[] split = line.split(INTERACTION_TOKEN);
+                    Interaction.InteractionType type = Interaction.InteractionType.Message;
+                    String token = line.contains(INTERACTION_REPLY_TOKEN) ? INTERACTION_REPLY_TOKEN : INTERACTION_TOKEN;
+                    if(token.equals(INTERACTION_REPLY_TOKEN)) {
+                        type = Interaction.InteractionType.Reply;
+                    }
+
+                    String[] split = line.split(token);
                     String fromNode = split[0].trim();
                     String toNode = split[1].trim();
 
@@ -65,7 +73,7 @@ public class InteractionParser {
                     }
 
                     if(fromNode.length() > 0 && toNode.length() > 0) {
-                        interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount));
+                        interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount, type));
                         interactionCount++;
                         if(fromNode.equals(toNode)) {
                             // self-referential so increment interaction count one more time, for the interaction back to self
@@ -86,10 +94,7 @@ public class InteractionParser {
 
     private Lane laneByName(List<Lane> lanes, String name) {
         Optional<Lane> laneOptional = lanes.stream().filter(lane -> lane.getName().equals(name)).findFirst();
-        if (!laneOptional.isPresent()) {
-            throw new IllegalStateException("LEXER :: Got interaction for unknown Lane [" + name + "]");
-        }
-        return laneOptional.get();
+        return laneOptional.orElseThrow(() -> new IllegalStateException("LEXER :: Got interaction for unknown Lane [" + name + "]"));
     }
 
 }
