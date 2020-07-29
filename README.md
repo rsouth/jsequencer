@@ -50,7 +50,9 @@ Please make sure to update tests as appropriate.
 ## Credits / Attributions
 
 #### Icons
-Icons made by [Dave Gandy](https://www.flaticon.com/authors/dave-gandy) from [www.flaticon.com](https://www.flaticon.com/)
+Toolbar icons made by [Dave Gandy](https://www.flaticon.com/authors/dave-gandy) from [www.flaticon.com](https://www.flaticon.com/)
+
+Tab close icon made by [Vectors Market](https://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](https://www.flaticon.com/)
 
 #### Inspiration
 

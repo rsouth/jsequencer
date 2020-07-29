@@ -20,6 +20,8 @@ public class TabDocument extends JSplitPane implements TextChangedListener {
 
     private final Canvas canvas;
 
+    private final TabDocumentTitle tabTitle;
+
     public TabDocument(File file) {
         this();
         this.documentState = new DocumentState(this, file);
@@ -28,6 +30,8 @@ public class TabDocument extends JSplitPane implements TextChangedListener {
     public TabDocument() {
         // setup left pane (text area)
         JScrollPane textScrollPane = new JScrollPane();
+        this.tabTitle = new TabDocumentTitle();
+
 
         JPanel textAreaContainer = new JPanel(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
 
@@ -92,7 +96,6 @@ public class TabDocument extends JSplitPane implements TextChangedListener {
     }
 
     private void triggerModelUpdate() {
-
         SwingUtilities.invokeLater(() -> {
             Lexer lexer = new Lexer();
             // update the canvas model, which triggers a re-paint
@@ -100,19 +103,24 @@ public class TabDocument extends JSplitPane implements TextChangedListener {
             RenderableDiagram model = lexer.parse(text);
             canvas.updateModel(model);
         });
-
     }
 
     private void updateTabTitle() {
+    SwingUtilities.invokeLater(() -> {
         final File file = this.documentState.getFile();
         String currentTitle = file == null ? "Untitled" : file.getName();
 
         if (documentState.isDirty()) {
             // suffix tab title with *
-            this.getTabbedPane().setTitleAt(getTabIndex(), currentTitle + " *");
+            this.tabTitle.setTitle(currentTitle + " *");
         } else {
-            this.getTabbedPane().setTitleAt(getTabIndex(), currentTitle);
+            this.tabTitle.setTitle(currentTitle);
         }
+    });
+    }
+
+    public Component getTabDocumentTitle() {
+        return this.tabTitle;
     }
 
     public DocumentState getDocumentState() {
@@ -122,7 +130,6 @@ public class TabDocument extends JSplitPane implements TextChangedListener {
     public void replaceDocument(File file) {
         this.documentState = new DocumentState(this, file);
     }
-
 
     public Canvas getCanvas() {
         return this.canvas;

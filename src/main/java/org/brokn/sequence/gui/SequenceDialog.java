@@ -149,7 +149,7 @@ public class SequenceDialog extends JFrame {
     }
 
     private void addTab(@Nullable File file) {
-        Component newTab;
+        TabDocument newTab;
         if (file != null) {
             newTab = new TabDocument(file);
             this.tabContainer.addTab("", newTab);
@@ -158,6 +158,10 @@ public class SequenceDialog extends JFrame {
             newTab = new TabDocument();
             this.tabContainer.addTab("Untitled", newTab);
         }
+
+        final int index = tabContainer.indexOfComponent(newTab);
+        tabContainer.setTabComponentAt(index, newTab.getTabDocumentTitle());
+        ((TabDocument.TabDocumentTitle) newTab.getTabDocumentTitle()).addCloseButtonListener(e -> onCloseFile());
 
         tabContainer.setSelectedComponent(newTab);
         getActiveTab().transferFocus();

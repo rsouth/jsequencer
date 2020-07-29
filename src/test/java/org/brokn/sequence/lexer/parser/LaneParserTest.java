@@ -18,7 +18,6 @@
 package org.brokn.sequence.lexer.parser;
 
 import org.brokn.sequence.model.Lane;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
