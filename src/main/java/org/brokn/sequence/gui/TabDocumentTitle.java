@@ -4,6 +4,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class TabDocumentTitle extends JPanel {
 
@@ -37,6 +39,15 @@ public class TabDocumentTitle extends JPanel {
 
     public void addCloseButtonListener(ActionListener listener) {
         this.closeButton.addActionListener(listener);
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if(MouseEvent.BUTTON2 == e.getButton()) {
+                    closeButton.doClick();
+                }
+            }
+        });
     }
 
     public void setTitle(String title) {

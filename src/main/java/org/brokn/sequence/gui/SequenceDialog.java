@@ -161,7 +161,7 @@ public class SequenceDialog extends JFrame {
 
         final int index = tabContainer.indexOfComponent(newTab);
         tabContainer.setTabComponentAt(index, newTab.getTabDocumentTitle());
-        ((TabDocument.TabDocumentTitle) newTab.getTabDocumentTitle()).addCloseButtonListener(e -> onCloseFile());
+        ((TabDocumentTitle) newTab.getTabDocumentTitle()).addCloseButtonListener(e -> onCloseFile());
 
         tabContainer.setSelectedComponent(newTab);
         getActiveTab().transferFocus();
