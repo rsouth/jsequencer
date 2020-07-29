@@ -26,12 +26,19 @@ public class Interaction {
     private final Lane toLane;
     private final String message;
     private final int index;
+    private final InteractionType type;
 
-    public Interaction(Lane fromLane, Lane toLane, String message, int index) {
+    public enum InteractionType {
+        Message,
+        Reply
+    }
+
+    public Interaction(Lane fromLane, Lane toLane, String message, int index, InteractionType type) {
         this.fromLane = fromLane;
         this.toLane = toLane;
         this.message = message;
         this.index = index;
+        this.type = type;
     }
 
     public Lane getFromLane() {
@@ -50,6 +57,10 @@ public class Interaction {
         return index;
     }
 
+    public InteractionType getInteractionType() {
+        return type;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -58,12 +69,13 @@ public class Interaction {
         return index == that.index &&
                 Objects.equal(fromLane, that.fromLane) &&
                 Objects.equal(toLane, that.toLane) &&
-                Objects.equal(message, that.message);
+                Objects.equal(message, that.message) &&
+                type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(fromLane, toLane, message, index);
+        return Objects.hashCode(fromLane, toLane, message, index, type);
     }
 
     @Override
@@ -73,6 +85,7 @@ public class Interaction {
                 .add("toLane", toLane)
                 .add("message", message)
                 .add("index", index)
+                .add("type", type)
                 .toString();
     }
 }
