@@ -34,7 +34,7 @@ Sequencer allows you to create **simple and clear sequence diagrams**, based on 
 
 Copy the diagram to your clipboard to paste straight in to chat or email.
 
-See the [wiki](https://github.com/rsouth/sequencer/wiki) for the current grammar.
+See the [wiki](https://github.com/rsouth/jsequencer/wiki) for the current grammar.
 
 <div align="center" style="display: flex; flex-direction: column;">
   <p>
