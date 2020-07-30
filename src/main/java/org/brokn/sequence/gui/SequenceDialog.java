@@ -26,9 +26,7 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -159,12 +157,36 @@ public class SequenceDialog extends JFrame {
             this.tabContainer.addTab("Untitled", newTab);
         }
 
+        // Add tab title component
         final int index = tabContainer.indexOfComponent(newTab);
         tabContainer.setTabComponentAt(index, newTab.getTabDocumentTitle());
         ((TabDocumentTitle) newTab.getTabDocumentTitle()).addCloseButtonListener(e -> onCloseFile());
 
+        // Set previous tab state to inactive
+        int prevIndex = tabContainer.getSelectedIndex();
+        ((TabDocumentTitle) tabContainer.getTabComponentAt(prevIndex)).setActiveTab(false);
+        // Set new tab to active
+        ((TabDocumentTitle) newTab.getTabDocumentTitle()).setActiveTab(true);
         tabContainer.setSelectedComponent(newTab);
         getActiveTab().transferFocus();
+
+        // Listener for tab click events, to switch tabs
+        ((TabDocumentTitle) newTab.getTabDocumentTitle()).addTabClickListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                // deactivate the previous tab
+                final int prevIndex = tabContainer.getSelectedIndex();
+                ((TabDocumentTitle) tabContainer.getTabComponentAt(prevIndex)).setActiveTab(false);
+
+                // activate the newly selected tab
+                final int clickedTabIndex = tabContainer.indexOfTabComponent(e.getComponent().getParent().getParent());
+                ((TabDocumentTitle) tabContainer.getTabComponentAt(clickedTabIndex)).setActiveTab(true);
+                tabContainer.setSelectedIndex(clickedTabIndex);
+            }
+        });
+
     }
 
     private TabDocument getActiveTab() {

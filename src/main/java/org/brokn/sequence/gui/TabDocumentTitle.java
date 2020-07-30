@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class TabDocumentTitle extends JPanel {
 
@@ -50,9 +51,22 @@ public class TabDocumentTitle extends JPanel {
         });
     }
 
+    public void addTabClickListener(MouseListener listener) {
+        this.titleLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                listener.mouseClicked(e);
+            }
+        });
+    }
+
     public void setTitle(String title) {
         this.titleLabel.setText(title);
         this.doLayout();
     }
 
+    public void setActiveTab(boolean b) {
+        this.titleLabel.setFont(this.titleLabel.getFont().deriveFont( b ? Font.BOLD : Font.PLAIN ));
+    }
 }
