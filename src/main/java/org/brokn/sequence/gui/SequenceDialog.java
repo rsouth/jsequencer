@@ -328,7 +328,10 @@ public class SequenceDialog extends JFrame {
 
                 switch (menuItemText) {
                     case MenuBar.HELP_GRAMMAR -> showMessageDialog(null, "todo", "Grammar", INFORMATION_MESSAGE);
-                    case MenuBar.HELP_ABOUT -> showMessageDialog(null, "github.com/rsouth/sequencer", "sequencer", INFORMATION_MESSAGE);
+                    case MenuBar.HELP_ABOUT -> {
+                        AboutDialog aboutDialog = new AboutDialog();
+                        aboutDialog.showAbout(SequenceDialog.this);
+                    }
                     case MenuBar.HELP_EXAMPLE_FILE -> openExampleFile();
                     default -> logger.atWarning().log("Help Menu: Unknown option selected");
                 }
