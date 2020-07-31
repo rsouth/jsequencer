@@ -47,11 +47,11 @@ public class InteractionParser {
             String[] lines = input.split("\n");
             int interactionCount = 0;
             for (String line : lines) {
-                // lines with -> are 'interactions'
+                // lines with -> are 'interactions', but they may be ->, -->, ->> or -->>
                 if (line.contains(INTERACTION_TOKEN)) {
                     Interaction.InteractionType type = Interaction.InteractionType.Message;
-                    String token = line.contains(INTERACTION_REPLY_TOKEN) ? INTERACTION_REPLY_TOKEN : INTERACTION_TOKEN;
-                    if(token.equals(INTERACTION_REPLY_TOKEN)) {
+                    String token = parseInteractionToken(line);
+                    if(token.contains("--")) { /// INTERACTION_REPLY_TOKEN)) {
                         type = Interaction.InteractionType.Reply;
                     }
 
@@ -73,7 +73,7 @@ public class InteractionParser {
                     }
 
                     if(fromNode.length() > 0 && toNode.length() > 0) {
-                        interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount, type));
+                        interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount, type, !token.contains(">>")));
                         interactionCount++;
                         if(fromNode.equals(toNode)) {
                             // self-referential so increment interaction count one more time, for the interaction back to self
@@ -90,6 +90,23 @@ public class InteractionParser {
         logger.atInfo().log("Found [" + interactions.size() + "] interactions " + interactions);
         return interactions;
 
+    }
+
+    /**
+     * I feel bad about this.
+     * @param line
+     * @return
+     */
+    public static String parseInteractionToken(String line) {
+        if(line.contains("-->>")) {
+            return "-->>";
+        } else if (line.contains("->>")) {
+            return "->>";
+        } else if(line.contains("-->")) {
+            return "-->";
+        } else {
+            return "->";
+        }
     }
 
     private Lane laneByName(List<Lane> lanes, String name) {

@@ -45,8 +45,8 @@ public class DocumentState {
                     # Client / Server Response
                     Client -> Server: Request
                     Server -> Server: Parses request
-                    Server -> Service: Query
-                    Service --> Server: Data
+                    Server ->> Service: Query
+                    Service -->> Server: Data
                     Server --> Client: Response
                     """;
 

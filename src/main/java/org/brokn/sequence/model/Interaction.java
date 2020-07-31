@@ -27,18 +27,20 @@ public class Interaction {
     private final String message;
     private final int index;
     private final InteractionType type;
+    private final boolean isSynchronous;
 
     public enum InteractionType {
         Message,
         Reply
     }
 
-    public Interaction(Lane fromLane, Lane toLane, String message, int index, InteractionType type) {
+    public Interaction(Lane fromLane, Lane toLane, String message, int index, InteractionType type, boolean isSynchronous) {
         this.fromLane = fromLane;
         this.toLane = toLane;
         this.message = message;
         this.index = index;
         this.type = type;
+        this.isSynchronous = isSynchronous;
     }
 
     public Lane getFromLane() {
@@ -61,12 +63,18 @@ public class Interaction {
         return type;
     }
 
+
+    public boolean isSynchronous() {
+        return isSynchronous;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Interaction that = (Interaction) o;
         return index == that.index &&
+                isSynchronous == that.isSynchronous &&
                 Objects.equal(fromLane, that.fromLane) &&
                 Objects.equal(toLane, that.toLane) &&
                 Objects.equal(message, that.message) &&
@@ -75,7 +83,7 @@ public class Interaction {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(fromLane, toLane, message, index, type);
+        return Objects.hashCode(fromLane, toLane, message, index, type, isSynchronous);
     }
 
     @Override
@@ -86,6 +94,7 @@ public class Interaction {
                 .add("message", message)
                 .add("index", index)
                 .add("type", type)
+                .add("isSynchronous", isSynchronous)
                 .toString();
     }
 }
