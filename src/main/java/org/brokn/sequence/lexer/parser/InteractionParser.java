@@ -17,6 +17,8 @@
 
 package org.brokn.sequence.lexer.parser;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.flogger.FluentLogger;
 import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
@@ -40,18 +42,22 @@ public class InteractionParser {
 
     static final String INTERACTION_MESSAGE_TOKEN = ":";
 
+    private final List<String> tokens = Lists.newArrayList("-->>", "-->", "->>", "->");
+
+    private final Splitter newLineSplitter = Splitter.on("\n");
+
     public @Nonnull List<Interaction> parse(@Nonnull List<Lane> lanes, @Nonnull String input) {
         List<Interaction> interactions = new ArrayList<>();
 
         try {
-            String[] lines = input.split("\n");
+            List<String> lines = newLineSplitter.splitToList(input);
             int interactionCount = 0;
             for (String line : lines) {
                 // lines with -> are 'interactions', but they may be ->, -->, ->> or -->>
                 if (line.contains(INTERACTION_TOKEN)) {
                     Interaction.InteractionType type = Interaction.InteractionType.Message;
                     String token = parseInteractionToken(line);
-                    if(token.contains("--")) { /// INTERACTION_REPLY_TOKEN)) {
+                    if(token.contains("--")) {
                         type = Interaction.InteractionType.Reply;
                     }
 

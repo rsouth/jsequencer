@@ -82,15 +82,8 @@ public class LaneParser {
         try {
             if(isValid(line)) {
                 String token = InteractionParser.parseInteractionToken(line);
-//                if(line.contains("-->")) {
-//                    lanesSplit.addAll(interactionSplitter2.splitToList(line));
-//                } else {
-//                    lanesSplit.addAll(interactionSplitter.splitToList(line));
-//                }
-
                 final Splitter is = on(token).omitEmptyStrings().trimResults();
                 List<String> lanesSplit = new ArrayList<>(is.splitToList(line));
-
 
                 // 'from' lane is the first entry
                 if (lanesSplit.size() >= 1) {
