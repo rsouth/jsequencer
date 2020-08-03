@@ -18,9 +18,10 @@
 package org.brokn.sequence.rendering;
 
 import org.brokn.sequence.model.Interaction;
-import org.brokn.sequence.rendering.utils.LayoutHelper;
 
 import java.awt.*;
+
+import static org.brokn.sequence.rendering.utils.LayoutHelper.ARROWHEAD_LENGTH;
 
 public final class RenderableArrowhead {
 
@@ -33,25 +34,28 @@ public final class RenderableArrowhead {
         boolean isPointingRight = fromLaneIndex < toLaneIndex;
         if (isPointingRight) {
             // draw >
-            g.drawLine(lineEndX - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-            g.drawLine(lineEndX - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-            if(!interaction.getModifiers().contains(Interaction.Modifiers.ASYNC)) {
+            if(interaction.getModifiers().contains(Interaction.Modifiers.ASYNC)) {
+                g.drawLine(lineEndX - ARROWHEAD_LENGTH, lineEndY - ARROWHEAD_LENGTH, lineEndX, lineEndY);
+                g.drawLine(lineEndX - ARROWHEAD_LENGTH, lineEndY + ARROWHEAD_LENGTH, lineEndX, lineEndY);
+
+            } else {
                 // solid == sync, open == async
                 g.fillPolygon(
-                        new int[]{lineEndX - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndX - LayoutHelper.RI_ARROWHEAD_LENGTH},
-                        new int[]{lineEndY - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY, lineEndY + LayoutHelper.RI_ARROWHEAD_LENGTH},
-                        3);
+                        new int[]{lineEndX - ARROWHEAD_LENGTH, lineEndX, lineEndX - ARROWHEAD_LENGTH},
+                        new int[]{lineEndY - ARROWHEAD_LENGTH, lineEndY, lineEndY + ARROWHEAD_LENGTH}, 3);
             }
+
         } else {
             // draw <
-            g.drawLine(lineEndX + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-            g.drawLine(lineEndX + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-            if(!interaction.getModifiers().contains(Interaction.Modifiers.ASYNC)) {
+            if(interaction.getModifiers().contains(Interaction.Modifiers.ASYNC)) {
+                g.drawLine(lineEndX + ARROWHEAD_LENGTH, lineEndY - ARROWHEAD_LENGTH, lineEndX, lineEndY);
+                g.drawLine(lineEndX + ARROWHEAD_LENGTH, lineEndY + ARROWHEAD_LENGTH, lineEndX, lineEndY);
+
+            } else {
                 // solid == sync, open == async
                 g.fillPolygon(
-                        new int[]{lineEndX + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndX + LayoutHelper.RI_ARROWHEAD_LENGTH},
-                        new int[]{lineEndY - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY, lineEndY + LayoutHelper.RI_ARROWHEAD_LENGTH},
-                        3);
+                        new int[]{lineEndX + ARROWHEAD_LENGTH, lineEndX, lineEndX + ARROWHEAD_LENGTH},
+                        new int[]{lineEndY - ARROWHEAD_LENGTH, lineEndY, lineEndY + ARROWHEAD_LENGTH}, 3);
             }
         }
 

@@ -20,11 +20,12 @@ package org.brokn.sequence.rendering;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.brokn.sequence.model.Interaction;
-import org.brokn.sequence.rendering.utils.LayoutHelper;
 import org.brokn.sequence.rendering.utils.LayoutUtils;
 
 import javax.swing.*;
 import java.awt.*;
+
+import static org.brokn.sequence.rendering.utils.LayoutHelper.*;
 
 public final class RenderableInteraction {
 
@@ -50,38 +51,35 @@ public final class RenderableInteraction {
     }
 
     private void drawSelfReferentialInteraction(Graphics g, int verticalOffset) {
-        int fromLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getFromLane());
-        int interactionFromXPosition = fromLaneXPosition + (LayoutHelper.LANE_WIDTH / 2);
+        int fromLineX = LayoutUtils.getLaneXPosition(this.interaction.getFromLane()) + (LANE_WIDTH / 2);
+        int lineToX = fromLineX + (LANE_WIDTH / 2) + (LANE_GAP / 2);
 
-        int lineFromX = interactionFromXPosition + LayoutHelper.LANE_WIDTH / 2;
-        int lineToX = lineFromX + (LayoutHelper.LANE_GAP / 2);
-
-        int fromLineY = verticalOffset + LayoutHelper.CANVAS_VERTICAL_GAP + (this.interaction.getIndex() * LayoutHelper.CANVAS_VERTICAL_GAP);
-        int toLineY = fromLineY + LayoutHelper.CANVAS_VERTICAL_GAP;
+        int fromLineY = verticalOffset + CANVAS_VERTICAL_GAP + (this.interaction.getIndex() * CANVAS_VERTICAL_GAP);
+        int toLineY = fromLineY + CANVAS_VERTICAL_GAP;
 
         // render line
-        g.drawLine(interactionFromXPosition, fromLineY, lineToX, fromLineY);
+        g.drawLine(fromLineX, fromLineY, lineToX, fromLineY);
 
         // vertical line
         g.drawLine(lineToX, fromLineY, lineToX, toLineY);
 
         // second line
-        g.drawLine(interactionFromXPosition, toLineY, lineToX, toLineY);
+        g.drawLine(fromLineX, toLineY, lineToX, toLineY);
 
         // Render message
-        renderInteractionMessage(g, interactionFromXPosition, fromLineY, lineToX);
+        renderInteractionMessage(g, fromLineX, fromLineY, lineToX);
 
-        RenderableArrowhead.draw(g, this.interaction, interactionFromXPosition, toLineY);
+        RenderableArrowhead.draw(g, this.interaction, fromLineX, toLineY);
     }
 
     private void drawPointToPointInteraction(Graphics g, int verticalOffset) {
         int fromLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getFromLane());
         int toLaneXPosition = LayoutUtils.getLaneXPosition(this.interaction.getToLane());
 
-        int lineFromX = fromLaneXPosition + (LayoutHelper.LANE_WIDTH / 2);
-        int lineToX = toLaneXPosition + (LayoutHelper.LANE_WIDTH / 2);
+        int lineFromX = fromLaneXPosition + (LANE_WIDTH / 2);
+        int lineToX = toLaneXPosition + (LANE_WIDTH / 2);
 
-        int lineY = verticalOffset + LayoutHelper.CANVAS_VERTICAL_GAP + (this.interaction.getIndex() * LayoutHelper.CANVAS_VERTICAL_GAP);
+        int lineY = verticalOffset + CANVAS_VERTICAL_GAP + (this.interaction.getIndex() * CANVAS_VERTICAL_GAP);
 
         // render line
         g.drawLine(lineFromX, lineY, lineToX, lineY);
@@ -93,12 +91,12 @@ public final class RenderableInteraction {
     }
 
     private void renderInteractionMessage(Graphics g, int interactionFromXPosition, int interactionFromYPosition, int interactionToXPosition) {
-        if (this.interaction.getMessage() != null) {
-            boolean isRight = interactionFromXPosition < interactionToXPosition;
-            int messageWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(), this.interaction.getMessage());
-            int labelX = isRight ? interactionFromXPosition + LayoutHelper.RI_MESSAGE_X_PADDING : interactionFromXPosition - (messageWidth + LayoutHelper.RI_MESSAGE_X_PADDING);
-            g.drawString(this.interaction.getMessage(), labelX, interactionFromYPosition - LayoutHelper.RI_MESSAGE_X_PADDING);
-        }
+        this.interaction.getMessage().ifPresent(message -> {
+            boolean isRightFacing = interactionFromXPosition < interactionToXPosition;
+            int messageWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(), message);
+            int labelX = isRightFacing ? interactionFromXPosition + MESSAGE_PADDING : interactionFromXPosition - (messageWidth + MESSAGE_PADDING);
+            g.drawString(message, labelX, interactionFromYPosition - MESSAGE_PADDING);
+        });
     }
 
     @Override

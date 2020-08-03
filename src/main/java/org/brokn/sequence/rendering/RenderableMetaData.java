@@ -67,7 +67,7 @@ public class RenderableMetaData {
     }
 
     public int calculateHeaderHeight(Graphics g) {
-        int totalHeight = 20;
+        int totalHeight = LayoutHelper.RM_VERTICAL_GAP;
 
         //title
         if (this.model.getTitle() != null) {

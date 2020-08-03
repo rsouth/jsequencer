@@ -22,31 +22,23 @@ public final class LayoutHelper {
     private LayoutHelper() { }
 
     // Vertical gap between anything separated vertically (nodes/interactions/notes)
-    // taken from Canvas
     public static final int CANVAS_VERTICAL_GAP = 50;
 
-    // taken from RenderableInteraction
-    public static final int RI_ARROWHEAD_LENGTH = 10;
-    public static final int RI_MESSAGE_X_PADDING = 5;
-    // end taken from RenderablsInteraction
+    // RenderableInteraction
+    public static final int ARROWHEAD_LENGTH = 10;
+    public static final int MESSAGE_PADDING = 5;
 
-
-    // taken from RenderableMetadata
+    // RenderableMetadata
     public static final int RM_VERTICAL_GAP = 20;
-    // end taken from RenderableMetaData
-
 
     // New Constants
     public static final int DIAGRAM_PADDING = 10;
     public static final int HEADER_V_GAP = 5;
-    public static final int HEADER_BOTTOM_PADDING = 10;
 
+    // RenderableLane
     public static final int LANE_WIDTH = 150;
     public static final int LANE_GAP = 50;
     public static final int LANE_BOX_HEIGHT = 30;
-    public static final int LANE_BOX_MAX_WIDTH = 125; // ?
     public static final int LANE_BOX_PADDING = 20;
-
-    public static final int INTERACTION_V_GAP = 50;
 
 }
