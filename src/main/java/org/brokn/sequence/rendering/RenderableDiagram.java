@@ -22,11 +22,15 @@ import com.google.common.base.Objects;
 import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 import org.brokn.sequence.model.MetaData;
+import org.brokn.sequence.rendering.interaction.RenderableInteraction;
+import org.brokn.sequence.rendering.lane.RenderableLane;
 import org.brokn.sequence.rendering.utils.LayoutHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.brokn.sequence.rendering.interaction.RenderableInteractionFactory.create;
 
 public class RenderableDiagram {
 
@@ -103,7 +107,7 @@ public class RenderableDiagram {
     private void initRenderables() {
         this.renderableMetaData = new RenderableMetaData(metaData);
         this.lanes.forEach(lane -> renderableLanes.add(new RenderableLane(lane)));
-        this.interactions.forEach(interaction -> renderableInteractions.add(new RenderableInteraction(interaction)));
+        this.interactions.forEach(interaction -> renderableInteractions.add(create(interaction)));
     }
 
     @Override

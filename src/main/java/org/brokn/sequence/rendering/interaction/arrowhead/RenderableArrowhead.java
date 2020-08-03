@@ -15,12 +15,20 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.brokn.sequence.rendering;
+package org.brokn.sequence.rendering.interaction.arrowhead;
+
+import org.brokn.sequence.model.Interaction;
 
 import java.awt.*;
 
-public class RenderableHelpMessage {
-    public void draw(Graphics g) {
-        g.drawString("No model.", 10, 10);
+public abstract class RenderableArrowhead {
+
+    protected final Interaction interaction;
+
+    RenderableArrowhead(Interaction interaction) {
+        this.interaction = interaction;
     }
+
+    public abstract void draw(Graphics g, int lineEndX, int lineEndY);
+
 }

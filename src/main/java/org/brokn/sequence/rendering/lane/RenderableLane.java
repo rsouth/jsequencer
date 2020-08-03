@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.brokn.sequence.rendering;
+package org.brokn.sequence.rendering.lane;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
@@ -58,7 +58,6 @@ public class RenderableLane {
         int y1 = headerOffset + LANE_BOX_HEIGHT;
         int y2 = headerOffset + (totalInteractions * LayoutHelper.CANVAS_VERTICAL_GAP) + getVerticalLinePadding();
         g.drawLine((laneXPosition + LANE_WIDTH / 2), y1, (laneXPosition + LANE_WIDTH / 2), y2);
-
     }
 
     /**
