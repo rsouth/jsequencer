@@ -18,15 +18,19 @@
 package org.brokn.sequence.lexer.parser;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.google.common.flogger.FluentLogger;
 import org.brokn.sequence.model.Interaction;
 import org.brokn.sequence.model.Lane;
 
 import javax.annotation.Nonnull;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+
+import static org.brokn.sequence.lexer.parser.LaneParser.parseFromNodeName;
+import static org.brokn.sequence.lexer.parser.LaneParser.parseToNodeName;
 
 /**
  * Parse interactions between Lanes.
@@ -38,11 +42,7 @@ public class InteractionParser {
 
     static final String INTERACTION_TOKEN = "->";
 
-    static final String INTERACTION_REPLY_TOKEN = "-->";
-
     static final String INTERACTION_MESSAGE_TOKEN = ":";
-
-    private final List<String> tokens = Lists.newArrayList("-->>", "-->", "->>", "->");
 
     private final Splitter newLineSplitter = Splitter.on("\n");
 
@@ -55,31 +55,20 @@ public class InteractionParser {
             for (String line : lines) {
                 // lines with -> are 'interactions', but they may be ->, -->, ->> or -->>
                 if (line.contains(INTERACTION_TOKEN)) {
-                    Interaction.InteractionType type = Interaction.InteractionType.Message;
-                    String token = parseInteractionToken(line);
-                    if(token.contains("--")) {
-                        type = Interaction.InteractionType.Reply;
-                    }
+                    // parse interaction type
+                    EnumSet<Interaction.Modifiers> modifiers = parseInteractionType(line);
+                    String token = Interaction.formatToken(modifiers);
 
-                    String[] split = line.split(token);
-                    String fromNode = split[0].trim();
-                    String toNode = split[1].trim();
+                    // parse involved nodes
+                    String fromNode = parseFromNodeName(line, token);
+                    String toNode   = parseToNodeName(line, token);
 
                     // parse interaction message
-                    String message = null;
-                    try {
-                        if (toNode.contains(":")) {
-                            int messageStartIndex = toNode.indexOf(INTERACTION_MESSAGE_TOKEN);
-                            String tmp = toNode;
-                            toNode = tmp.substring(0, messageStartIndex).trim();
-                            message = tmp.substring(messageStartIndex + 1).trim();
-                        }
-                    } catch (IndexOutOfBoundsException ex) {
-                        logger.atWarning().log("Interaction message is incomplete, not parsing");
-                    }
+                    String message = parseInteractionMessage(line);
 
+                    // Create Interaction and add to list.
                     if(fromNode.length() > 0 && toNode.length() > 0) {
-                        interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount, type, !token.contains(">>")));
+                        interactions.add(new Interaction(laneByName(lanes, fromNode), laneByName(lanes, toNode), message, interactionCount, modifiers));
                         interactionCount++;
                         if(fromNode.equals(toNode)) {
                             // self-referential so increment interaction count one more time, for the interaction back to self
@@ -98,26 +87,49 @@ public class InteractionParser {
 
     }
 
-    /**
-     * I feel bad about this.
-     * @param line
-     * @return
-     */
-    public static String parseInteractionToken(String line) {
-        if(line.contains("-->>")) {
-            return "-->>";
-        } else if (line.contains("->>")) {
-            return "->>";
-        } else if(line.contains("-->")) {
-            return "-->";
-        } else {
-            return "->";
+    public static EnumSet<Interaction.Modifiers> parseInteractionType(String line) {
+        EnumSet<Interaction.Modifiers> modifiers = EnumSet.noneOf(Interaction.Modifiers.class);
+        int interactionTokenIndex = line.indexOf("->");
+
+        if((interactionTokenIndex - 1 >= 0) && line.charAt(interactionTokenIndex-1) == '-') {
+            modifiers.add(Interaction.Modifiers.REPLY);
         }
+
+        if((line.length() > interactionTokenIndex + 2) && line.charAt(interactionTokenIndex+2) == '>') {
+            modifiers.add(Interaction.Modifiers.ASYNC);
+        }
+
+        return modifiers;
+    }
+
+    private String parseInteractionMessage(String toNode) throws InteractionParsingException {
+        String message = null;
+        try {
+            if (toNode.contains(":")) {
+                int messageStartIndex = toNode.indexOf(INTERACTION_MESSAGE_TOKEN);
+                message = toNode.substring(messageStartIndex + 1).trim();
+            }
+        } catch (IndexOutOfBoundsException ex) {
+            final String error = MessageFormat.format("Interaction message is incomplete, not parsing message from {0}", toNode);
+            logger.atWarning().log(error);
+            throw new InteractionParsingException(error, ex);
+        }
+        return message;
     }
 
     private Lane laneByName(List<Lane> lanes, String name) {
         Optional<Lane> laneOptional = lanes.stream().filter(lane -> lane.getName().equals(name)).findFirst();
         return laneOptional.orElseThrow(() -> new IllegalStateException("LEXER :: Got interaction for unknown Lane [" + name + "]"));
+    }
+
+    static class InteractionParsingException extends Exception {
+        public InteractionParsingException(String message) {
+            super(message);
+        }
+
+        public InteractionParsingException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 
 }

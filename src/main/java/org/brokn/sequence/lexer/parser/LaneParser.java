@@ -19,18 +19,19 @@ package org.brokn.sequence.lexer.parser;
 
 import com.google.common.base.Splitter;
 import com.google.common.flogger.FluentLogger;
+import org.apache.commons.lang3.StringUtils;
 import org.brokn.sequence.model.Lane;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
-import static org.brokn.sequence.lexer.parser.InteractionParser.INTERACTION_MESSAGE_TOKEN;
-import static org.brokn.sequence.lexer.parser.InteractionParser.INTERACTION_TOKEN;
+import static org.brokn.sequence.lexer.parser.InteractionParser.*;
+import static org.brokn.sequence.model.Interaction.formatToken;
 
 /**
  * Parse unique Lanes from the input text.
@@ -42,11 +43,6 @@ public class LaneParser {
     private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
     private final Splitter lineSplitter = Splitter.onPattern("\n").omitEmptyStrings().trimResults();
-
-    private final Splitter interactionSplitter = on(InteractionParser.INTERACTION_TOKEN).omitEmptyStrings().trimResults();
-    private final Splitter interactionSplitter2 = on("-->").omitEmptyStrings().trimResults();
-
-    private final Splitter laneAndMessageSplitter = on(INTERACTION_MESSAGE_TOKEN).omitEmptyStrings().trimResults();
 
     public List<Lane> parse(final String input) {
         List<Lane> foundLanes = new ArrayList<>();
@@ -80,35 +76,50 @@ public class LaneParser {
         Set<String> laneNames = new LinkedHashSet<>();
 
         try {
-            if(isValid(line)) {
-                String token = InteractionParser.parseInteractionToken(line);
-                final Splitter is = on(token).omitEmptyStrings().trimResults();
-                List<String> lanesSplit = new ArrayList<>(is.splitToList(line));
+            if (isValid(line)) {
+                final String token = formatToken(parseInteractionType(line));
 
                 // 'from' lane is the first entry
-                if (lanesSplit.size() >= 1) {
-                    String fromNode = lanesSplit.get(0);
-                    laneNames.add(fromNode);
-                }
+                laneNames.add(parseFromNodeName(line, token));
 
                 // 'to' lane is the second entry, but any message (":msg") must be removed first
-                if (lanesSplit.size() == 2) {
-                    String secondPart = lanesSplit.get(1);
-                    List<String> toNodeAndMsg = laneAndMessageSplitter.splitToList(secondPart);
-                    if (toNodeAndMsg.size() >= 1) {
-                        laneNames.add(toNodeAndMsg.get(0));
-                    }
-                }
+                laneNames.add(parseToNodeName(line, token));
 
             }
-
-        } catch (ArrayIndexOutOfBoundsException | IllegalStateException ex) {
+        } catch (InteractionParsingException ex) {
             logger.atWarning().log("Exception thrown when parsing lane, parsed lane names [" + laneNames + "], message: " + ex.getMessage());
             return newArrayList(laneNames);
         }
 
         logger.atInfo().log("Parsed lane names: " + laneNames);
         return newArrayList(laneNames);
+    }
+
+    public static String parseFromNodeName(String line, String token) throws InteractionParsingException {
+        final List<String> strings = Splitter.on(token).trimResults().splitToList(line);
+        if(strings.size() == 0) {
+            String error = MessageFormat.format("Error parsing From node name from {0} with token {1}", line, token);
+            throw new InteractionParsingException(error);
+        }
+        return strings.get(0);
+    }
+
+    public static String parseToNodeName(String line, String token) throws InteractionParsingException {
+        final List<String> strings = Splitter.on(token).trimResults().splitToList(line);
+        if(strings.size() < 2) {
+            String error = MessageFormat.format("Error parsing To node name from {0} with token {1}", line, token);
+            throw new InteractionParsingException(error);
+        }
+
+        if(StringUtils.isEmpty(strings.get(1))) {
+            String error = MessageFormat.format("To node name is empty in line {0} with token {1}", line, token);
+            throw new InteractionParsingException(error);
+        }
+
+        if(strings.get(1).contains(":")) {
+            return strings.get(1).substring(0, strings.get(1).indexOf(":")).trim();
+        }
+        return strings.get(1).trim();
     }
 
     private boolean isValid(String line) {

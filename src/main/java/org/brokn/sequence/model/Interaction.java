@@ -19,6 +19,14 @@ package org.brokn.sequence.model;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
+import java.text.MessageFormat;
+import java.util.EnumSet;
+
+import static java.text.MessageFormat.format;
+import static org.brokn.sequence.model.Interaction.Modifiers.*;
 
 public class Interaction {
 
@@ -26,21 +34,21 @@ public class Interaction {
     private final Lane toLane;
     private final String message;
     private final int index;
-    private final InteractionType type;
-    private final boolean isSynchronous;
+    private final EnumSet<Modifiers> modifiers;
 
-    public enum InteractionType {
-        Message,
-        Reply
+    public enum Modifiers {
+        REPLY, ASYNC, SELFREF
     }
 
-    public Interaction(Lane fromLane, Lane toLane, String message, int index, InteractionType type, boolean isSynchronous) {
+    public Interaction(Lane fromLane, Lane toLane, String message, int index, EnumSet<Modifiers> modifiers) {
         this.fromLane = fromLane;
         this.toLane = toLane;
         this.message = message;
         this.index = index;
-        this.type = type;
-        this.isSynchronous = isSynchronous;
+        this.modifiers = modifiers;
+        if(fromLane.equals(toLane)) {
+            this.modifiers.add(SELFREF);
+        }
     }
 
     public Lane getFromLane() {
@@ -59,13 +67,12 @@ public class Interaction {
         return index;
     }
 
-    public InteractionType getInteractionType() {
-        return type;
+    public ImmutableSet<Modifiers> getModifiers() {
+        return Sets.immutableEnumSet(modifiers);
     }
 
-
-    public boolean isSynchronous() {
-        return isSynchronous;
+    public static String formatToken(EnumSet<Interaction.Modifiers> modifiers) {
+        return format("{0}{1}{2}",modifiers.contains(REPLY) ? "-" : "", "->", modifiers.contains(ASYNC) ? ">" : "");
     }
 
     @Override
@@ -74,16 +81,15 @@ public class Interaction {
         if (o == null || getClass() != o.getClass()) return false;
         Interaction that = (Interaction) o;
         return index == that.index &&
-                isSynchronous == that.isSynchronous &&
                 Objects.equal(fromLane, that.fromLane) &&
                 Objects.equal(toLane, that.toLane) &&
                 Objects.equal(message, that.message) &&
-                type == that.type;
+                Objects.equal(modifiers, that.modifiers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(fromLane, toLane, message, index, type, isSynchronous);
+        return Objects.hashCode(fromLane, toLane, message, index, modifiers);
     }
 
     @Override
@@ -93,8 +99,7 @@ public class Interaction {
                 .add("toLane", toLane)
                 .add("message", message)
                 .add("index", index)
-                .add("type", type)
-                .add("isSynchronous", isSynchronous)
+                .add("modifiers", modifiers)
                 .toString();
     }
 }

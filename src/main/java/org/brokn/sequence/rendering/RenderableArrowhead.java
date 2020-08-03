@@ -29,16 +29,14 @@ public final class RenderableArrowhead {
     public static void draw(Graphics g, Interaction interaction, int lineEndX, int lineEndY) {
         int fromLaneIndex = interaction.getFromLane().getIndex();
         int toLaneIndex = interaction.getToLane().getIndex();
-        boolean isSync = interaction.isSynchronous();
-        // solid == sync, open == async
-
 
         boolean isPointingRight = fromLaneIndex < toLaneIndex;
         if (isPointingRight) {
             // draw >
             g.drawLine(lineEndX - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
             g.drawLine(lineEndX - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-            if(isSync) {
+            if(!interaction.getModifiers().contains(Interaction.Modifiers.ASYNC)) {
+                // solid == sync, open == async
                 g.fillPolygon(
                         new int[]{lineEndX - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndX - LayoutHelper.RI_ARROWHEAD_LENGTH},
                         new int[]{lineEndY - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY, lineEndY + LayoutHelper.RI_ARROWHEAD_LENGTH},
@@ -48,7 +46,8 @@ public final class RenderableArrowhead {
             // draw <
             g.drawLine(lineEndX + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
             g.drawLine(lineEndX + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndY);
-            if(isSync) {
+            if(!interaction.getModifiers().contains(Interaction.Modifiers.ASYNC)) {
+                // solid == sync, open == async
                 g.fillPolygon(
                         new int[]{lineEndX + LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndX, lineEndX + LayoutHelper.RI_ARROWHEAD_LENGTH},
                         new int[]{lineEndY - LayoutHelper.RI_ARROWHEAD_LENGTH, lineEndY, lineEndY + LayoutHelper.RI_ARROWHEAD_LENGTH},

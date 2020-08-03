@@ -19,6 +19,7 @@ package org.brokn.sequence.lexer.parser;
 
 import com.google.common.collect.Lists;
 import org.brokn.sequence.model.Interaction;
+import org.brokn.sequence.model.Interaction.Modifiers;
 import org.brokn.sequence.model.Lane;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,8 +84,9 @@ class InteractionParserTest {
         assertEquals("Client", parsed.get(0).getFromLane().getName());
         assertEquals("Client", parsed.get(0).getToLane().getName());
         assertEquals("Thinks", parsed.get(0).getMessage());
-        assertSame(Interaction.InteractionType.Reply, parsed.get(0).getInteractionType());
-        assertTrue(parsed.get(0).isSynchronous());
+        assertTrue(parsed.get(0).getModifiers().contains(Modifiers.REPLY));
+        assertFalse(parsed.get(0).getModifiers().contains(Modifiers.ASYNC));
+        assertTrue(parsed.get(0).getModifiers().contains(Modifiers.SELFREF));
 
         // second interaction index should be 2 because self-referential interactions count as 2
         // i.e. index=1 was the 'return' leg of the self-referential interaction
@@ -92,8 +94,9 @@ class InteractionParserTest {
         assertEquals("Client", parsed.get(1).getFromLane().getName());
         assertEquals("Server", parsed.get(1).getToLane().getName());
         assertEquals("Request", parsed.get(1).getMessage());
-        assertSame(Interaction.InteractionType.Message, parsed.get(1).getInteractionType());
-        assertFalse(parsed.get(1).isSynchronous());
+        assertFalse(parsed.get(1).getModifiers().contains(Modifiers.REPLY));
+        assertTrue(parsed.get(1).getModifiers().contains(Modifiers.ASYNC));
+        assertFalse(parsed.get(1).getModifiers().contains(Modifiers.SELFREF));
     }
 
     @Test
@@ -101,7 +104,9 @@ class InteractionParserTest {
         ArrayList<Lane> lanes = Lists.newArrayList(new Lane(0, "Client"), new Lane(1, "Server"));
         List<Interaction> parsed = this.interactionParser.parse(lanes, " Client ->> Server");
         assertEquals(1, parsed.size());
-        assertFalse(parsed.get(0).isSynchronous());
+        assertFalse(parsed.get(0).getModifiers().contains(Modifiers.REPLY));
+        assertTrue(parsed.get(0).getModifiers().contains(Modifiers.ASYNC));
+        assertFalse(parsed.get(0).getModifiers().contains(Modifiers.SELFREF));
     }
 
     @Test
@@ -109,12 +114,15 @@ class InteractionParserTest {
         ArrayList<Lane> lanes = Lists.newArrayList(new Lane(0, "Client"), new Lane(1, "Server"));
         List<Interaction> parsed = this.interactionParser.parse(lanes, " Client -> Server");
         assertEquals(1, parsed.size());
-        assertTrue(parsed.get(0).isSynchronous());
+        assertFalse(parsed.get(0).getModifiers().contains(Modifiers.ASYNC));
+        assertFalse(parsed.get(0).getModifiers().contains(Modifiers.REPLY));
+        assertFalse(parsed.get(0).getModifiers().contains(Modifiers.SELFREF));
 
-        parsed = this.interactionParser.parse(lanes, " Client-->>   Server");
+        parsed = this.interactionParser.parse(lanes, " Client-->   Server");
         assertEquals(1, parsed.size());
-        assertFalse(parsed.get(0).isSynchronous());
-        assertSame(Interaction.InteractionType.Reply, parsed.get(0).getInteractionType());
+        assertTrue(parsed.get(0).getModifiers().contains(Modifiers.REPLY));
+        assertFalse(parsed.get(0).getModifiers().contains(Modifiers.ASYNC));
+        assertFalse(parsed.get(0).getModifiers().contains(Modifiers.SELFREF));
     }
 
     @Test
@@ -122,12 +130,12 @@ class InteractionParserTest {
         ArrayList<Lane> lanes = Lists.newArrayList(new Lane(0, "Client"), new Lane(1, "Server"));
         List<Interaction> parsed = this.interactionParser.parse(lanes, " Client --> Server");
         assertEquals(1, parsed.size());
-        assertSame(Interaction.InteractionType.Reply, parsed.get(0).getInteractionType());
+        assertTrue(parsed.get(0).getModifiers().contains(Modifiers.REPLY));
 
         parsed = this.interactionParser.parse(lanes, " Client-->>   Server");
         assertEquals(1, parsed.size());
-        assertFalse(parsed.get(0).isSynchronous());
-        assertSame(Interaction.InteractionType.Reply, parsed.get(0).getInteractionType());
+        assertTrue(parsed.get(0).getModifiers().contains(Modifiers.REPLY));
+        assertTrue(parsed.get(0).getModifiers().contains(Modifiers.ASYNC));
     }
 
 }

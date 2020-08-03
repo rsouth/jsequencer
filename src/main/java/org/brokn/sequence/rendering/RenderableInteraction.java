@@ -35,15 +35,14 @@ public final class RenderableInteraction {
     }
 
     public void draw(Graphics g, int verticalOffset) {
-        boolean isSelfReferential = this.interaction.getFromLane().equals(this.interaction.getToLane());
-
         Graphics2D g2d = (Graphics2D) g.create();
-        if(Interaction.InteractionType.Reply == this.interaction.getInteractionType()) {
+
+        if(this.interaction.getModifiers().contains(Interaction.Modifiers.REPLY)) {
             Stroke dashed = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{5}, 0);
             g2d.setStroke(dashed);
         }
 
-        if (isSelfReferential) {
+        if (this.interaction.getModifiers().contains(Interaction.Modifiers.SELFREF)) {
             drawSelfReferentialInteraction(g2d, verticalOffset);
         } else {
             drawPointToPointInteraction(g2d, verticalOffset);
