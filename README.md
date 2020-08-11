@@ -9,6 +9,15 @@
   </p>
 </div>
 
+<p align="center">
+  <a href="#what-is-sequencer">Highlights</a> •
+  <a href="#simple-to-get-started">Get Started</a> •
+  <a href="#download">Download</a> •
+  <a href="#contributing">Contributing</a> •
+  <a href="#credits--attributions">Credits</a> •
+  <a href="#license">License</a>
+</p>
+
 ## What is sequencer?
 Sequencer allows you to create **simple and clear sequence diagrams**, based on a simple grammar. Your diagram is **drawn in real-time** as you type, and is designed to be:
  - easy to **edit**
@@ -18,15 +27,14 @@ Sequencer allows you to create **simple and clear sequence diagrams**, based on 
 ## Simple to get started
 
 #### Describe your sequence
-`Client -> Server: Request`
 
-`Server -> Server: Parses request`
-
-`Server -> Service: Query`
-
-`Service -> Server: Data`
-
-`Server -> Client: Response`
+```
+Client -> Server: Request
+Server -> Server: Parses request
+Server -> Service: Query
+Service -> Server: Data
+Server -> Client: Response
+```
 
 #### Your diagram is ready to go
 
@@ -41,6 +49,11 @@ See the [wiki](https://github.com/rsouth/jsequencer/wiki) for the current gramma
     <img src="https://s7.gifyu.com/images/sequence-gizmo-6.gif" alt="sequence-gizmo-6.gif" border="0" />
   </p>
 </div>
+
+## Download
+
+Coming soon :cherries:
+
 
 ## Contributing
 **Pull requests are welcome**. For major changes, please open an issue first to discuss what you would like to change.
