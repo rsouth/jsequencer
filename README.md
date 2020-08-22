@@ -3,5 +3,5 @@
 </div>
 
 <p align="center">
-  <a href="http://github.com/rsouth/sequencer">jSequencer is deprecated; see Sequencer for continuation of the project</a>
+  jSequencer is deprecated; see <a href="http://github.com/rsouth/sequencer">Sequencer</a> for continuation of the project
 </p>
